@@ -4,92 +4,217 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#5b21b6">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Simulado">
+<meta name="application-name" content="Simulado">
 <meta property="og:title" content="Simulado — Estude. Pratique. Evolua.">
-<meta property="og:description" content="Crie simulados personalizados com IA para qualquer matéria!">
+<meta property="og:description" content="Simulados personalizados com IA para estudantes!">
 <meta property="og:image" content="logo.png">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="logo.png">
+<link rel="icon" type="image/png" href="logo.png">
 <title>Simulado — Estude. Pratique. Evolua.</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --azul: #1a73e8; --azul-claro: #e8f0fe;
-    --verde: #059669; --verde-claro: #f0fdf4;
-    --amarelo: #d97706; --amarelo-claro: #fffbeb;
-    --vermelho: #dc2626; --vermelho-claro: #fff1f2;
-    --roxo: #5b21b6; --roxo2: #7c3aed; --roxo-claro: #ede9fe;
-    --cinza: #6b7280; --cinza-claro: #f9fafb;
-    --branco: #ffffff;
-    --sombra: 0 4px 20px rgba(91,33,182,0.13);
-    --raio: 20px; --raio-sm: 12px;
+    --azul:#1a73e8; --azul-claro:#e8f0fe;
+    --verde:#059669; --verde-claro:#f0fdf4;
+    --amarelo:#d97706; --amarelo-claro:#fffbeb;
+    --vermelho:#dc2626; --vermelho-claro:#fff1f2;
+    --roxo:#5b21b6; --roxo2:#7c3aed; --roxo-claro:#ede9fe;
+    --cinza:#6b7280; --cinza-claro:#f9fafb;
+    --branco:#ffffff;
+    --sombra:0 4px 20px rgba(91,33,182,0.13);
+    --raio:20px; --raio-sm:12px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
   body {
-    font-family: 'Nunito', sans-serif;
-    background: linear-gradient(160deg, #4f46e5 0%, #7c3aed 55%, #a855f7 100%);
-    min-height: 100vh;
-    padding: 16px 16px 36px;
-    -webkit-tap-highlight-color: transparent;
+    font-family:'Nunito',sans-serif;
+    background:linear-gradient(160deg,#4f46e5 0%,#7c3aed 55%,#a855f7 100%);
+    min-height:100vh;
+    padding:16px 16px 36px;
+    -webkit-tap-highlight-color:transparent;
   }
-  .tela { display: none; max-width: 500px; margin: 0 auto; animation: fadeUp .35s ease; }
-  .tela.ativa { display: block; }
+
+  /* ═══ BANNER DE INSTALAÇÃO ═══ */
+  #banner-instalar {
+    position:fixed; bottom:0; left:0; right:0; z-index:9999;
+    background:white;
+    border-radius:24px 24px 0 0;
+    box-shadow:0 -8px 40px rgba(91,33,182,0.22);
+    padding:20px 20px 32px;
+    transform:translateY(110%);
+    transition:transform .45s cubic-bezier(.34,1.56,.64,1);
+    max-width:520px;
+    margin:0 auto;
+  }
+  #banner-instalar.visivel { transform:translateY(0); }
+
+  .banner-handle {
+    width:40px; height:4px;
+    background:#e5e7eb;
+    border-radius:2px;
+    margin:0 auto 18px;
+  }
+  .banner-conteudo {
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:16px;
+  }
+  .banner-logo {
+    width:64px; height:64px;
+    border-radius:16px;
+    object-fit:contain;
+    background:var(--roxo-claro);
+    flex-shrink:0;
+    box-shadow:0 4px 14px rgba(91,33,182,.2);
+  }
+  .banner-info { flex:1; }
+  .banner-titulo {
+    font-family:'Baloo 2',cursive;
+    font-size:1.1rem;
+    font-weight:800;
+    color:#1f2937;
+    margin-bottom:2px;
+  }
+  .banner-desc {
+    font-size:.82rem;
+    font-weight:600;
+    color:#6b7280;
+    line-height:1.4;
+  }
+  .banner-botoes {
+    display:flex;
+    gap:10px;
+  }
+  .btn-instalar-banner {
+    flex:1;
+    padding:13px;
+    border:none;
+    border-radius:var(--raio-sm);
+    background:linear-gradient(135deg,#5b21b6,#7c3aed);
+    color:white;
+    font-family:'Baloo 2',cursive;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 4px 14px rgba(91,33,182,.3);
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    transition:transform .15s,opacity .15s;
+  }
+  .btn-instalar-banner:active { transform:scale(.97); }
+  .btn-depois {
+    padding:13px 16px;
+    border:2px solid #e5e7eb;
+    border-radius:var(--raio-sm);
+    background:#f9fafb;
+    color:#6b7280;
+    font-family:'Baloo 2',cursive;
+    font-size:.95rem;
+    font-weight:800;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:transform .15s;
+  }
+  .btn-depois:active { transform:scale(.97); }
+
+  /* OVERLAY escurecimento atrás do banner */
+  #overlay-banner {
+    display:none;
+    position:fixed; inset:0; z-index:9998;
+    background:rgba(0,0,0,.35);
+    backdrop-filter:blur(2px);
+  }
+  #overlay-banner.visivel { display:block; }
+
+  /* ═══ BANNER IOS (instrução manual) ═══ */
+  #banner-ios {
+    position:fixed; bottom:0; left:0; right:0; z-index:9999;
+    background:white;
+    border-radius:24px 24px 0 0;
+    box-shadow:0 -8px 40px rgba(91,33,182,.22);
+    padding:20px 20px 36px;
+    transform:translateY(110%);
+    transition:transform .45s cubic-bezier(.34,1.56,.64,1);
+  }
+  #banner-ios.visivel { transform:translateY(0); }
+  .ios-step {
+    display:flex; align-items:center; gap:12px;
+    padding:10px 0; border-bottom:1px dashed #f3f4f6;
+    font-size:.9rem; font-weight:700; color:#374151;
+  }
+  .ios-step:last-of-type { border-bottom:none; }
+  .ios-icon { font-size:1.5rem; flex-shrink:0; }
+  .ios-seta {
+    position:absolute; bottom:100%; left:50%;
+    transform:translateX(-50%);
+    width:0; height:0;
+    border-left:12px solid transparent;
+    border-right:12px solid transparent;
+    border-top:12px solid white;
+  }
+
+  /* TELA */
+  .tela { display:none; max-width:500px; margin:0 auto; animation:fadeUp .35s ease; }
+  .tela.ativa { display:block; }
   @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
 
-  /* CARD */
-  .card { background: var(--branco); border-radius: var(--raio); padding: 22px; box-shadow: var(--sombra); margin-bottom: 14px; }
+  .card { background:white; border-radius:var(--raio); padding:22px; box-shadow:var(--sombra); margin-bottom:14px; }
 
   /* HEADER */
-  .app-header { text-align: center; padding: 20px 0 10px; }
-  .logo-img {
-    width: 108px; height: 108px;
-    border-radius: 26px;
-    object-fit: contain;
-    background: white;
-    box-shadow: 0 8px 32px rgba(0,0,0,.22);
-    display: block; margin: 0 auto 10px;
-  }
-  .app-tagline { font-family:'Baloo 2',cursive; font-size:.8rem; font-weight:700; color:rgba(255,255,255,.7); letter-spacing:2px; text-transform:uppercase; }
-  .app-subtitulo { color:rgba(255,255,255,.88); font-size:.92rem; margin-top:5px; font-weight:600; }
+  .app-header { text-align:center; padding:20px 0 10px; }
+  .logo-img { width:108px;height:108px;border-radius:26px;object-fit:contain;background:white;box-shadow:0 8px 32px rgba(0,0,0,.22);display:block;margin:0 auto 10px; }
+  .app-tagline { font-family:'Baloo 2',cursive;font-size:.8rem;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:2px;text-transform:uppercase; }
+  .app-subtitulo { color:rgba(255,255,255,.88);font-size:.92rem;margin-top:5px;font-weight:600; }
 
-  /* SEÇÃO */
-  .secao-titulo { font-family:'Baloo 2',cursive; font-size:1.22rem; font-weight:800; color:var(--roxo); margin-bottom:15px; display:flex; align-items:center; gap:8px; }
-  .secao-titulo .ic { width:32px;height:32px;border-radius:50%;background:var(--roxo-claro);display:flex;align-items:center;justify-content:center;font-size:.9rem; }
+  /* BOTÃO INSTALAR FLUTUANTE (para quem fechou o banner) */
+  #fab-instalar {
+    position:fixed; bottom:22px; right:20px; z-index:1000;
+    background:linear-gradient(135deg,#5b21b6,#7c3aed);
+    color:white; border:none; border-radius:50px;
+    padding:12px 18px;
+    font-family:'Baloo 2',cursive; font-weight:800; font-size:.92rem;
+    cursor:pointer;
+    box-shadow:0 6px 22px rgba(91,33,182,.4);
+    display:none; align-items:center; gap:8px;
+    animation:pulso 2s ease-in-out infinite;
+    transition:transform .15s;
+  }
+  #fab-instalar:active { transform:scale(.95); }
+  @keyframes pulso {
+    0%,100% { box-shadow:0 6px 22px rgba(91,33,182,.4); }
+    50% { box-shadow:0 6px 32px rgba(91,33,182,.7); }
+  }
 
   /* FORM */
+  .secao-titulo { font-family:'Baloo 2',cursive;font-size:1.22rem;font-weight:800;color:var(--roxo);margin-bottom:15px;display:flex;align-items:center;gap:8px; }
+  .secao-titulo .ic { width:32px;height:32px;border-radius:50%;background:var(--roxo-claro);display:flex;align-items:center;justify-content:center;font-size:.9rem; }
   .campo { margin-bottom:13px; }
   label { display:block;font-weight:700;font-size:.78rem;color:var(--cinza);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px; }
-  input[type="text"], input[type="number"], select, textarea {
-    width:100%; border:2px solid #e5e7eb; border-radius:var(--raio-sm);
-    padding:12px 14px; font-family:'Nunito',sans-serif; font-size:1rem;
-    font-weight:600; color:#1f2937; background:#f9fafb; outline:none;
-    transition:border-color .2s, background .2s, box-shadow .2s; -webkit-appearance:none;
+  input[type="text"],input[type="number"],select,textarea {
+    width:100%;border:2px solid #e5e7eb;border-radius:var(--raio-sm);
+    padding:12px 14px;font-family:'Nunito',sans-serif;font-size:1rem;
+    font-weight:600;color:#1f2937;background:#f9fafb;outline:none;
+    transition:border-color .2s,background .2s,box-shadow .2s;-webkit-appearance:none;
   }
-  input:focus,select:focus,textarea:focus { border-color:var(--roxo2); background:white; box-shadow:0 0 0 3px rgba(124,58,237,.1); }
-  textarea { resize:vertical; min-height:78px; }
+  input:focus,select:focus,textarea:focus { border-color:var(--roxo2);background:white;box-shadow:0 0 0 3px rgba(124,58,237,.1); }
+  textarea { resize:vertical;min-height:78px; }
 
-  /* BOTÕES */
-  .btn {
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    width:100%; padding:15px; border:none; border-radius:var(--raio-sm);
-    font-family:'Baloo 2',cursive; font-size:1.07rem; font-weight:800;
-    cursor:pointer; letter-spacing:.3px;
-    transition:transform .15s,box-shadow .15s,opacity .15s;
-    text-decoration:none; margin-bottom:0;
-  }
-  .btn:active { transform:scale(.97); opacity:.9; }
-  .btn-primario { background:linear-gradient(135deg,#5b21b6,#7c3aed); color:white; box-shadow:0 4px 16px rgba(91,33,182,.35); }
-  .btn-sucesso  { background:linear-gradient(135deg,#059669,#34a853); color:white; box-shadow:0 4px 16px rgba(5,150,105,.3); }
-  .btn-azul     { background:linear-gradient(135deg,#1a73e8,#0d47a1); color:white; box-shadow:0 4px 16px rgba(26,115,232,.3); }
-  .btn-wpp      { background:linear-gradient(135deg,#25d366,#128c7e); color:white; box-shadow:0 4px 16px rgba(37,211,102,.3); }
-  .btn-secundario { background:#f3f4f6; color:#374151; border:2px solid #e5e7eb; }
-  .btn-outline  { background:transparent; color:white; border:2px solid rgba(255,255,255,.5); }
-  .gap-btn      { height:8px; }
+  .btn { display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border:none;border-radius:var(--raio-sm);font-family:'Baloo 2',cursive;font-size:1.07rem;font-weight:800;cursor:pointer;letter-spacing:.3px;transition:transform .15s,opacity .15s;margin-bottom:0; }
+  .btn:active { transform:scale(.97); }
+  .btn-primario { background:linear-gradient(135deg,#5b21b6,#7c3aed);color:white;box-shadow:0 4px 16px rgba(91,33,182,.35); }
+  .btn-sucesso  { background:linear-gradient(135deg,#059669,#34a853);color:white;box-shadow:0 4px 16px rgba(5,150,105,.3); }
+  .btn-azul     { background:linear-gradient(135deg,#1a73e8,#0d47a1);color:white;box-shadow:0 4px 16px rgba(26,115,232,.3); }
+  .btn-wpp      { background:linear-gradient(135deg,#25d366,#128c7e);color:white;box-shadow:0 4px 16px rgba(37,211,102,.3); }
+  .btn-secundario { background:#f3f4f6;color:#374151;border:2px solid #e5e7eb; }
+  .btn-outline  { background:transparent;color:white;border:2px solid rgba(255,255,255,.5); }
+  .gap { height:8px; }
 
   /* LOADING */
-  .ia-loader { text-align:center; padding:40px 16px; }
+  .ia-loader { text-align:center;padding:40px 16px; }
   .spinner-wrap { position:relative;width:70px;height:70px;margin:0 auto 20px; }
   .spinner { width:70px;height:70px;border:5px solid #ede9fe;border-top-color:var(--roxo2);border-radius:50%;animation:spin 1s linear infinite; }
   .spinner-logo { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:10px;object-fit:contain;background:white; }
@@ -106,16 +231,9 @@
   .barra-prog-wrap { background:#ede9fe;border-radius:20px;height:7px;margin-bottom:15px;overflow:hidden; }
   .barra-prog-fill { height:100%;border-radius:20px;background:linear-gradient(90deg,#5b21b6,#a855f7);transition:width .5s cubic-bezier(.4,0,.2,1); }
 
-  /* ALTERNATIVAS */
   .alternativas { list-style:none; }
   .alternativas li { margin-bottom:9px; }
-  .alt-btn {
-    display:flex;align-items:flex-start;gap:11px;width:100%;
-    padding:12px 14px;border:2px solid #e5e7eb;border-radius:var(--raio-sm);
-    background:#f9fafb;font-family:'Nunito',sans-serif;font-size:.92rem;
-    font-weight:600;color:#374151;cursor:pointer;text-align:left;
-    transition:all .18s;line-height:1.45;
-  }
+  .alt-btn { display:flex;align-items:flex-start;gap:11px;width:100%;padding:12px 14px;border:2px solid #e5e7eb;border-radius:var(--raio-sm);background:#f9fafb;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:600;color:#374151;cursor:pointer;text-align:left;transition:all .18s;line-height:1.45; }
   .alt-letra { min-width:27px;height:27px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.82rem;color:#6b7280;transition:all .18s;flex-shrink:0; }
   .alt-btn:hover { border-color:var(--roxo2);background:var(--roxo-claro); }
   .alt-btn:hover .alt-letra { background:var(--roxo2);color:white; }
@@ -154,7 +272,7 @@
   .emoji-grande { font-size:2.8rem;display:block;text-align:center;animation:bounce .75s ease infinite alternate;margin-bottom:8px; }
   @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-10px)} }
 
-  /* ═══ TELA COMPARTILHAR ═══ */
+  /* COMPARTILHAR */
   .share-titulo { font-family:'Baloo 2',cursive;font-size:1.65rem;font-weight:800;background:linear-gradient(135deg,#5b21b6,#7c3aed,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:2px; }
   .share-sub { text-align:center;font-size:.8rem;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:18px;letter-spacing:2px;text-transform:uppercase; }
   .link-box { background:#f3f4f6;border:2px solid #e5e7eb;border-radius:var(--raio-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px; }
@@ -173,16 +291,14 @@
   .badge-ic { font-size:1.45rem;display:block;margin-bottom:3px; }
   .badge-tx { font-size:.74rem;font-weight:700;color:#374151; }
 
-  /* FAB */
-  .fab { position:fixed;bottom:22px;right:20px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#5b21b6,#7c3aed);color:white;border:none;font-size:1.4rem;cursor:pointer;box-shadow:0 6px 20px rgba(91,33,182,.4);display:flex;align-items:center;justify-content:center;z-index:100;transition:transform .2s; }
-  .fab:active { transform:scale(.9); }
+  .fab-share { position:fixed;bottom:22px;right:20px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#5b21b6,#7c3aed);color:white;border:none;font-size:1.35rem;cursor:pointer;box-shadow:0 6px 20px rgba(91,33,182,.4);display:flex;align-items:center;justify-content:center;z-index:900;transition:transform .2s; }
+  .fab-share:active { transform:scale(.9); }
 
-  /* PRINT */
   @media print {
-    body { background:white !important; padding:0; }
-    .btn,.no-print,.fab { display:none !important; }
+    body { background:white !important;padding:0; }
+    .btn,.no-print,#banner-instalar,#banner-ios,#overlay-banner,#fab-instalar,.fab-share { display:none !important; }
     .tela { display:none !important; }
-    #tela-resultado { display:block !important; max-width:100%; }
+    #tela-resultado { display:block !important;max-width:100%; }
     .card { box-shadow:none;border:1px solid #e5e7eb;margin-bottom:10px; }
     .nota-circulo,.gabarito-item { -webkit-print-color-adjust:exact;print-color-adjust:exact; }
     .app-header { display:none; }
@@ -192,15 +308,56 @@
 </head>
 <body>
 
-<!-- FAB Compartilhar -->
-<button class="fab no-print" onclick="irPara('tela-compartilhar')" title="Compartilhar">🔗</button>
+<!-- ════════════════════════════════════
+     BANNER INSTALAÇÃO — Android / Desktop
+════════════════════════════════════ -->
+<div id="overlay-banner" onclick="fecharBanner()"></div>
 
-<!-- ══════════════════ TELA INÍCIO ══════════════════ -->
+<div id="banner-instalar">
+  <div class="banner-handle"></div>
+  <div class="banner-conteudo">
+    <img src="logo.png" class="banner-logo" alt="Simulado" onerror="this.style.background='#ede9fe';this.style.fontSize='2rem'">
+    <div class="banner-info">
+      <div class="banner-titulo">📚 Instalar Simulado</div>
+      <div class="banner-desc">Adicione à tela inicial e acesse como um app — sem precisar da loja!</div>
+    </div>
+  </div>
+  <div class="banner-botoes">
+    <button class="btn-instalar-banner" id="btn-instalar-pwa" onclick="instalarPWA()">
+      ⬇️ Instalar App
+    </button>
+    <button class="btn-depois" onclick="fecharBanner()">Depois</button>
+  </div>
+</div>
+
+<!-- BANNER iOS — instrução manual -->
+<div id="banner-ios">
+  <div class="banner-handle"></div>
+  <div style="margin-bottom:14px">
+    <div class="banner-titulo" style="font-family:'Baloo 2',cursive;font-size:1.05rem;font-weight:800;color:#1f2937;margin-bottom:4px">📱 Instalar no iPhone / iPad</div>
+    <div style="font-size:.82rem;color:#6b7280;font-weight:600">Siga os passos abaixo para adicionar à tela inicial:</div>
+  </div>
+  <div class="ios-step"><span class="ios-icon">1️⃣</span><span>Toque no botão <strong>Compartilhar</strong> <strong>⬆️</strong> na barra inferior do Safari</span></div>
+  <div class="ios-step"><span class="ios-icon">2️⃣</span><span>Role a lista e toque em <strong>"Adicionar à Tela de Início"</strong></span></div>
+  <div class="ios-step"><span class="ios-icon">3️⃣</span><span>Toque em <strong>Adicionar</strong> — o ícone aparece na tela! 🎉</span></div>
+  <div style="height:12px"></div>
+  <button class="btn-depois" style="width:100%;padding:13px;border-radius:12px" onclick="fecharBannerIos()">Entendido ✓</button>
+</div>
+
+<!-- FAB Instalar (aparece depois de fechar banner) -->
+<button id="fab-instalar" onclick="mostrarBannerCorreto()">
+  ⬇️ Instalar
+</button>
+
+<!-- FAB Compartilhar -->
+<button class="fab-share no-print" onclick="irPara('tela-compartilhar')" title="Compartilhar">🔗</button>
+
+<!-- ══════════ TELA INÍCIO ══════════ -->
 <div id="tela-inicio" class="tela ativa">
   <div class="app-header">
     <img src="logo.png" class="logo-img" alt="Simulado"
-         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-    <div style="display:none;width:108px;height:108px;border-radius:26px;background:white;box-shadow:0 8px 32px rgba(0,0,0,.22);align-items:center;justify-content:center;font-size:3rem;margin:0 auto 10px">📝</div>
+         onerror="this.style.display='none';document.getElementById('logo-emoji').style.display='flex'">
+    <div id="logo-emoji" style="display:none;width:108px;height:108px;border-radius:26px;background:white;box-shadow:0 8px 32px rgba(0,0,0,.22);align-items:center;justify-content:center;font-size:3rem;margin:0 auto 10px">📝</div>
     <div class="app-tagline">Estude · Pratique · Evolua</div>
     <div class="app-subtitulo">Simulados personalizados com Inteligência Artificial ✨</div>
   </div>
@@ -265,12 +422,12 @@
   </div>
 
   <button class="btn btn-primario" onclick="iniciarSimulado()">🚀 Gerar Simulado com IA</button>
-  <div class="gap-btn"></div>
+  <div class="gap"></div>
   <button class="btn btn-outline" onclick="irPara('tela-compartilhar')">🔗 Compartilhar / Instalar App</button>
   <div style="height:28px"></div>
 </div>
 
-<!-- ══════════════════ TELA CARREGANDO ══════════════════ -->
+<!-- ══════════ TELA CARREGANDO ══════════ -->
 <div id="tela-carregando" class="tela">
   <div style="height:90px"></div>
   <div class="card ia-loader">
@@ -284,7 +441,7 @@
   </div>
 </div>
 
-<!-- ══════════════════ TELA SIMULADO ══════════════════ -->
+<!-- ══════════ TELA SIMULADO ══════════ -->
 <div id="tela-simulado" class="tela">
   <div class="app-header">
     <img src="logo.png" style="width:60px;height:60px;border-radius:16px;object-fit:contain;background:white;box-shadow:0 4px 16px rgba(0,0,0,.2);display:block;margin:0 auto 8px" alt="" onerror="this.style.display='none'">
@@ -302,11 +459,11 @@
     <div class="obs-box" id="obs-box"></div>
   </div>
   <button class="btn btn-primario" id="btn-proxima" onclick="proximaQuestao()" style="display:none">Próxima →</button>
-  <button class="btn btn-sucesso" id="btn-finalizar" onclick="finalizarSimulado()" style="display:none">✅ Ver Resultado</button>
+  <button class="btn btn-sucesso"  id="btn-finalizar" onclick="finalizarSimulado()" style="display:none">✅ Ver Resultado</button>
   <div style="height:28px"></div>
 </div>
 
-<!-- ══════════════════ TELA RESULTADO ══════════════════ -->
+<!-- ══════════ TELA RESULTADO ══════════ -->
 <div id="tela-resultado" class="tela">
   <div class="app-header no-print">
     <img src="logo.png" style="width:72px;height:72px;border-radius:18px;object-fit:contain;background:white;box-shadow:0 4px 16px rgba(0,0,0,.2);display:block;margin:0 auto 8px" alt="" onerror="this.style.display='none'">
@@ -329,81 +486,66 @@
     <div id="gabarito-completo"></div>
   </div>
   <button class="btn btn-azul no-print" onclick="imprimirResultado()">🖨️ Exportar / Imprimir PDF</button>
-  <div class="gap-btn"></div>
+  <div class="gap"></div>
   <button class="btn btn-secundario no-print" onclick="novoSimulado()">🔄 Novo Simulado</button>
   <div style="height:28px"></div>
 </div>
 
-<!-- ══════════════════ TELA COMPARTILHAR ══════════════════ -->
+<!-- ══════════ TELA COMPARTILHAR ══════════ -->
 <div id="tela-compartilhar" class="tela">
   <div class="app-header">
-    <img src="logo.png" class="logo-img" alt="Simulado" style="width:100px;height:100px"
-         onerror="this.style.display='none'">
+    <img src="logo.png" class="logo-img" alt="Simulado" style="width:100px;height:100px" onerror="this.style.display='none'">
     <div class="share-titulo">Simulado</div>
     <div class="share-sub">Estude · Pratique · Evolua</div>
   </div>
 
+  <!-- INSTALAR -->
+  <div class="card">
+    <div class="secao-titulo"><div class="ic">📲</div>Instalar como App</div>
+    <button class="btn btn-primario" id="btn-instalar-main" onclick="mostrarBannerCorreto()" style="margin-bottom:10px">
+      ⬇️ Instalar na Tela Inicial
+    </button>
+    <p style="font-size:.8rem;font-weight:600;color:#9ca3af;text-align:center">
+      Funciona no Android (Chrome) e iPhone (Safari)
+    </p>
+  </div>
+
   <!-- LINK -->
   <div class="card">
-    <div class="secao-titulo"><div class="ic">🔗</div>Link do App</div>
+    <div class="secao-titulo"><div class="ic">🔗</div>Compartilhar Link</div>
     <div class="link-box">
       <span class="link-url" id="link-url-texto">Carregando...</span>
       <button class="copy-btn" id="btn-copiar" onclick="copiarLink()">📋 Copiar</button>
     </div>
     <button class="btn btn-wpp" onclick="compartilharWhatsApp()"><span>💬</span>Compartilhar no WhatsApp</button>
-    <div class="gap-btn"></div>
-    <button class="btn btn-azul" onclick="compartilharNativo()" id="btn-share-nativo" style="display:none"><span>📤</span>Compartilhar...</button>
+    <div class="gap"></div>
+    <button class="btn btn-azul" id="btn-share-nativo" style="display:none" onclick="compartilharNativo()"><span>📤</span>Compartilhar...</button>
   </div>
 
   <!-- QR CODE -->
   <div class="card">
-    <div class="secao-titulo"><div class="ic">📲</div>QR Code</div>
+    <div class="secao-titulo"><div class="ic">📷</div>QR Code</div>
     <div class="qr-wrap">
       <div id="qr-canvas-wrap"></div>
-      <p class="qr-label">Aponte a câmera do celular para abrir</p>
-    </div>
-    <p style="font-size:.8rem;font-weight:600;color:#9ca3af;text-align:center">
-      💡 Funciona corretamente após publicar no GitHub Pages
-    </p>
-  </div>
-
-  <!-- INSTALAR ANDROID -->
-  <div class="card">
-    <div class="secao-titulo"><div class="ic">📱</div>Instalar no Celular como App</div>
-
-    <div class="passos-box" style="background:#ede9fe">
-      <div class="passos-titulo" style="color:#5b21b6">🤖 Android — Chrome</div>
-      <div class="passo" style="color:#4c1d95"><div class="pn" style="background:#7c3aed">1</div><span>Abra o link no <strong>Google Chrome</strong></span></div>
-      <div class="passo" style="color:#4c1d95"><div class="pn" style="background:#7c3aed">2</div><span>Toque nos <strong>3 pontinhos ⋮</strong> no canto superior direito</span></div>
-      <div class="passo" style="color:#4c1d95"><div class="pn" style="background:#7c3aed">3</div><span>Toque em <strong>"Adicionar à tela inicial"</strong></span></div>
-      <div class="passo" style="color:#4c1d95"><div class="pn" style="background:#7c3aed">4</div><span>Confirme — o ícone aparece na tela do celular! 🎉</span></div>
-    </div>
-
-    <div class="passos-box" style="background:#fff7ed">
-      <div class="passos-titulo" style="color:#c2410c">🍎 iPhone — Safari</div>
-      <div class="passo" style="color:#7c2d12"><div class="pn" style="background:#ea580c">1</div><span>Abra o link no <strong>Safari</strong></span></div>
-      <div class="passo" style="color:#7c2d12"><div class="pn" style="background:#ea580c">2</div><span>Toque no ícone de <strong>Compartilhar ⬆️</strong> (barra inferior)</span></div>
-      <div class="passo" style="color:#7c2d12"><div class="pn" style="background:#ea580c">3</div><span>Toque em <strong>"Adicionar à Tela de Início"</strong></span></div>
-      <div class="passo" style="color:#7c2d12"><div class="pn" style="background:#ea580c">4</div><span>Toque em <strong>Adicionar</strong> — pronto! 🎉</span></div>
-    </div>
-
-    <div class="badges">
-      <div class="badge"><span class="badge-ic">🆓</span><span class="badge-tx">Gratuito</span></div>
-      <div class="badge"><span class="badge-ic">🤖</span><span class="badge-tx">IA Integrada</span></div>
-      <div class="badge"><span class="badge-ic">📶</span><span class="badge-tx">Online</span></div>
+      <p class="qr-label">Aponte a câmera para abrir</p>
     </div>
   </div>
 
-  <!-- PUBLICAR NO GITHUB -->
+  <!-- GITHUB -->
   <div class="card">
     <div class="secao-titulo"><div class="ic">🐙</div>Publicar no GitHub Pages</div>
     <div class="passos-box" style="background:#f0fdf4">
       <div class="passos-titulo" style="color:#166534">🚀 Passo a passo</div>
       <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">1</div><span>Crie conta gratuita em <strong>github.com</strong></span></div>
-      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">2</div><span>Crie repositório público: <strong>simulado</strong></span></div>
-      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">3</div><span>Suba os arquivos <strong>index.html</strong> e <strong>logo.png</strong></span></div>
-      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">4</div><span>Vá em <strong>Settings → Pages → Branch: main</strong> → Save</span></div>
-      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">5</div><span>Seu link: <strong>seuusuario.github.io/simulado</strong> ✅</span></div>
+      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">2</div><span>Crie repositório público chamado <strong>simulado</strong></span></div>
+      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">3</div><span>Suba os arquivos: <strong>index.html · logo.png · manifest.json · sw.js</strong></span></div>
+      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">4</div><span>Vá em <strong>Settings → Pages → Branch: main → Save</strong></span></div>
+      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">5</div><span>Link: <strong>seuusuario.github.io/simulado</strong> — o botão de instalar aparece automaticamente!</span></div>
+    </div>
+    <div class="badges">
+      <div class="badge"><span class="badge-ic">🆓</span><span class="badge-tx">Gratuito</span></div>
+      <div class="badge"><span class="badge-ic">🤖</span><span class="badge-tx">IA Integrada</span></div>
+      <div class="badge"><span class="badge-ic">📱</span><span class="badge-tx">Instala como App</span></div>
     </div>
   </div>
 
@@ -411,16 +553,97 @@
   <div style="height:28px"></div>
 </div>
 
-<!-- QR CODE lib -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ══════════════════════════════════════════════
+// CONFIG
 const APP_URL = window.location.href.split('?')[0].split('#')[0];
 
+// ── PWA: captura o evento beforeinstallprompt ──
+let _pwaPrompt = null;
+let _isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+let _isInStandalone = window.matchMedia('(display-mode: standalone)').matches
+                   || window.navigator.standalone === true;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  // Mostra banner automático após 1.5s se não estiver instalado
+  if (!_isInStandalone) {
+    setTimeout(mostrarBannerAndroid, 1500);
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  fecharBanner();
+  document.getElementById('fab-instalar').style.display = 'none';
+  _pwaPrompt = null;
+});
+
+// Se iOS e não está em standalone, mostra banner iOS após 2s
+if (_isIos && !_isInStandalone) {
+  setTimeout(mostrarBannerIos, 2000);
+}
+
+// ── Banners ────────────────────────────────────
+function mostrarBannerAndroid() {
+  document.getElementById('banner-instalar').classList.add('visivel');
+  document.getElementById('overlay-banner').classList.add('visivel');
+}
+function mostrarBannerIos() {
+  document.getElementById('banner-ios').classList.add('visivel');
+  document.getElementById('overlay-banner').classList.add('visivel');
+}
+function mostrarBannerCorreto() {
+  if (_isIos) mostrarBannerIos();
+  else if (_pwaPrompt) mostrarBannerAndroid();
+  else {
+    // Fallback: instrução genérica
+    alert('Para instalar:\n\nAndroid (Chrome): Menu ⋮ → "Adicionar à tela inicial"\n\niPhone (Safari): Compartilhar ⬆️ → "Adicionar à Tela de Início"');
+  }
+}
+function fecharBanner() {
+  document.getElementById('banner-instalar').classList.remove('visivel');
+  document.getElementById('overlay-banner').classList.remove('visivel');
+  // Mostra FAB discreto para quem fechou
+  if (_pwaPrompt || _isIos) {
+    const fab = document.getElementById('fab-instalar');
+    fab.style.display = 'flex';
+    setTimeout(() => {
+      fab.style.animation = 'none';
+      fab.style.boxShadow = '0 4px 14px rgba(91,33,182,.3)';
+    }, 8000);
+  }
+}
+function fecharBannerIos() {
+  document.getElementById('banner-ios').classList.remove('visivel');
+  document.getElementById('overlay-banner').classList.remove('visivel');
+}
+
+async function instalarPWA() {
+  if (!_pwaPrompt) return;
+  document.getElementById('btn-instalar-pwa').textContent = '⏳ Instalando...';
+  _pwaPrompt.prompt();
+  const { outcome } = await _pwaPrompt.userChoice;
+  if (outcome === 'accepted') {
+    fecharBanner();
+    document.getElementById('fab-instalar').style.display = 'none';
+  } else {
+    document.getElementById('btn-instalar-pwa').innerHTML = '⬇️ Instalar App';
+  }
+  _pwaPrompt = null;
+}
+
+// ── Service Worker ─────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ── Estado ─────────────────────────────────────
 let estado = {
-  nomeAluno:'', idadeAluno:'', serie:'', bimestre:'',
-  disciplina:'', conteudo:'', qtdQuestoes:10,
-  questoes:[], respostas:[], indiceAtual:0, respondida:false
+  nomeAluno:'',idadeAluno:'',serie:'',bimestre:'',
+  disciplina:'',conteudo:'',qtdQuestoes:10,
+  questoes:[],respostas:[],indiceAtual:0,respondida:false
 };
 
 // ── Navegação ──────────────────────────────────
@@ -440,7 +663,7 @@ function validar() {
       el.focus();
       el.style.borderColor='#ef4444';
       el.style.boxShadow='0 0 0 3px rgba(239,68,68,.15)';
-      setTimeout(()=>{ el.style.borderColor=''; el.style.boxShadow=''; },2200);
+      setTimeout(()=>{ el.style.borderColor='';el.style.boxShadow=''; },2200);
       alert('Por favor, preencha todos os campos!');
       return false;
     }
@@ -458,7 +681,7 @@ async function iniciarSimulado() {
   estado.disciplina  = document.getElementById('disciplina').value;
   estado.conteudo    = document.getElementById('conteudo').value.trim();
   estado.qtdQuestoes = parseInt(document.getElementById('qtdQuestoes').value);
-  estado.respostas   = []; estado.indiceAtual = 0;
+  estado.respostas=[]; estado.indiceAtual=0;
   irPara('tela-carregando');
   try {
     estado.questoes = await gerarQuestoesIA();
@@ -469,7 +692,7 @@ async function iniciarSimulado() {
     montarQuestao(0);
     irPara('tela-simulado');
   } catch(e) {
-    alert('Erro ao gerar questões. Verifique sua conexão e tente novamente.\n\n' + e.message);
+    alert('Erro ao gerar questões. Verifique sua conexão.\n\n'+e.message);
     irPara('tela-inicio');
   }
 }
@@ -486,22 +709,17 @@ REGRAS OBRIGATÓRIAS:
 - Cada questão deve ter exatamente 4 alternativas (A, B, C, D).
 - Apenas UMA alternativa deve ser correta.
 - Linguagem acessível para a faixa etária e série.
-- Questões variadas: interpretação, cálculo, conceito, exemplos práticos.
-- Para cada questão forneça observação/explicação breve da resposta correta.
+- Questões variadas: interpretação, cálculo, conceito, exemplos.
+- Para cada questão forneça uma observação/explicação breve da resposta correta.
 
-Responda SOMENTE com JSON válido neste formato exato (sem markdown, sem texto extra):
+Responda SOMENTE com JSON válido neste formato (sem markdown, sem texto extra):
 {"questoes":[{"pergunta":"texto","alternativas":["A","B","C","D"],"correta":0,"observacao":"explicação"}]}
 
-"correta" é o índice 0-3 (0=A,1=B,2=C,3=D).`;
+"correta" = índice 0-3 (0=A,1=B,2=C,3=D).`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      model:"claude-sonnet-4-20250514",
-      max_tokens:4000,
-      messages:[{role:"user",content:prompt}]
-    })
+  const res = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,messages:[{role:"user",content:prompt}]})
   });
   if (!res.ok) throw new Error('API '+res.status);
   const data = await res.json();
@@ -510,77 +728,63 @@ Responda SOMENTE com JSON válido neste formato exato (sem markdown, sem texto e
 }
 
 // ── Questão ────────────────────────────────────
-const LETRAS = ['A','B','C','D'];
+const LETRAS=['A','B','C','D'];
 function montarQuestao(idx) {
-  const q = estado.questoes[idx];
-  const tot = estado.questoes.length;
-  estado.respondida = false;
+  const q=estado.questoes[idx], tot=estado.questoes.length;
+  estado.respondida=false;
   document.getElementById('btn-proxima').style.display='none';
   document.getElementById('btn-finalizar').style.display='none';
   document.getElementById('obs-box').classList.remove('visivel');
-  document.getElementById('lbl-questao-num').textContent = `Questão ${idx+1}`;
-  document.getElementById('lbl-questao-prog').textContent = `${idx+1} / ${tot}`;
-  document.getElementById('barra-prog').style.width = `${((idx+1)/tot)*100}%`;
-  document.getElementById('questao-texto').textContent = q.pergunta;
-  const ul = document.getElementById('lista-alternativas');
-  ul.innerHTML = '';
-  q.alternativas.forEach((alt,i) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<button class="alt-btn" onclick="selecionarResposta(${i})">
-      <span class="alt-letra">${LETRAS[i]}</span><span>${alt}</span>
-    </button>`;
+  document.getElementById('lbl-questao-num').textContent=`Questão ${idx+1}`;
+  document.getElementById('lbl-questao-prog').textContent=`${idx+1} / ${tot}`;
+  document.getElementById('barra-prog').style.width=`${((idx+1)/tot)*100}%`;
+  document.getElementById('questao-texto').textContent=q.pergunta;
+  const ul=document.getElementById('lista-alternativas');
+  ul.innerHTML='';
+  q.alternativas.forEach((alt,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<button class="alt-btn" onclick="selecionarResposta(${i})">
+      <span class="alt-letra">${LETRAS[i]}</span><span>${alt}</span></button>`;
     ul.appendChild(li);
   });
 }
 
 function selecionarResposta(idx) {
   if (estado.respondida) return;
-  estado.respondida = true;
-  const q = estado.questoes[estado.indiceAtual];
-  estado.respostas.push({questaoIdx:estado.indiceAtual, resposta:idx, correta:idx===q.correta});
-  document.querySelectorAll('.alt-btn').forEach((btn,i) => {
-    btn.disabled = true;
+  estado.respondida=true;
+  const q=estado.questoes[estado.indiceAtual];
+  estado.respostas.push({questaoIdx:estado.indiceAtual,resposta:idx,correta:idx===q.correta});
+  document.querySelectorAll('.alt-btn').forEach((btn,i)=>{
+    btn.disabled=true;
     if (i===q.correta) btn.classList.add('correta');
     else if (i===idx)  btn.classList.add('errada');
   });
-  const obs = document.getElementById('obs-box');
-  obs.textContent = `${idx===q.correta?'✅':'❌'} ${q.observacao}`;
+  const obs=document.getElementById('obs-box');
+  obs.textContent=`${idx===q.correta?'✅':'❌'} ${q.observacao}`;
   obs.classList.add('visivel');
-  if (estado.indiceAtual < estado.questoes.length-1)
+  if (estado.indiceAtual<estado.questoes.length-1)
     document.getElementById('btn-proxima').style.display='flex';
   else
     document.getElementById('btn-finalizar').style.display='flex';
 }
 
-function proximaQuestao() {
-  estado.indiceAtual++;
-  montarQuestao(estado.indiceAtual);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+function proximaQuestao(){estado.indiceAtual++;montarQuestao(estado.indiceAtual);window.scrollTo({top:0,behavior:'smooth'});}
 
 // ── Resultado ──────────────────────────────────
-function finalizarSimulado() {
-  const tot = estado.questoes.length;
-  const ac  = estado.respostas.filter(r=>r.correta).length;
-  const nota = parseFloat(((ac/tot)*10).toFixed(1));
-  let emoji, cls, msg;
-  if (nota > 7) {
-    emoji='🎉'; cls='nota-verde';
-    msg=`Parabéns, <span class="nome">${estado.nomeAluno}</span>! Continue estudando assim! 🌟`;
-  } else if (nota >= 5) {
-    emoji='📖'; cls='nota-amarelo';
-    msg=`<span class="nome">${estado.nomeAluno}</span>, você precisa se esforçar mais! Você consegue! 💪`;
-  } else {
-    emoji='😬'; cls='nota-vermelho';
-    msg=`<span class="nome">${estado.nomeAluno}</span>, você não estudou... Pare de jogar vídeo game ou ficar no celular e se dedique aos estudos! 📵`;
-  }
-  document.getElementById('emoji-resultado').textContent = emoji;
-  document.getElementById('nota-circulo').className = `nota-circulo ${cls}`;
-  document.getElementById('nota-valor').textContent = nota.toFixed(1);
-  document.getElementById('msg-aluno').innerHTML = msg;
-  document.getElementById('acertos-info').textContent =
-    `${ac} acerto${ac!==1?'s':''} de ${tot} questões`;
-  document.getElementById('detalhes-resultado').innerHTML = `
+function finalizarSimulado(){
+  const tot=estado.questoes.length;
+  const ac=estado.respostas.filter(r=>r.correta).length;
+  const nota=parseFloat(((ac/tot)*10).toFixed(1));
+  let emoji,cls,msg;
+  if(nota>7){emoji='🎉';cls='nota-verde';msg=`Parabéns, <span class="nome">${estado.nomeAluno}</span>! Continue estudando assim! 🌟`;}
+  else if(nota>=5){emoji='📖';cls='nota-amarelo';msg=`<span class="nome">${estado.nomeAluno}</span>, você precisa se esforçar mais! Você consegue! 💪`;}
+  else{emoji='😬';cls='nota-vermelho';msg=`<span class="nome">${estado.nomeAluno}</span>, você não estudou... Pare de jogar vídeo game ou ficar no celular e se dedique aos estudos! 📵`;}
+  document.getElementById('emoji-resultado').textContent=emoji;
+  document.getElementById('nota-circulo').className=`nota-circulo ${cls}`;
+  document.getElementById('nota-valor').textContent=nota.toFixed(1);
+  document.getElementById('msg-aluno').innerHTML=msg;
+  document.getElementById('acertos-info').textContent=`${ac} acerto${ac!==1?'s':''} de ${tot} questões`;
+  document.getElementById('detalhes-resultado').innerHTML=`
     <div class="detalhe-row"><span class="detalhe-chave">Aluno</span><span class="detalhe-valor">${estado.nomeAluno}</span></div>
     <div class="detalhe-row"><span class="detalhe-chave">Idade</span><span class="detalhe-valor">${estado.idadeAluno} anos</span></div>
     <div class="detalhe-row"><span class="detalhe-chave">Série</span><span class="detalhe-valor">${estado.serie}</span></div>
@@ -588,77 +792,54 @@ function finalizarSimulado() {
     <div class="detalhe-row"><span class="detalhe-chave">Disciplina</span><span class="detalhe-valor">${estado.disciplina}</span></div>
     <div class="detalhe-row"><span class="detalhe-chave">Conteúdo</span><span class="detalhe-valor">${estado.conteudo}</span></div>
     <div class="detalhe-row"><span class="detalhe-chave">Data</span><span class="detalhe-valor">${new Date().toLocaleDateString('pt-BR')}</span></div>`;
-  const gab = document.getElementById('gabarito-completo');
+  const gab=document.getElementById('gabarito-completo');
   gab.innerHTML='';
-  estado.questoes.forEach((q,i) => {
-    const r = estado.respostas.find(x=>x.questaoIdx===i);
-    const ok = r && r.correta;
-    const lr = r ? LETRAS[r.resposta] : '—';
-    const lc = LETRAS[q.correta];
-    gab.innerHTML += `
-      <div class="gabarito-item ${ok?'acerto':'erro'}">
-        <div class="gabarito-num">Questão ${i+1}</div>
-        <div class="gabarito-pergunta">${q.pergunta}</div>
-        <div class="gabarito-resp ${ok?'acerto':'erro'}">${ok?'✅':'❌'} ${lr}) ${r?q.alternativas[r.resposta]:'—'}</div>
-        ${!ok?`<div class="gabarito-correta">✅ Correta: ${lc}) ${q.alternativas[q.correta]}</div>`:''}
-        <div class="gabarito-obs">💡 ${q.observacao}</div>
-      </div>`;
+  estado.questoes.forEach((q,i)=>{
+    const r=estado.respostas.find(x=>x.questaoIdx===i);
+    const ok=r&&r.correta,lr=r?LETRAS[r.resposta]:'—',lc=LETRAS[q.correta];
+    gab.innerHTML+=`<div class="gabarito-item ${ok?'acerto':'erro'}">
+      <div class="gabarito-num">Questão ${i+1}</div>
+      <div class="gabarito-pergunta">${q.pergunta}</div>
+      <div class="gabarito-resp ${ok?'acerto':'erro'}">${ok?'✅':'❌'} ${lr}) ${r?q.alternativas[r.resposta]:'—'}</div>
+      ${!ok?`<div class="gabarito-correta">✅ Correta: ${lc}) ${q.alternativas[q.correta]}</div>`:''}
+      <div class="gabarito-obs">💡 ${q.observacao}</div>
+    </div>`;
   });
   irPara('tela-resultado');
 }
 
-function imprimirResultado() { window.print(); }
-function novoSimulado() { irPara('tela-inicio'); }
+function imprimirResultado(){window.print();}
+function novoSimulado(){irPara('tela-inicio');}
 
 // ── Compartilhar ───────────────────────────────
-let _qrOk = false;
-function montarCompartilhar() {
-  document.getElementById('link-url-texto').textContent = APP_URL;
-  if (navigator.share) document.getElementById('btn-share-nativo').style.display='flex';
-
-  if (!_qrOk) {
-    const wrap = document.getElementById('qr-canvas-wrap');
-    wrap.innerHTML = '';
-    try {
-      new QRCode(wrap, {
-        text: APP_URL, width:200, height:200,
-        colorDark:'#5b21b6', colorLight:'#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
-      });
-      _qrOk = true;
-    } catch(e) {
-      wrap.innerHTML = `<p style="color:#9ca3af;font-size:.85rem;font-weight:600;padding:20px 0">
-        📲 QR Code disponível após publicar no GitHub Pages</p>`;
+let _qrOk=false;
+function montarCompartilhar(){
+  document.getElementById('link-url-texto').textContent=APP_URL;
+  if(navigator.share) document.getElementById('btn-share-nativo').style.display='flex';
+  if(!_qrOk){
+    const wrap=document.getElementById('qr-canvas-wrap');
+    wrap.innerHTML='';
+    try{
+      new QRCode(wrap,{text:APP_URL,width:200,height:200,colorDark:'#5b21b6',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+      _qrOk=true;
+    }catch(e){
+      wrap.innerHTML=`<p style="color:#9ca3af;font-size:.85rem;font-weight:600;padding:20px 0">📲 Disponível após publicar no GitHub Pages</p>`;
     }
   }
 }
-
-function copiarLink() {
-  navigator.clipboard.writeText(APP_URL).then(() => {
-    const btn = document.getElementById('btn-copiar');
-    btn.textContent='✅ Copiado!'; btn.classList.add('ok');
-    setTimeout(()=>{ btn.textContent='📋 Copiar'; btn.classList.remove('ok'); },2500);
-  }).catch(()=>{ prompt('Copie o link:', APP_URL); });
+function copiarLink(){
+  navigator.clipboard.writeText(APP_URL).then(()=>{
+    const btn=document.getElementById('btn-copiar');
+    btn.textContent='✅ Copiado!';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='📋 Copiar';btn.classList.remove('ok');},2500);
+  }).catch(()=>{prompt('Copie o link:',APP_URL);});
 }
-
-function compartilharWhatsApp() {
-  const txt = encodeURIComponent(
-    `📚 *Simulado — Estude. Pratique. Evolua.*\n\n` +
-    `🤖 Simulados personalizados com IA para qualquer matéria!\n` +
-    `✅ Gratuito e funciona direto no celular!\n\n` +
-    `🔗 Acesse: ${APP_URL}`
-  );
-  window.open(`https://wa.me/?text=${txt}`, '_blank');
+function compartilharWhatsApp(){
+  const txt=encodeURIComponent(`📚 *Simulado — Estude. Pratique. Evolua.*\n\n🤖 Simulados com IA para qualquer matéria!\n✅ Gratuito e instala direto no celular!\n\n🔗 Acesse: ${APP_URL}`);
+  window.open(`https://wa.me/?text=${txt}`,'_blank');
 }
-
-function compartilharNativo() {
-  if (navigator.share) {
-    navigator.share({
-      title:'Simulado — Estude. Pratique. Evolua.',
-      text:'🤖 Simulados com IA! Gratuito e fácil de usar.',
-      url: APP_URL
-    });
-  }
+function compartilharNativo(){
+  navigator.share&&navigator.share({title:'Simulado — Estude. Pratique. Evolua.',text:'Simulados com IA! Gratuito.',url:APP_URL});
 }
 </script>
 </body>
