@@ -494,6 +494,9 @@ textarea{resize:vertical;min-height:76px}
         <option value="20">20 questões</option>
       </select>
     </div>
+    <div id="chave-status" style="margin-top:10px;padding:10px 12px;border-radius:10px;font-size:.82rem;font-weight:700;background:#f0fdf4;border:2px solid #86efac;color:#166534;display:flex;align-items:center;gap:8px">
+      ✅ Simulado gratuito — sem cadastro necessário!
+    </div>
   </div>
 
   <button class="btn btn-p" onclick="iniciar()">🚀 Gerar Simulado com IA</button>
@@ -592,19 +595,25 @@ textarea{resize:vertical;min-height:76px}
 
   <div class="card">
     <div class="sec"><div class="ic">🐙</div>Publicar no GitHub Pages</div>
-    <div class="pb" style="background:#f0fdf4">
-      <div class="pt" style="color:#166534">🚀 Passo a passo</div>
-      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">1</div><span>Crie conta gratuita em <strong>github.com</strong></span></div>
-      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">2</div><span>Crie repositório público: <strong>simulado</strong></span></div>
-      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">3</div><span>Suba os 4 arquivos: <strong>index.html · logo.png · manifest.json · sw.js</strong></span></div>
-      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">4</div><span><strong>Settings → Pages → Branch: main → Save</strong></span></div>
-      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">5</div><span>Link: <strong>seuusuario.github.io/simulado</strong> 🎉</span></div>
+    <div class="pb" style="background:#fdf4ff">
+      <div class="pt" style="color:#6b21a8">☁️ Passo 1 — Cloudflare Worker (proxy seguro)</div>
+      <div class="pp" style="color:#581c87"><div class="pn" style="background:#9333ea">1</div><span>Acesse <strong>workers.cloudflare.com</strong> → crie conta grátis</span></div>
+      <div class="pp" style="color:#581c87"><div class="pn" style="background:#9333ea">2</div><span>Clique em <strong>Create Worker</strong> → cole o conteúdo do arquivo <strong>worker.js</strong></span></div>
+      <div class="pp" style="color:#581c87"><div class="pn" style="background:#9333ea">3</div><span><strong>Settings → Variables → Add:</strong> Nome: <code>ANTHROPIC_API_KEY</code> · Valor: sua chave · marque Encrypt</span></div>
+      <div class="pp" style="color:#581c87"><div class="pn" style="background:#9333ea">4</div><span>Clique <strong>Save and Deploy</strong> — copie a URL (ex: simulado.user.workers.dev)</span></div>
+    </div>
+    <div class="pb" style="background:#f0fdf4;margin-top:4px">
+      <div class="pt" style="color:#166534">🚀 Passo 2 — GitHub Pages</div>
+      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">1</div><span>No <strong>index.html</strong>, linha com <code>WORKER_URL</code>, cole a URL do Worker</span></div>
+      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">2</div><span>Suba os 4 arquivos: <strong>index.html · logo.png · manifest.json · sw.js</strong> no GitHub</span></div>
+      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">3</div><span><strong>Settings → Pages → Branch: main → Save</strong></span></div>
+      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">4</div><span>Link: <strong>seuusuario.github.io/simulado</strong> — compartilhe com todos! 🎉</span></div>
     </div>
     <div class="badges">
-      <div class="badge"><span class="badge-i">🆓</span><span class="badge-t">Gratuito</span></div>
-      <div class="badge"><span class="badge-i">🤖</span><span class="badge-t">IA Integrada</span></div>
+      <div class="badge"><span class="badge-i">🆓</span><span class="badge-t">100% Grátis</span></div>
+      <div class="badge"><span class="badge-i">🔒</span><span class="badge-t">Chave Segura</span></div>
+      <div class="badge"><span class="badge-i">👥</span><span class="badge-t">Multiusuário</span></div>
       <div class="badge"><span class="badge-i">📱</span><span class="badge-t">Instala como App</span></div>
-      <div class="badge"><span class="badge-i">🖨️</span><span class="badge-t">Gera PDF</span></div>
     </div>
   </div>
 
@@ -626,10 +635,30 @@ window.addEventListener('load', () => {
 });
 
 // ═══════════════════════════════════════════
-// SERVICE WORKER
+// SERVICE WORKER — com detecção de atualização
 // ═══════════════════════════════════════════
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    // Verifica atualização a cada 60 segundos
+    setInterval(() => reg.update(), 60000);
+
+    // Quando novo SW instalado, recarrega a página automaticamente
+    reg.addEventListener('updatefound', () => {
+      const novo = reg.installing;
+      novo.addEventListener('statechange', () => {
+        if (novo.state === 'activated') {
+          window.location.reload();
+        }
+      });
+    });
+  }).catch(()=>{});
+
+  // Recebe mensagem do SW para limpar cache e recarregar
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'CACHE_CLEARED') {
+      window.location.reload();
+    }
+  });
 }
 
 // ═══════════════════════════════════════════
@@ -642,17 +671,21 @@ const _standalone = window.matchMedia('(display-mode: standalone)').matches || n
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   _prompt = e;
-  if (!_standalone) setTimeout(mostrarBannerAndroid, 2500); // aparece após splash
+  // Mostra banner APÓS o splash (2.2s) + pequeno delay
+  if (!_standalone && !localStorage.getItem('pwa_dismissed')) {
+    setTimeout(mostrarBannerAndroid, 3000);
+  }
 });
 
 window.addEventListener('appinstalled', () => {
   fecharTodos();
   document.getElementById('fab-install').style.display='none';
+  localStorage.setItem('pwa_installed','1');
   _prompt=null;
 });
 
-if (_ios && !_standalone) {
-  setTimeout(mostrarBannerIos, 2800);
+if (_ios && !_standalone && !localStorage.getItem('pwa_dismissed')) {
+  setTimeout(mostrarBannerIos, 3200);
 }
 
 function mostrarBannerAndroid() {
@@ -671,11 +704,13 @@ function mostrarBannerCorreto() {
 function fecharBanner() {
   document.getElementById('banner').classList.remove('on');
   document.getElementById('overlay').classList.remove('on');
+  localStorage.setItem('pwa_dismissed','1');
   if (_prompt || _ios) document.getElementById('fab-install').style.display='flex';
 }
 function fecharIos() {
   document.getElementById('banner-ios').classList.remove('on');
   document.getElementById('overlay').classList.remove('on');
+  localStorage.setItem('pwa_dismissed','1');
   if (_ios) document.getElementById('fab-install').style.display='flex';
 }
 function fecharTodos() { fecharBanner(); fecharIos(); }
@@ -753,16 +788,57 @@ async function iniciar() {
 }
 
 // ═══════════════════════════════════════════
-// API — usa proxy CORS para funcionar no GitHub Pages
+// WORKER URL — cole aqui a URL do seu Worker
+// ═══════════════════════════════════════════
+// Exemplo: 'https://meu-simulado.seu-usuario.workers.dev'
+const WORKER_URL = 'https://simulado-api.rodrigo-rodrigues0311.workers.dev';
+
+// ═══════════════════════════════════════════
+// INICIAR SIMULADO
+// ═══════════════════════════════════════════
+async function iniciar() {
+  if (!validar()) return;
+  E.nome       = document.getElementById('nomeAluno').value.trim();
+  E.idade      = document.getElementById('idadeAluno').value;
+  E.serie      = document.getElementById('serie').value;
+  E.bimestre   = document.getElementById('bimestre').value;
+  E.disciplina = document.getElementById('disciplina').value;
+  E.conteudo   = document.getElementById('conteudo').value.trim();
+  E.qtd        = parseInt(document.getElementById('qtd').value);
+  E.respostas  = []; E.idx = 0;
+  irPara('tela-loading');
+  try {
+    E.questoes = await gerarQuestoes();
+    document.getElementById('info-sim').textContent  = `${E.disciplina} · ${E.serie} · ${E.bimestre}`;
+    document.getElementById('q-disc').textContent    = `${E.disciplina} — ${E.serie}`;
+    montarQ(0);
+    irPara('tela-simulado');
+  } catch(err) {
+    console.error(err);
+    let msg = err.message || 'Erro desconhecido';
+    if (msg.includes('COLE_AQUI')) {
+      msg = 'O app ainda não foi configurado.\nPublique o Worker e cole a URL no index.html.';
+    }
+    alert('❌ Erro ao gerar questões:\n\n' + msg);
+    irPara('tela-inicio');
+  }
+}
+
+// ═══════════════════════════════════════════
+// API — chama o Worker (chave fica segura lá)
 // ═══════════════════════════════════════════
 async function gerarQuestoes() {
-  const prompt=`Você é um professor experiente do Brasil. Crie exatamente ${E.qtd} questões de múltipla escolha sobre o conteúdo abaixo para um aluno de ${E.serie} com ${E.idade} anos.
+  if (WORKER_URL.includes('COLE_AQUI')) {
+    throw new Error('Worker não configurado. Siga o guia de publicação.');
+  }
+
+  const prompt = `Você é um professor experiente do Brasil. Crie exatamente ${E.qtd} questões de múltipla escolha sobre o conteúdo abaixo para um aluno de ${E.serie} com ${E.idade} anos.
 
 Disciplina: ${E.disciplina}
 Conteúdo: ${E.conteudo}
 Bimestre: ${E.bimestre}
 
-REGRAS:
+REGRAS OBRIGATÓRIAS:
 - 4 alternativas por questão (A, B, C, D). Apenas UMA correta.
 - Linguagem acessível para a faixa etária.
 - Questões variadas: conceito, cálculo, interpretação, exemplos práticos.
@@ -771,63 +847,33 @@ REGRAS:
 Responda SOMENTE com JSON válido, sem markdown, sem texto extra:
 {"questoes":[{"pergunta":"texto","alternativas":["A","B","C","D"],"correta":0,"observacao":"explicação"}]}
 
-"correta" = índice 0-3 (0=A,1=B,2=C,3=D).`;
+"correta" = índice 0-3 (0=A, 1=B, 2=C, 3=D).`;
 
-  // ── Tenta chamada direta primeiro (funciona localmente) ──
-  // ── No GitHub Pages usa proxy allorigins para contornar CORS ──
-  const payload=JSON.stringify({
-    model:'claude-sonnet-4-20250514',
-    max_tokens:4000,
-    messages:[{role:'user',content:prompt}]
+  const res = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      messages: [{ role: 'user', content: prompt }]
+    })
   });
 
-  // Proxy 1: allorigins (converte qualquer URL para CORS-safe)
-  const proxyUrl='https://api.allorigins.win/raw?url='+
-    encodeURIComponent('https://api.anthropic.com/v1/messages');
+  const data = await res.json();
 
-  let res, data, tentativas=[
-    // tentativa 1: direto (funciona quando CORS não bloqueia)
-    ()=>fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:payload
-    }),
-    // tentativa 2: proxy allorigins
-    ()=>fetch(proxyUrl,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
-      body:payload
-    }),
-    // tentativa 3: proxy corsproxy.io
-    ()=>fetch('https://corsproxy.io/?'+encodeURIComponent('https://api.anthropic.com/v1/messages'),{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:payload
-    })
-  ];
-
-  let lastErr=null;
-  for(const tent of tentativas){
-    try{
-      res=await tent();
-      if(res.ok){
-        data=await res.json();
-        break;
-      } else {
-        // Tenta ler corpo do erro
-        const errBody=await res.text().catch(()=>'');
-        lastErr=new Error(`HTTP ${res.status}: ${errBody.slice(0,200)}`);
-      }
-    } catch(e){ lastErr=e; }
+  // Mostra resposta completa se der erro
+  if (!res.ok || data.error) {
+    const detalhe = data.error ? JSON.stringify(data.error) : JSON.stringify(data);
+    throw new Error(`Worker retornou erro:\n${detalhe.slice(0,300)}`);
   }
 
-  if(!data) throw lastErr||new Error('Todas as tentativas falharam');
+  if (!data.content || !Array.isArray(data.content)) {
+    throw new Error(`Resposta inesperada do Worker:\n${JSON.stringify(data).slice(0,300)}`);
+  }
 
-  const txt=data.content.map(i=>i.text||'').join('');
-  const clean=txt.replace(/```json|```/g,'').trim();
-  // Extrai JSON mesmo que venha com texto em volta
-  const match=clean.match(/\{[\s\S]*\}/);
-  if(!match) throw new Error('Resposta inválida da IA');
+  const txt  = data.content.map(i => i.text || '').join('');
+  const match = txt.replace(/```json|```/g, '').trim().match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('Resposta inesperada da IA. Tente novamente.');
   return JSON.parse(match[0]).questoes;
 }
 
