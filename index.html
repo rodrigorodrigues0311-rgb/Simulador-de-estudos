@@ -504,7 +504,29 @@ textarea{resize:vertical;min-height:84px}
   </div>
 
   <button class="btn btn-p" onclick="iniciar()">🚀 Gerar Simulado com IA</button>
-  <button class="btn btn-o" onclick="irPara('tela-compartilhar')">🔗 Compartilhar / Instalar App</button>
+
+  <!-- Card instalação — sempre visível -->
+  <div id="card-instalar" class="card" style="margin-top:14px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);border:2px solid #a78bfa">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+      <img src="icon-192.png" style="width:56px;height:56px;border-radius:14px;box-shadow:0 4px 12px rgba(91,33,182,.25)" alt="Simulado">
+      <div>
+        <div style="font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:#4c1d95">📲 Instalar Simulado</div>
+        <div style="font-size:.88rem;font-weight:600;color:#6d28d9;line-height:1.4">Adicione à tela inicial — abre como app!</div>
+      </div>
+    </div>
+    <button id="btn-instalar-card" onclick="clicarInstalar()"
+      style="width:100%;padding:15px;border:none;border-radius:12px;background:linear-gradient(135deg,#5b21b6,#7c3aed);color:white;font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(91,33,182,.35)">
+      ⬇️ Instalar na Tela Inicial
+    </button>
+    <div id="instalar-instrucao" style="display:none;margin-top:12px;padding:12px;background:white;border-radius:10px;font-size:.9rem;font-weight:600;color:#374151;line-height:1.6">
+      <strong>Android (Chrome):</strong><br>
+      Menu <strong>⋮</strong> → <strong>"Adicionar à tela inicial"</strong><br><br>
+      <strong>iPhone (Safari):</strong><br>
+      Botão <strong>⬆️</strong> → <strong>"Adicionar à Tela de Início"</strong>
+    </div>
+  </div>
+
+  <button class="btn btn-o" style="margin-top:8px" onclick="irPara('tela-compartilhar')">🔗 Compartilhar App</button>
   <div style="height:28px"></div>
 </div>
 
@@ -686,10 +708,20 @@ window.addEventListener('beforeinstallprompt', e => {
 
 window.addEventListener('appinstalled', () => {
   fecharTodos();
-  document.getElementById('fab-install').style.display='none';
+  document.getElementById('fab-install').style.display = 'none';
+  const card = document.getElementById('card-instalar');
+  if (card) card.style.display = 'none';
   localStorage.setItem('pwa_installed','1');
-  _prompt=null;
+  _prompt = null;
 });
+
+// Se já instalado, esconde o card
+if (_standalone || localStorage.getItem('pwa_installed')) {
+  window.addEventListener('load', () => {
+    const card = document.getElementById('card-instalar');
+    if (card) card.style.display = 'none';
+  });
+}
 
 // iOS — mostra instrução manual
 if (_ios && !_standalone) {
@@ -705,9 +737,28 @@ function mostrarBannerIos() {
   document.getElementById('overlay').classList.add('on');
 }
 function mostrarBannerCorreto() {
-  if (_ios) mostrarBannerIos();
-  else if (_prompt) mostrarBannerAndroid();
-  else alert('Para instalar:\n\nAndroid: Menu ⋮ → "Adicionar à tela inicial"\niPhone: Compartilhar ⬆️ → "Adicionar à Tela de Início"');
+  clicarInstalar();
+}
+
+// Botão principal de instalar — funciona em qualquer situação
+async function clicarInstalar() {
+  if (_prompt) {
+    // Android com prompt disponível — instala direto
+    document.getElementById('btn-instalar-card').textContent = '⏳ Instalando...';
+    _prompt.prompt();
+    const { outcome } = await _prompt.userChoice;
+    if (outcome === 'accepted') {
+      document.getElementById('card-instalar').style.display = 'none';
+      document.getElementById('fab-install').style.display = 'none';
+    } else {
+      document.getElementById('btn-instalar-card').innerHTML = '⬇️ Instalar na Tela Inicial';
+    }
+    _prompt = null;
+  } else {
+    // Sem prompt (iOS ou Chrome ainda não liberou) — mostra instrução
+    const inst = document.getElementById('instalar-instrucao');
+    inst.style.display = inst.style.display === 'none' ? 'block' : 'none';
+  }
 }
 function fecharBanner() {
   document.getElementById('banner').classList.remove('on');
