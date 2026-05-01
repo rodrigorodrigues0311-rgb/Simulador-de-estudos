@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#5b21b6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Simulado">
+<meta property="og:title" content="Simulado — Estude. Pratique. Evolua.">
+<meta property="og:description" content="Crie simulados personalizados com IA para qualquer matéria!">
+<meta property="og:image" content="logo.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="logo.png">
+<title>Simulado — Estude. Pratique. Evolua.</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #1a73e8; --azul-claro: #e8f0fe;
+    --verde: #059669; --verde-claro: #f0fdf4;
+    --amarelo: #d97706; --amarelo-claro: #fffbeb;
+    --vermelho: #dc2626; --vermelho-claro: #fff1f2;
+    --roxo: #5b21b6; --roxo2: #7c3aed; --roxo-claro: #ede9fe;
+    --cinza: #6b7280; --cinza-claro: #f9fafb;
+    --branco: #ffffff;
+    --sombra: 0 4px 20px rgba(91,33,182,0.13);
+    --raio: 20px; --raio-sm: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(160deg, #4f46e5 0%, #7c3aed 55%, #a855f7 100%);
+    min-height: 100vh;
+    padding: 16px 16px 36px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tela { display: none; max-width: 500px; margin: 0 auto; animation: fadeUp .35s ease; }
+  .tela.ativa { display: block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+
+  /* CARD */
+  .card { background: var(--branco); border-radius: var(--raio); padding: 22px; box-shadow: var(--sombra); margin-bottom: 14px; }
+
+  /* HEADER */
+  .app-header { text-align: center; padding: 20px 0 10px; }
+  .logo-img {
+    width: 108px; height: 108px;
+    border-radius: 26px;
+    object-fit: contain;
+    background: white;
+    box-shadow: 0 8px 32px rgba(0,0,0,.22);
+    display: block; margin: 0 auto 10px;
+  }
+  .app-tagline { font-family:'Baloo 2',cursive; font-size:.8rem; font-weight:700; color:rgba(255,255,255,.7); letter-spacing:2px; text-transform:uppercase; }
+  .app-subtitulo { color:rgba(255,255,255,.88); font-size:.92rem; margin-top:5px; font-weight:600; }
+
+  /* SEÇÃO */
+  .secao-titulo { font-family:'Baloo 2',cursive; font-size:1.22rem; font-weight:800; color:var(--roxo); margin-bottom:15px; display:flex; align-items:center; gap:8px; }
+  .secao-titulo .ic { width:32px;height:32px;border-radius:50%;background:var(--roxo-claro);display:flex;align-items:center;justify-content:center;font-size:.9rem; }
+
+  /* FORM */
+  .campo { margin-bottom:13px; }
+  label { display:block;font-weight:700;font-size:.78rem;color:var(--cinza);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px; }
+  input[type="text"], input[type="number"], select, textarea {
+    width:100%; border:2px solid #e5e7eb; border-radius:var(--raio-sm);
+    padding:12px 14px; font-family:'Nunito',sans-serif; font-size:1rem;
+    font-weight:600; color:#1f2937; background:#f9fafb; outline:none;
+    transition:border-color .2s, background .2s, box-shadow .2s; -webkit-appearance:none;
+  }
+  input:focus,select:focus,textarea:focus { border-color:var(--roxo2); background:white; box-shadow:0 0 0 3px rgba(124,58,237,.1); }
+  textarea { resize:vertical; min-height:78px; }
+
+  /* BOTÕES */
+  .btn {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:15px; border:none; border-radius:var(--raio-sm);
+    font-family:'Baloo 2',cursive; font-size:1.07rem; font-weight:800;
+    cursor:pointer; letter-spacing:.3px;
+    transition:transform .15s,box-shadow .15s,opacity .15s;
+    text-decoration:none; margin-bottom:0;
+  }
+  .btn:active { transform:scale(.97); opacity:.9; }
+  .btn-primario { background:linear-gradient(135deg,#5b21b6,#7c3aed); color:white; box-shadow:0 4px 16px rgba(91,33,182,.35); }
+  .btn-sucesso  { background:linear-gradient(135deg,#059669,#34a853); color:white; box-shadow:0 4px 16px rgba(5,150,105,.3); }
+  .btn-azul     { background:linear-gradient(135deg,#1a73e8,#0d47a1); color:white; box-shadow:0 4px 16px rgba(26,115,232,.3); }
+  .btn-wpp      { background:linear-gradient(135deg,#25d366,#128c7e); color:white; box-shadow:0 4px 16px rgba(37,211,102,.3); }
+  .btn-secundario { background:#f3f4f6; color:#374151; border:2px solid #e5e7eb; }
+  .btn-outline  { background:transparent; color:white; border:2px solid rgba(255,255,255,.5); }
+  .gap-btn      { height:8px; }
+
+  /* LOADING */
+  .ia-loader { text-align:center; padding:40px 16px; }
+  .spinner-wrap { position:relative;width:70px;height:70px;margin:0 auto 20px; }
+  .spinner { width:70px;height:70px;border:5px solid #ede9fe;border-top-color:var(--roxo2);border-radius:50%;animation:spin 1s linear infinite; }
+  .spinner-logo { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:10px;object-fit:contain;background:white; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .ia-loader h3 { font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:#4c1d95;margin-bottom:6px; }
+  .ia-loader p  { color:#6b7280;font-weight:600;font-size:.88rem; }
+
+  /* QUESTÃO */
+  .questao-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
+  .questao-num { font-family:'Baloo 2',cursive;font-size:.82rem;font-weight:800;color:white;background:linear-gradient(135deg,#5b21b6,#7c3aed);padding:3px 13px;border-radius:20px; }
+  .questao-prog { font-size:.8rem;font-weight:700;color:#9ca3af; }
+  .questao-disciplina { font-size:.78rem;font-weight:800;color:var(--roxo2);background:var(--roxo-claro);padding:2px 10px;border-radius:20px;margin-bottom:12px;display:inline-block; }
+  .questao-texto { font-size:1rem;font-weight:700;color:#111827;line-height:1.6;margin-bottom:16px; }
+  .barra-prog-wrap { background:#ede9fe;border-radius:20px;height:7px;margin-bottom:15px;overflow:hidden; }
+  .barra-prog-fill { height:100%;border-radius:20px;background:linear-gradient(90deg,#5b21b6,#a855f7);transition:width .5s cubic-bezier(.4,0,.2,1); }
+
+  /* ALTERNATIVAS */
+  .alternativas { list-style:none; }
+  .alternativas li { margin-bottom:9px; }
+  .alt-btn {
+    display:flex;align-items:flex-start;gap:11px;width:100%;
+    padding:12px 14px;border:2px solid #e5e7eb;border-radius:var(--raio-sm);
+    background:#f9fafb;font-family:'Nunito',sans-serif;font-size:.92rem;
+    font-weight:600;color:#374151;cursor:pointer;text-align:left;
+    transition:all .18s;line-height:1.45;
+  }
+  .alt-letra { min-width:27px;height:27px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.82rem;color:#6b7280;transition:all .18s;flex-shrink:0; }
+  .alt-btn:hover { border-color:var(--roxo2);background:var(--roxo-claro); }
+  .alt-btn:hover .alt-letra { background:var(--roxo2);color:white; }
+  .alt-btn.correta { border-color:#22c55e;background:#f0fdf4; }
+  .alt-btn.correta .alt-letra { background:#22c55e;color:white; }
+  .alt-btn.errada  { border-color:#ef4444;background:#fff1f2; }
+  .alt-btn.errada .alt-letra  { background:#ef4444;color:white; }
+  .alt-btn:disabled { cursor:default; }
+  .obs-box { margin-top:13px;padding:13px;border-radius:var(--raio-sm);background:#fffbeb;border-left:4px solid #f59e0b;font-size:.87rem;font-weight:600;color:#78350f;display:none;line-height:1.5; }
+  .obs-box.visivel { display:block;animation:fadeUp .3s ease; }
+
+  /* RESULTADO */
+  .resultado-topo { text-align:center;padding:18px 8px 10px; }
+  .nota-circulo { width:116px;height:116px;border-radius:50%;margin:0 auto 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Baloo 2',cursive;box-shadow:0 8px 28px rgba(0,0,0,.18); }
+  .nota-circulo .valor { font-size:2.7rem;font-weight:800;color:white;line-height:1; }
+  .nota-circulo .label { font-size:.72rem;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase; }
+  .nota-verde   { background:linear-gradient(135deg,#059669,#34a853); }
+  .nota-amarelo { background:linear-gradient(135deg,#d97706,#fbbc04); }
+  .nota-vermelho{ background:linear-gradient(135deg,#dc2626,#ea4335); }
+  .msg-aluno { font-family:'Baloo 2',cursive;font-size:1.12rem;font-weight:800;line-height:1.5;color:#1f2937;margin-bottom:6px; }
+  .msg-aluno .nome { color:var(--roxo2); }
+  .acertos-info { font-size:.9rem;font-weight:700;color:#6b7280; }
+  .detalhe-row { display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #f3f4f6;font-size:.86rem;font-weight:600; }
+  .detalhe-row:last-child { border-bottom:none; }
+  .detalhe-chave { color:#9ca3af; }
+  .detalhe-valor { color:#111827;font-weight:800;text-align:right;max-width:60%; }
+  .gabarito-item { padding:12px;border-radius:var(--raio-sm);margin-bottom:9px;border:2px solid #e5e7eb; }
+  .gabarito-item.acerto { border-color:#86efac;background:#f0fdf4; }
+  .gabarito-item.erro   { border-color:#fca5a5;background:#fff1f2; }
+  .gabarito-num { font-size:.74rem;font-weight:800;color:#9ca3af;margin-bottom:4px;text-transform:uppercase; }
+  .gabarito-pergunta { font-size:.88rem;font-weight:700;color:#1f2937;margin-bottom:5px;line-height:1.4; }
+  .gabarito-resp.acerto { color:#16a34a;font-size:.84rem;font-weight:700; }
+  .gabarito-resp.erro   { color:#dc2626;font-size:.84rem;font-weight:700; }
+  .gabarito-correta { color:#16a34a;font-size:.82rem;font-weight:700;margin-top:3px; }
+  .gabarito-obs { font-size:.8rem;color:#6b7280;font-weight:600;margin-top:5px;line-height:1.4; }
+  .emoji-grande { font-size:2.8rem;display:block;text-align:center;animation:bounce .75s ease infinite alternate;margin-bottom:8px; }
+  @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-10px)} }
+
+  /* ═══ TELA COMPARTILHAR ═══ */
+  .share-titulo { font-family:'Baloo 2',cursive;font-size:1.65rem;font-weight:800;background:linear-gradient(135deg,#5b21b6,#7c3aed,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:2px; }
+  .share-sub { text-align:center;font-size:.8rem;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:18px;letter-spacing:2px;text-transform:uppercase; }
+  .link-box { background:#f3f4f6;border:2px solid #e5e7eb;border-radius:var(--raio-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px; }
+  .link-url { flex:1;font-size:.8rem;font-weight:700;color:var(--roxo2);word-break:break-all;font-family:monospace; }
+  .copy-btn { background:var(--roxo2);color:white;border:none;border-radius:8px;padding:7px 13px;font-family:'Baloo 2',cursive;font-weight:800;font-size:.85rem;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .2s; }
+  .copy-btn.ok { background:#16a34a; }
+  .qr-wrap { text-align:center;padding:18px;background:#f9fafb;border-radius:var(--raio-sm);border:2px dashed #e5e7eb;margin-bottom:12px; }
+  .qr-label { font-size:.78rem;font-weight:700;color:#9ca3af;margin-top:10px;text-transform:uppercase;letter-spacing:1px; }
+  .passos-box { border-radius:var(--raio-sm);padding:15px;margin-bottom:12px; }
+  .passos-titulo { font-family:'Baloo 2',cursive;font-weight:800;font-size:.98rem;margin-bottom:10px;display:flex;align-items:center;gap:6px; }
+  .passo { display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;font-size:.86rem;font-weight:600;line-height:1.45; }
+  .passo:last-child { margin-bottom:0; }
+  .pn { width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.74rem;font-weight:800;color:white;flex-shrink:0; }
+  .badges { display:flex;gap:10px;margin-top:4px; }
+  .badge { flex:1;background:white;border:2px solid #e5e7eb;border-radius:12px;padding:11px 6px;text-align:center; }
+  .badge-ic { font-size:1.45rem;display:block;margin-bottom:3px; }
+  .badge-tx { font-size:.74rem;font-weight:700;color:#374151; }
+
+  /* FAB */
+  .fab { position:fixed;bottom:22px;right:20px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#5b21b6,#7c3aed);color:white;border:none;font-size:1.4rem;cursor:pointer;box-shadow:0 6px 20px rgba(91,33,182,.4);display:flex;align-items:center;justify-content:center;z-index:100;transition:transform .2s; }
+  .fab:active { transform:scale(.9); }
+
+  /* PRINT */
+  @media print {
+    body { background:white !important; padding:0; }
+    .btn,.no-print,.fab { display:none !important; }
+    .tela { display:none !important; }
+    #tela-resultado { display:block !important; max-width:100%; }
+    .card { box-shadow:none;border:1px solid #e5e7eb;margin-bottom:10px; }
+    .nota-circulo,.gabarito-item { -webkit-print-color-adjust:exact;print-color-adjust:exact; }
+    .app-header { display:none; }
+  }
+  ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:rgba(124,58,237,.25);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- FAB Compartilhar -->
+<button class="fab no-print" onclick="irPara('tela-compartilhar')" title="Compartilhar">🔗</button>
+
+<!-- ══════════════════ TELA INÍCIO ══════════════════ -->
+<div id="tela-inicio" class="tela ativa">
+  <div class="app-header">
+    <img src="logo.png" class="logo-img" alt="Simulado"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div style="display:none;width:108px;height:108px;border-radius:26px;background:white;box-shadow:0 8px 32px rgba(0,0,0,.22);align-items:center;justify-content:center;font-size:3rem;margin:0 auto 10px">📝</div>
+    <div class="app-tagline">Estude · Pratique · Evolua</div>
+    <div class="app-subtitulo">Simulados personalizados com Inteligência Artificial ✨</div>
+  </div>
+
+  <div class="card">
+    <div class="secao-titulo"><div class="ic">👤</div>Dados do Aluno</div>
+    <div class="campo"><label>Nome completo</label><input type="text" id="nomeAluno" placeholder="Ex: Maria Clara Souza" maxlength="60"></div>
+    <div class="campo"><label>Idade</label><input type="number" id="idadeAluno" placeholder="Ex: 13" min="5" max="18"></div>
+  </div>
+
+  <div class="card">
+    <div class="secao-titulo"><div class="ic">🏫</div>Informações Escolares</div>
+    <div class="campo">
+      <label>Ano / Série</label>
+      <select id="serie">
+        <option value="">— Selecione —</option>
+        <optgroup label="Ensino Fundamental I">
+          <option>1º Ano EF</option><option>2º Ano EF</option><option>3º Ano EF</option><option>4º Ano EF</option><option>5º Ano EF</option>
+        </optgroup>
+        <optgroup label="Ensino Fundamental II">
+          <option>6º Ano EF</option><option>7º Ano EF</option><option>8º Ano EF</option><option>9º Ano EF</option>
+        </optgroup>
+        <optgroup label="Ensino Médio">
+          <option>1ª Série EM</option><option>2ª Série EM</option><option>3ª Série EM</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Bimestre</label>
+      <select id="bimestre">
+        <option value="">— Selecione —</option>
+        <option>1º Bimestre</option><option>2º Bimestre</option><option>3º Bimestre</option><option>4º Bimestre</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Disciplina</label>
+      <select id="disciplina">
+        <option value="">— Selecione —</option>
+        <option>Matemática</option><option>Língua Portuguesa</option><option>Ciências</option>
+        <option>História</option><option>Geografia</option><option>Física</option>
+        <option>Química</option><option>Biologia</option><option>Inglês</option>
+        <option>Artes</option><option>Educação Física</option><option>Filosofia</option><option>Sociologia</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Conteúdo / Tema da matéria</label>
+      <textarea id="conteudo" placeholder="Ex: Frações — operações, simplificação e comparação de frações." rows="3"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="secao-titulo"><div class="ic">⚙️</div>Configurações</div>
+    <div class="campo">
+      <label>Quantidade de questões</label>
+      <select id="qtdQuestoes">
+        <option value="5">5 questões</option>
+        <option value="10" selected>10 questões</option>
+        <option value="15">15 questões</option>
+        <option value="20">20 questões</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn btn-primario" onclick="iniciarSimulado()">🚀 Gerar Simulado com IA</button>
+  <div class="gap-btn"></div>
+  <button class="btn btn-outline" onclick="irPara('tela-compartilhar')">🔗 Compartilhar / Instalar App</button>
+  <div style="height:28px"></div>
+</div>
+
+<!-- ══════════════════ TELA CARREGANDO ══════════════════ -->
+<div id="tela-carregando" class="tela">
+  <div style="height:90px"></div>
+  <div class="card ia-loader">
+    <div class="spinner-wrap">
+      <div class="spinner"></div>
+      <img src="logo.png" class="spinner-logo" alt="" onerror="this.style.display='none'">
+    </div>
+    <h3>Criando seu simulado...</h3>
+    <p>A IA está preparando questões personalizadas</p>
+    <p style="margin-top:6px;font-size:.8rem;color:#c4b5fd">✨ Aguarde alguns instantes</p>
+  </div>
+</div>
+
+<!-- ══════════════════ TELA SIMULADO ══════════════════ -->
+<div id="tela-simulado" class="tela">
+  <div class="app-header">
+    <img src="logo.png" style="width:60px;height:60px;border-radius:16px;object-fit:contain;background:white;box-shadow:0 4px 16px rgba(0,0,0,.2);display:block;margin:0 auto 8px" alt="" onerror="this.style.display='none'">
+    <div class="app-subtitulo" id="info-simulado"></div>
+  </div>
+  <div class="card">
+    <div class="questao-header">
+      <span class="questao-num" id="lbl-questao-num">Questão 1</span>
+      <span class="questao-prog" id="lbl-questao-prog">1 / 10</span>
+    </div>
+    <div class="barra-prog-wrap"><div class="barra-prog-fill" id="barra-prog" style="width:10%"></div></div>
+    <div class="questao-disciplina" id="lbl-disciplina"></div>
+    <p class="questao-texto" id="questao-texto"></p>
+    <ul class="alternativas" id="lista-alternativas"></ul>
+    <div class="obs-box" id="obs-box"></div>
+  </div>
+  <button class="btn btn-primario" id="btn-proxima" onclick="proximaQuestao()" style="display:none">Próxima →</button>
+  <button class="btn btn-sucesso" id="btn-finalizar" onclick="finalizarSimulado()" style="display:none">✅ Ver Resultado</button>
+  <div style="height:28px"></div>
+</div>
+
+<!-- ══════════════════ TELA RESULTADO ══════════════════ -->
+<div id="tela-resultado" class="tela">
+  <div class="app-header no-print">
+    <img src="logo.png" style="width:72px;height:72px;border-radius:18px;object-fit:contain;background:white;box-shadow:0 4px 16px rgba(0,0,0,.2);display:block;margin:0 auto 8px" alt="" onerror="this.style.display='none'">
+    <div class="app-subtitulo">🏆 Resultado do Simulado</div>
+  </div>
+  <div class="card">
+    <div class="resultado-topo">
+      <span class="emoji-grande" id="emoji-resultado"></span>
+      <div class="nota-circulo" id="nota-circulo">
+        <span class="valor" id="nota-valor"></span>
+        <span class="label">NOTA</span>
+      </div>
+      <p class="msg-aluno" id="msg-aluno"></p>
+      <p class="acertos-info" id="acertos-info"></p>
+    </div>
+    <div id="detalhes-resultado" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <div class="secao-titulo"><div class="ic">📋</div>Gabarito Completo</div>
+    <div id="gabarito-completo"></div>
+  </div>
+  <button class="btn btn-azul no-print" onclick="imprimirResultado()">🖨️ Exportar / Imprimir PDF</button>
+  <div class="gap-btn"></div>
+  <button class="btn btn-secundario no-print" onclick="novoSimulado()">🔄 Novo Simulado</button>
+  <div style="height:28px"></div>
+</div>
+
+<!-- ══════════════════ TELA COMPARTILHAR ══════════════════ -->
+<div id="tela-compartilhar" class="tela">
+  <div class="app-header">
+    <img src="logo.png" class="logo-img" alt="Simulado" style="width:100px;height:100px"
+         onerror="this.style.display='none'">
+    <div class="share-titulo">Simulado</div>
+    <div class="share-sub">Estude · Pratique · Evolua</div>
+  </div>
+
+  <!-- LINK -->
+  <div class="card">
+    <div class="secao-titulo"><div class="ic">🔗</div>Link do App</div>
+    <div class="link-box">
+      <span class="link-url" id="link-url-texto">Carregando...</span>
+      <button class="copy-btn" id="btn-copiar" onclick="copiarLink()">📋 Copiar</button>
+    </div>
+    <button class="btn btn-wpp" onclick="compartilharWhatsApp()"><span>💬</span>Compartilhar no WhatsApp</button>
+    <div class="gap-btn"></div>
+    <button class="btn btn-azul" onclick="compartilharNativo()" id="btn-share-nativo" style="display:none"><span>📤</span>Compartilhar...</button>
+  </div>
+
+  <!-- QR CODE -->
+  <div class="card">
+    <div class="secao-titulo"><div class="ic">📲</div>QR Code</div>
+    <div class="qr-wrap">
+      <div id="qr-canvas-wrap"></div>
+      <p class="qr-label">Aponte a câmera do celular para abrir</p>
+    </div>
+    <p style="font-size:.8rem;font-weight:600;color:#9ca3af;text-align:center">
+      💡 Funciona corretamente após publicar no GitHub Pages
+    </p>
+  </div>
+
+  <!-- INSTALAR ANDROID -->
+  <div class="card">
+    <div class="secao-titulo"><div class="ic">📱</div>Instalar no Celular como App</div>
+
+    <div class="passos-box" style="background:#ede9fe">
+      <div class="passos-titulo" style="color:#5b21b6">🤖 Android — Chrome</div>
+      <div class="passo" style="color:#4c1d95"><div class="pn" style="background:#7c3aed">1</div><span>Abra o link no <strong>Google Chrome</strong></span></div>
+      <div class="passo" style="color:#4c1d95"><div class="pn" style="background:#7c3aed">2</div><span>Toque nos <strong>3 pontinhos ⋮</strong> no canto superior direito</span></div>
+      <div class="passo" style="color:#4c1d95"><div class="pn" style="background:#7c3aed">3</div><span>Toque em <strong>"Adicionar à tela inicial"</strong></span></div>
+      <div class="passo" style="color:#4c1d95"><div class="pn" style="background:#7c3aed">4</div><span>Confirme — o ícone aparece na tela do celular! 🎉</span></div>
+    </div>
+
+    <div class="passos-box" style="background:#fff7ed">
+      <div class="passos-titulo" style="color:#c2410c">🍎 iPhone — Safari</div>
+      <div class="passo" style="color:#7c2d12"><div class="pn" style="background:#ea580c">1</div><span>Abra o link no <strong>Safari</strong></span></div>
+      <div class="passo" style="color:#7c2d12"><div class="pn" style="background:#ea580c">2</div><span>Toque no ícone de <strong>Compartilhar ⬆️</strong> (barra inferior)</span></div>
+      <div class="passo" style="color:#7c2d12"><div class="pn" style="background:#ea580c">3</div><span>Toque em <strong>"Adicionar à Tela de Início"</strong></span></div>
+      <div class="passo" style="color:#7c2d12"><div class="pn" style="background:#ea580c">4</div><span>Toque em <strong>Adicionar</strong> — pronto! 🎉</span></div>
+    </div>
+
+    <div class="badges">
+      <div class="badge"><span class="badge-ic">🆓</span><span class="badge-tx">Gratuito</span></div>
+      <div class="badge"><span class="badge-ic">🤖</span><span class="badge-tx">IA Integrada</span></div>
+      <div class="badge"><span class="badge-ic">📶</span><span class="badge-tx">Online</span></div>
+    </div>
+  </div>
+
+  <!-- PUBLICAR NO GITHUB -->
+  <div class="card">
+    <div class="secao-titulo"><div class="ic">🐙</div>Publicar no GitHub Pages</div>
+    <div class="passos-box" style="background:#f0fdf4">
+      <div class="passos-titulo" style="color:#166534">🚀 Passo a passo</div>
+      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">1</div><span>Crie conta gratuita em <strong>github.com</strong></span></div>
+      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">2</div><span>Crie repositório público: <strong>simulado</strong></span></div>
+      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">3</div><span>Suba os arquivos <strong>index.html</strong> e <strong>logo.png</strong></span></div>
+      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">4</div><span>Vá em <strong>Settings → Pages → Branch: main</strong> → Save</span></div>
+      <div class="passo" style="color:#14532d"><div class="pn" style="background:#16a34a">5</div><span>Seu link: <strong>seuusuario.github.io/simulado</strong> ✅</span></div>
+    </div>
+  </div>
+
+  <button class="btn btn-primario" onclick="irPara('tela-inicio')">← Voltar ao App</button>
+  <div style="height:28px"></div>
+</div>
+
+<!-- QR CODE lib -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ══════════════════════════════════════════════
+const APP_URL = window.location.href.split('?')[0].split('#')[0];
+
+let estado = {
+  nomeAluno:'', idadeAluno:'', serie:'', bimestre:'',
+  disciplina:'', conteudo:'', qtdQuestoes:10,
+  questoes:[], respostas:[], indiceAtual:0, respondida:false
+};
+
+// ── Navegação ──────────────────────────────────
+function irPara(id) {
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if (id === 'tela-compartilhar') montarCompartilhar();
+}
+
+// ── Validação ──────────────────────────────────
+function validar() {
+  const campos = ['nomeAluno','idadeAluno','serie','bimestre','disciplina','conteudo'];
+  for (const c of campos) {
+    const el = document.getElementById(c);
+    if (!el.value.trim()) {
+      el.focus();
+      el.style.borderColor='#ef4444';
+      el.style.boxShadow='0 0 0 3px rgba(239,68,68,.15)';
+      setTimeout(()=>{ el.style.borderColor=''; el.style.boxShadow=''; },2200);
+      alert('Por favor, preencha todos os campos!');
+      return false;
+    }
+  }
+  return true;
+}
+
+// ── Iniciar ────────────────────────────────────
+async function iniciarSimulado() {
+  if (!validar()) return;
+  estado.nomeAluno   = document.getElementById('nomeAluno').value.trim();
+  estado.idadeAluno  = document.getElementById('idadeAluno').value;
+  estado.serie       = document.getElementById('serie').value;
+  estado.bimestre    = document.getElementById('bimestre').value;
+  estado.disciplina  = document.getElementById('disciplina').value;
+  estado.conteudo    = document.getElementById('conteudo').value.trim();
+  estado.qtdQuestoes = parseInt(document.getElementById('qtdQuestoes').value);
+  estado.respostas   = []; estado.indiceAtual = 0;
+  irPara('tela-carregando');
+  try {
+    estado.questoes = await gerarQuestoesIA();
+    document.getElementById('info-simulado').textContent =
+      `${estado.disciplina} · ${estado.serie} · ${estado.bimestre}`;
+    document.getElementById('lbl-disciplina').textContent =
+      `${estado.disciplina} — ${estado.serie}`;
+    montarQuestao(0);
+    irPara('tela-simulado');
+  } catch(e) {
+    alert('Erro ao gerar questões. Verifique sua conexão e tente novamente.\n\n' + e.message);
+    irPara('tela-inicio');
+  }
+}
+
+// ── API ────────────────────────────────────────
+async function gerarQuestoesIA() {
+  const prompt = `Você é um professor experiente do Brasil. Crie exatamente ${estado.qtdQuestoes} questões de múltipla escolha sobre o conteúdo abaixo para um aluno de ${estado.serie} com ${estado.idadeAluno} anos.
+
+Disciplina: ${estado.disciplina}
+Conteúdo/Tema: ${estado.conteudo}
+Bimestre: ${estado.bimestre}
+
+REGRAS OBRIGATÓRIAS:
+- Cada questão deve ter exatamente 4 alternativas (A, B, C, D).
+- Apenas UMA alternativa deve ser correta.
+- Linguagem acessível para a faixa etária e série.
+- Questões variadas: interpretação, cálculo, conceito, exemplos práticos.
+- Para cada questão forneça observação/explicação breve da resposta correta.
+
+Responda SOMENTE com JSON válido neste formato exato (sem markdown, sem texto extra):
+{"questoes":[{"pergunta":"texto","alternativas":["A","B","C","D"],"correta":0,"observacao":"explicação"}]}
+
+"correta" é o índice 0-3 (0=A,1=B,2=C,3=D).`;
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:4000,
+      messages:[{role:"user",content:prompt}]
+    })
+  });
+  if (!res.ok) throw new Error('API '+res.status);
+  const data = await res.json();
+  const txt = data.content.map(i=>i.text||'').join('');
+  return JSON.parse(txt.replace(/```json|```/g,'').trim()).questoes;
+}
+
+// ── Questão ────────────────────────────────────
+const LETRAS = ['A','B','C','D'];
+function montarQuestao(idx) {
+  const q = estado.questoes[idx];
+  const tot = estado.questoes.length;
+  estado.respondida = false;
+  document.getElementById('btn-proxima').style.display='none';
+  document.getElementById('btn-finalizar').style.display='none';
+  document.getElementById('obs-box').classList.remove('visivel');
+  document.getElementById('lbl-questao-num').textContent = `Questão ${idx+1}`;
+  document.getElementById('lbl-questao-prog').textContent = `${idx+1} / ${tot}`;
+  document.getElementById('barra-prog').style.width = `${((idx+1)/tot)*100}%`;
+  document.getElementById('questao-texto').textContent = q.pergunta;
+  const ul = document.getElementById('lista-alternativas');
+  ul.innerHTML = '';
+  q.alternativas.forEach((alt,i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<button class="alt-btn" onclick="selecionarResposta(${i})">
+      <span class="alt-letra">${LETRAS[i]}</span><span>${alt}</span>
+    </button>`;
+    ul.appendChild(li);
+  });
+}
+
+function selecionarResposta(idx) {
+  if (estado.respondida) return;
+  estado.respondida = true;
+  const q = estado.questoes[estado.indiceAtual];
+  estado.respostas.push({questaoIdx:estado.indiceAtual, resposta:idx, correta:idx===q.correta});
+  document.querySelectorAll('.alt-btn').forEach((btn,i) => {
+    btn.disabled = true;
+    if (i===q.correta) btn.classList.add('correta');
+    else if (i===idx)  btn.classList.add('errada');
+  });
+  const obs = document.getElementById('obs-box');
+  obs.textContent = `${idx===q.correta?'✅':'❌'} ${q.observacao}`;
+  obs.classList.add('visivel');
+  if (estado.indiceAtual < estado.questoes.length-1)
+    document.getElementById('btn-proxima').style.display='flex';
+  else
+    document.getElementById('btn-finalizar').style.display='flex';
+}
+
+function proximaQuestao() {
+  estado.indiceAtual++;
+  montarQuestao(estado.indiceAtual);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Resultado ──────────────────────────────────
+function finalizarSimulado() {
+  const tot = estado.questoes.length;
+  const ac  = estado.respostas.filter(r=>r.correta).length;
+  const nota = parseFloat(((ac/tot)*10).toFixed(1));
+  let emoji, cls, msg;
+  if (nota > 7) {
+    emoji='🎉'; cls='nota-verde';
+    msg=`Parabéns, <span class="nome">${estado.nomeAluno}</span>! Continue estudando assim! 🌟`;
+  } else if (nota >= 5) {
+    emoji='📖'; cls='nota-amarelo';
+    msg=`<span class="nome">${estado.nomeAluno}</span>, você precisa se esforçar mais! Você consegue! 💪`;
+  } else {
+    emoji='😬'; cls='nota-vermelho';
+    msg=`<span class="nome">${estado.nomeAluno}</span>, você não estudou... Pare de jogar vídeo game ou ficar no celular e se dedique aos estudos! 📵`;
+  }
+  document.getElementById('emoji-resultado').textContent = emoji;
+  document.getElementById('nota-circulo').className = `nota-circulo ${cls}`;
+  document.getElementById('nota-valor').textContent = nota.toFixed(1);
+  document.getElementById('msg-aluno').innerHTML = msg;
+  document.getElementById('acertos-info').textContent =
+    `${ac} acerto${ac!==1?'s':''} de ${tot} questões`;
+  document.getElementById('detalhes-resultado').innerHTML = `
+    <div class="detalhe-row"><span class="detalhe-chave">Aluno</span><span class="detalhe-valor">${estado.nomeAluno}</span></div>
+    <div class="detalhe-row"><span class="detalhe-chave">Idade</span><span class="detalhe-valor">${estado.idadeAluno} anos</span></div>
+    <div class="detalhe-row"><span class="detalhe-chave">Série</span><span class="detalhe-valor">${estado.serie}</span></div>
+    <div class="detalhe-row"><span class="detalhe-chave">Bimestre</span><span class="detalhe-valor">${estado.bimestre}</span></div>
+    <div class="detalhe-row"><span class="detalhe-chave">Disciplina</span><span class="detalhe-valor">${estado.disciplina}</span></div>
+    <div class="detalhe-row"><span class="detalhe-chave">Conteúdo</span><span class="detalhe-valor">${estado.conteudo}</span></div>
+    <div class="detalhe-row"><span class="detalhe-chave">Data</span><span class="detalhe-valor">${new Date().toLocaleDateString('pt-BR')}</span></div>`;
+  const gab = document.getElementById('gabarito-completo');
+  gab.innerHTML='';
+  estado.questoes.forEach((q,i) => {
+    const r = estado.respostas.find(x=>x.questaoIdx===i);
+    const ok = r && r.correta;
+    const lr = r ? LETRAS[r.resposta] : '—';
+    const lc = LETRAS[q.correta];
+    gab.innerHTML += `
+      <div class="gabarito-item ${ok?'acerto':'erro'}">
+        <div class="gabarito-num">Questão ${i+1}</div>
+        <div class="gabarito-pergunta">${q.pergunta}</div>
+        <div class="gabarito-resp ${ok?'acerto':'erro'}">${ok?'✅':'❌'} ${lr}) ${r?q.alternativas[r.resposta]:'—'}</div>
+        ${!ok?`<div class="gabarito-correta">✅ Correta: ${lc}) ${q.alternativas[q.correta]}</div>`:''}
+        <div class="gabarito-obs">💡 ${q.observacao}</div>
+      </div>`;
+  });
+  irPara('tela-resultado');
+}
+
+function imprimirResultado() { window.print(); }
+function novoSimulado() { irPara('tela-inicio'); }
+
+// ── Compartilhar ───────────────────────────────
+let _qrOk = false;
+function montarCompartilhar() {
+  document.getElementById('link-url-texto').textContent = APP_URL;
+  if (navigator.share) document.getElementById('btn-share-nativo').style.display='flex';
+
+  if (!_qrOk) {
+    const wrap = document.getElementById('qr-canvas-wrap');
+    wrap.innerHTML = '';
+    try {
+      new QRCode(wrap, {
+        text: APP_URL, width:200, height:200,
+        colorDark:'#5b21b6', colorLight:'#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      _qrOk = true;
+    } catch(e) {
+      wrap.innerHTML = `<p style="color:#9ca3af;font-size:.85rem;font-weight:600;padding:20px 0">
+        📲 QR Code disponível após publicar no GitHub Pages</p>`;
+    }
+  }
+}
+
+function copiarLink() {
+  navigator.clipboard.writeText(APP_URL).then(() => {
+    const btn = document.getElementById('btn-copiar');
+    btn.textContent='✅ Copiado!'; btn.classList.add('ok');
+    setTimeout(()=>{ btn.textContent='📋 Copiar'; btn.classList.remove('ok'); },2500);
+  }).catch(()=>{ prompt('Copie o link:', APP_URL); });
+}
+
+function compartilharWhatsApp() {
+  const txt = encodeURIComponent(
+    `📚 *Simulado — Estude. Pratique. Evolua.*\n\n` +
+    `🤖 Simulados personalizados com IA para qualquer matéria!\n` +
+    `✅ Gratuito e funciona direto no celular!\n\n` +
+    `🔗 Acesse: ${APP_URL}`
+  );
+  window.open(`https://wa.me/?text=${txt}`, '_blank');
+}
+
+function compartilharNativo() {
+  if (navigator.share) {
+    navigator.share({
+      title:'Simulado — Estude. Pratique. Evolua.',
+      text:'🤖 Simulados com IA! Gratuito e fácil de usar.',
+      url: APP_URL
+    });
+  }
+}
+</script>
+</body>
+</html>
