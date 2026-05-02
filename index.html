@@ -3,14 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="version" content="v12">
 <meta name="theme-color" content="#0f0a1e">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Simulado">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.json?v=11">
+<link rel="apple-touch-icon" sizes="192x192" href="ícone-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="ícone-192.png">
 <title>Simulado — Estude. Pratique. Evolua.</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -596,6 +600,8 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .mapa-dot.atual{background:var(--amarelo);border-color:var(--amarelo);color:#000;box-shadow:0 0 12px rgba(245,158,11,.5)}
 .mapa-dot.respondida{background:rgba(16,185,129,.2);border-color:var(--verde);color:var(--verde)}
 .mapa-dot.pulada{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--vermelho)}
+
+@media print {
   body{background:white!important}
   .btn,.no-print,#splash,#banner,#banner-ios,#overlay,#fab-install,#fab-share,body::before,body::after{display:none!important}
   .tela{display:none!important}
@@ -638,7 +644,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 <div id="banner">
   <div class="banner-handle"></div>
   <div class="banner-row">
-    <img src="icon-192.png" class="banner-icon" alt="Simulado" onerror="this.style.display='none'">
+    <img src="ícone-192.png" class="banner-icon" alt="Simulado" onerror="this.style.display='none'">
     <div>
       <div class="banner-title">⬇ INSTALAR SIMULADO</div>
       <div class="banner-desc">Adicione à tela inicial — abre como app, sem navegador!</div>
@@ -799,7 +805,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
   <!-- CARD INSTALAR -->
   <div id="card-instalar" class="install-card">
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-      <img src="icon-192.png" style="width:52px;height:52px;border-radius:13px;border:1px solid rgba(124,58,237,.4);box-shadow:var(--glow-roxo)" alt="Simulado" onerror="this.style.display='none'">
+      <img src="ícone-192.png" style="width:52px;height:52px;border-radius:13px;border:1px solid rgba(124,58,237,.4);box-shadow:var(--glow-roxo)" alt="Simulado" onerror="this.style.display='none'">
       <div>
         <div style="font-family:'Orbitron',monospace;font-size:.9rem;font-weight:800;color:#fff;letter-spacing:.5px">📲 INSTALAR APP</div>
         <div style="font-size:.82rem;font-weight:600;color:var(--cinza);margin-top:2px">Abre direto como app, sem navegador!</div>
@@ -872,12 +878,12 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
   </div>
 
   <!-- Navegação livre -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:0">
-    <button class="btn btn-ghost" id="btn-ant" onclick="anterior()" style="display:none">◀ ANTERIOR</button>
-    <button class="btn btn-ghost" id="btn-pular" onclick="pular()" style="display:none">PULAR ⏭</button>
+  <div id="nav-buttons" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+    <button class="btn btn-ghost" id="btn-ant" onclick="anterior()" style="display:none;flex:1">◀ ANTERIOR</button>
+    <button class="btn btn-ghost" id="btn-pular" onclick="pular()" style="display:none;flex:1">PULAR ⏭</button>
+    <button class="btn btn-roxo" id="btn-prox" onclick="proxima()" style="display:none;flex:1">PRÓXIMA ▶</button>
+    <button class="btn btn-verde" id="btn-fin" onclick="confirmarFinalizar()" style="display:none;width:100%">✓ FINALIZAR</button>
   </div>
-  <button class="btn btn-roxo" id="btn-prox" onclick="proxima()" style="display:none;margin-top:10px">PRÓXIMA ▶</button>
-  <button class="btn btn-verde" id="btn-fin" onclick="confirmarFinalizar()" style="display:none;margin-top:10px">✓ FINALIZAR</button>
 
   <!-- Mini mapa de questões -->
   <div class="card" style="margin-top:14px;padding:14px">
@@ -962,6 +968,18 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 // ═══════════════════════════════════════════
 const WORKER_URL = 'https://simulado-api.rodrigo-rodrigues0311.workers.dev';
 const APP_URL = location.href.split('?')[0].split('#')[0];
+
+// ═══════════════════════════════════════════
+// LIMPA CACHE ANTIGO FORÇADO
+// ═══════════════════════════════════════════
+(async function(){
+  if('caches' in window){
+    const keys = await caches.keys();
+    for(const key of keys){
+      if(key !== 'simulado-v12') await caches.delete(key);
+    }
+  }
+})();
 
 // ═══════════════════════════════════════════
 // SPLASH
@@ -1415,79 +1433,114 @@ function confirmarFinalizar(){
 // ═══════════════════════════════════════════
 function finalizar(){
   const tot=E.questoes.length;
+
+  // Questões sem resposta = zeradas
+  E.questoes.forEach((_,i)=>{
+    const jaRespondida=E.respostas.find(r=>r.qi===i);
+    if(!jaRespondida){
+      E.respostas.push({qi:i,tipo:E.modo,resposta:null,ok:false,pontos:0,classificacao:'incorreto',feedback:'Questão não respondida — zerada.'});
+    }
+  });
+
   const pontos=E.respostas.reduce((s,r)=>s+(r.pontos||0),0);
   const nota=parseFloat(((pontos/tot)*10).toFixed(1));
   const acertos=E.respostas.filter(r=>r.ok).length;
+  const parciais=E.respostas.filter(r=>r.classificacao==='parcial').length;
+  const puladas=E.respostas.filter(r=>r.resposta===null).length;
 
-  let emoji,cls,msg,pct;
+  let emoji,cls,pct,msg;
   if(nota>7){
     emoji='🏆';cls='nota-verde';pct=Math.round(nota*10);
-    msg=`PARABÉNS, <span class="nome">${E.nome}</span>! CONTINUE ESTUDANDO ASSIM! 🌟`;
+    msg=`PARABÉNS, <span class="nome">${E.nome}</span>!<br>CONTINUE ESTUDANDO ASSIM! 🌟`;
   } else if(nota>=5){
     emoji='📖';cls='nota-amarelo';pct=Math.round(nota*10);
-    msg=`<span class="nome">${E.nome}</span>, VOCÊ PRECISA SE ESFORÇAR MAIS! VOCÊ CONSEGUE! 💪`;
+    msg=`<span class="nome">${E.nome}</span>,<br>VOCÊ PRECISA SE ESFORÇAR MAIS! 💪`;
   } else {
     emoji='😬';cls='nota-vermelho';pct=Math.round(nota*10);
-    msg=`<span class="nome">${E.nome}</span>, VOCÊ NÃO ESTUDOU... PARE DE JOGAR VÍDEO GAME OU FICAR NO CELULAR E SE DEDIQUE AOS ESTUDOS! 📵`;
+    msg=`<span class="nome">${E.nome}</span>, VOCÊ NÃO ESTUDOU...<br>PARE DE JOGAR VÍDEO GAME OU FICAR NO CELULAR E SE DEDIQUE AOS ESTUDOS! 📵`;
   }
 
-  document.getElementById('emoji-r').textContent=emoji;
-  const ring=document.getElementById('nota-ring');
-  ring.className=`nota-ring ${cls}`;
-  ring.style.setProperty('--pct',`${pct}%`);
-  document.getElementById('nota-v').textContent=nota.toFixed(1);
-  document.getElementById('msg-a').innerHTML=msg;
-  document.getElementById('ac-info').textContent=
-    E.modo==='multipla'
-      ? `${acertos} acerto${acertos!==1?'s':''} de ${tot} questões`
-      : `${acertos} corretas · ${E.respostas.filter(r=>r.classificacao==='parcial').length} parciais · ${E.respostas.filter(r=>!r.ok&&r.classificacao!=='parcial').length} incorretas`;
-
-  const fotoRes=document.getElementById('foto-resultado');
-  if(fotoBase64&&fotoRes){fotoRes.src=fotoBase64;fotoRes.style.display='block';}
-  else if(fotoRes) fotoRes.style.display='none';
-
-  const nivelLabel=E.nivel==='facil'?'😎 Molezinha':'💀 Sinistro';
-  const modoLabel=E.modo==='multipla'?'🎯 Múltipla Escolha':'✍️ Discursiva';
-  document.getElementById('dets').innerHTML=`
-    <div class="det-row"><span class="det-k">Aluno</span><span class="det-v">${E.nome}</span></div>
-    <div class="det-row"><span class="det-k">Idade</span><span class="det-v">${E.idade} anos</span></div>
-    <div class="det-row"><span class="det-k">Série</span><span class="det-v">${E.serie}</span></div>
-    <div class="det-row"><span class="det-k">Bimestre</span><span class="det-v">${E.bimestre}</span></div>
-    <div class="det-row"><span class="det-k">Disciplina</span><span class="det-v">${E.disciplina}</span></div>
-    <div class="det-row"><span class="det-k">Modo</span><span class="det-v">${modoLabel}</span></div>
-    <div class="det-row"><span class="det-k">Nível</span><span class="det-v">${nivelLabel}</span></div>
-    <div class="det-row"><span class="det-k">Data</span><span class="det-v">${new Date().toLocaleDateString('pt-BR')}</span></div>`;
-
-  const g=document.getElementById('gab');g.innerHTML='';
-  E.questoes.forEach((q,i)=>{
-    const r=E.respostas.find(x=>x.qi===i);
-    if(!r){return;}
-    let itemCls,icone,respTxt,gabCls;
-    if(E.modo==='multipla'){
-      const ok=r.ok;
-      itemCls=ok?'ok':'err';icone=ok?'✅':'❌';gabCls=ok?'ok':'err';
-      const lr=LETRAS[r.resposta],lc=LETRAS[q.correta];
-      respTxt=`${icone} ${lr}) ${q.alternativas[r.resposta]}`;
-      const corrTxt=!ok?`<div class="gab-c">✅ Correta: ${lc}) ${q.alternativas[q.correta]}</div>`:'';
-      g.innerHTML+=`<div class="gab-item ${itemCls}">
-        <div class="gab-n">QUESTÃO ${i+1}</div>
-        <div class="gab-p">${q.pergunta}</div>
-        <div class="gab-r ${gabCls}">${respTxt}</div>${corrTxt}
-        <div class="gab-obs">💡 ${q.observacao}</div>
-      </div>`;
-    } else {
-      const cls=r.classificacao||'incorreto';
-      const iconeDisc=cls==='correto'?'✅':cls==='parcial'?'⚡':'❌';
-      g.innerHTML+=`<div class="gab-item ${cls==='correto'?'ok':cls==='parcial'?'parcial':'err'}">
-        <div class="gab-n">QUESTÃO ${i+1}</div>
-        <div class="gab-p">${q.pergunta}</div>
-        <div class="gab-r ${cls==='correto'?'ok':cls==='parcial'?'parcial':'err'}">${iconeDisc} Sua resposta: "${r.resposta}"</div>
-        ${r.feedback?`<div class="gab-c">🤖 ${r.feedback}</div>`:''}
-        <div class="gab-obs">💡 Resposta esperada: ${q.resposta_esperada}</div>
-      </div>`;
-    }
-  });
+  // Vai para tela antes de renderizar para garantir que os elementos existem
   irPara('tela-resultado');
+
+  // Renderiza após pequeno delay para garantir que a tela está visível
+  setTimeout(()=>{
+    document.getElementById('emoji-r').textContent=emoji;
+    const ring=document.getElementById('nota-ring');
+    ring.className=`nota-ring ${cls}`;
+    ring.style.setProperty('--pct',`${pct}%`);
+    document.getElementById('nota-v').textContent=nota.toFixed(1);
+    document.getElementById('msg-a').innerHTML=msg;
+
+    let infoAcertos='';
+    if(E.modo==='multipla'){
+      infoAcertos=`${acertos} acerto${acertos!==1?'s':''} de ${tot} questões`;
+    } else {
+      infoAcertos=`✅ ${acertos} corretas · ⚡ ${parciais} parciais · ❌ ${E.respostas.filter(r=>!r.ok&&r.classificacao!=='parcial'&&r.resposta!==null).length} incorretas`;
+    }
+    if(puladas>0) infoAcertos+=` · ⏭ ${puladas} pulada${puladas!==1?'s':''}`;
+    document.getElementById('ac-info').textContent=infoAcertos;
+
+    const fotoRes=document.getElementById('foto-resultado');
+    if(fotoBase64&&fotoRes){fotoRes.src=fotoBase64;fotoRes.style.display='block';}
+    else if(fotoRes) fotoRes.style.display='none';
+
+    const nivelLabel=E.nivel==='facil'?'😎 Molezinha':'💀 Sinistro';
+    const modoLabel=E.modo==='multipla'?'🎯 Múltipla Escolha':'✍️ Discursiva';
+    document.getElementById('dets').innerHTML=`
+      <div class="det-row"><span class="det-k">Aluno</span><span class="det-v">${E.nome}</span></div>
+      <div class="det-row"><span class="det-k">Idade</span><span class="det-v">${E.idade} anos</span></div>
+      <div class="det-row"><span class="det-k">Série</span><span class="det-v">${E.serie}</span></div>
+      <div class="det-row"><span class="det-k">Bimestre</span><span class="det-v">${E.bimestre}</span></div>
+      <div class="det-row"><span class="det-k">Disciplina</span><span class="det-v">${E.disciplina}</span></div>
+      <div class="det-row"><span class="det-k">Modo</span><span class="det-v">${modoLabel}</span></div>
+      <div class="det-row"><span class="det-k">Nível</span><span class="det-v">${nivelLabel}</span></div>
+      <div class="det-row"><span class="det-k">Nota Final</span><span class="det-v" style="color:${nota>7?'#10b981':nota>=5?'#f59e0b':'#ef4444'};font-size:1.1rem">${nota.toFixed(1)} / 10</span></div>
+      <div class="det-row"><span class="det-k">Data</span><span class="det-v">${new Date().toLocaleDateString('pt-BR')}</span></div>`;
+
+    // Gabarito — ordena por número da questão
+    const g=document.getElementById('gab');
+    g.innerHTML='';
+    const respostasOrdenadas=[...E.respostas].sort((a,b)=>a.qi-b.qi);
+    respostasOrdenadas.forEach(r=>{
+      const q=E.questoes[r.qi];
+      if(!q) return;
+      const i=r.qi;
+
+      if(r.resposta===null){
+        // Questão pulada
+        g.innerHTML+=`<div class="gab-item err" style="opacity:.7">
+          <div class="gab-n">QUESTÃO ${i+1}</div>
+          <div class="gab-p">${q.pergunta}</div>
+          <div class="gab-r err">⏭ Não respondida — zerada</div>
+          ${E.modo==='multipla'?`<div class="gab-c">✅ Correta: ${LETRAS[q.correta]}) ${q.alternativas[q.correta]}</div>`:`<div class="gab-c">💡 Resposta: ${q.resposta_esperada||''}</div>`}
+        </div>`;
+        return;
+      }
+
+      if(E.modo==='multipla'){
+        const ok=r.ok;
+        const lr=LETRAS[r.resposta],lc=LETRAS[q.correta];
+        g.innerHTML+=`<div class="gab-item ${ok?'ok':'err'}">
+          <div class="gab-n">QUESTÃO ${i+1}</div>
+          <div class="gab-p">${q.pergunta}</div>
+          <div class="gab-r ${ok?'ok':'err'}">${ok?'✅':'❌'} ${lr}) ${q.alternativas[r.resposta]}</div>
+          ${!ok?`<div class="gab-c">✅ Correta: ${lc}) ${q.alternativas[q.correta]}</div>`:''}
+          <div class="gab-obs">💡 ${q.observacao}</div>
+        </div>`;
+      } else {
+        const cls=r.classificacao||'incorreto';
+        const ic=cls==='correto'?'✅':cls==='parcial'?'⚡':'❌';
+        g.innerHTML+=`<div class="gab-item ${cls==='correto'?'ok':cls==='parcial'?'parcial':'err'}">
+          <div class="gab-n">QUESTÃO ${i+1}</div>
+          <div class="gab-p">${q.pergunta}</div>
+          <div class="gab-r ${cls==='correto'?'ok':cls==='parcial'?'parcial':'err'}">${ic} "${r.resposta}"</div>
+          ${r.feedback?`<div class="gab-c">🤖 ${r.feedback}</div>`:''}
+          <div class="gab-obs">💡 Resposta esperada: ${q.resposta_esperada||''}</div>
+        </div>`;
+      }
+    });
+  }, 50);
 }
 
 // ═══════════════════════════════════════════
