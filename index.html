@@ -601,7 +601,51 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .mapa-dot.respondida{background:rgba(16,185,129,.2);border-color:var(--verde);color:var(--verde)}
 .mapa-dot.pulada{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--vermelho)}
 
+/* ══ SISTEMA DE ACESSO ══ */
+#tela-acesso{position:fixed;inset:0;z-index:9000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+#tela-acesso.hide{display:none}
+.acesso-logo{width:80px;height:80px;border-radius:20px;object-fit:contain;background:rgba(124,58,237,.15);border:2px solid rgba(124,58,237,.35);box-shadow:var(--glow-roxo);margin-bottom:14px;display:block}
+.acesso-titulo{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--roxo3),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;margin-bottom:4px;text-align:center}
+.acesso-sub{font-size:.78rem;font-weight:700;color:var(--cinza);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;text-align:center}
+.acesso-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:20px;width:100%;max-width:420px;position:relative;overflow:hidden}
+.acesso-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,58,237,.5),transparent)}
+.pix-box{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:var(--rs);padding:16px;margin-bottom:16px;text-align:center}
+.pix-valor{font-family:'Orbitron',monospace;font-size:1.9rem;font-weight:900;color:var(--verde);text-shadow:var(--glow-verde);margin-bottom:3px}
+.pix-label{font-size:.72rem;font-weight:700;color:var(--cinza);letter-spacing:1px;text-transform:uppercase}
+.pix-chave-wrap{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 12px;margin:10px 0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pix-chave-txt{font-family:monospace;font-size:.88rem;font-weight:700;color:var(--branco);word-break:break-all;flex:1}
+.pix-copy{background:var(--verde);color:#fff;border:none;border-radius:6px;padding:6px 10px;font-family:'Orbitron',monospace;font-size:.68rem;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity .2s;letter-spacing:.5px}
+.pix-copy:active{opacity:.7}
+.pix-instrucao{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.45);line-height:1.5;margin-top:8px}
+.sep{display:flex;align-items:center;gap:10px;margin:16px 0}
+.sep-line{flex:1;height:1px;background:rgba(255,255,255,.08)}
+.sep-txt{font-size:.72rem;font-weight:800;color:var(--cinza);font-family:'Orbitron',monospace;letter-spacing:.5px;white-space:nowrap}
+.codigo-input{width:100%;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);border-radius:var(--rs);padding:14px;font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:800;color:var(--branco);outline:none;text-align:center;letter-spacing:5px;text-transform:uppercase;transition:border-color .2s,box-shadow .2s;margin-bottom:8px}
+.codigo-input:focus{border-color:var(--roxo2);box-shadow:var(--glow-roxo)}
+.codigo-erro{font-size:.78rem;font-weight:800;color:var(--vermelho);text-align:center;min-height:18px;margin-bottom:8px;font-family:'Orbitron',monospace;letter-spacing:.5px}
+.wpp-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;font-family:'Orbitron',monospace;font-size:.8rem;font-weight:800;cursor:pointer;letter-spacing:.5px;margin-top:8px;box-shadow:0 0 16px rgba(34,197,94,.3)}
+
+/* ══ PAINEL ADMIN ══ */
+#tela-admin{position:fixed;inset:0;z-index:9500;background:var(--bg);overflow-y:auto;padding:20px;display:none}
+#tela-admin.ativa{display:block;animation:slideUp .3s ease}
+.admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.admin-titulo{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--roxo3);letter-spacing:1px}
+.admin-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 14px;color:var(--cinza);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:800;cursor:pointer;letter-spacing:.5px}
+.codigo-item{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:var(--rs);padding:13px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.codigo-item.usado{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2)}
+.codigo-item.revogado{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.15);opacity:.6}
+.codigo-val{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--roxo3);letter-spacing:3px}
+.codigo-info{font-size:.72rem;font-weight:600;color:var(--cinza);margin-top:2px}
+.badge{font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:20px;font-family:'Orbitron',monospace;letter-spacing:.5px;white-space:nowrap}
+.badge-ok{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--verde)}
+.badge-novo{background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:var(--roxo3)}
+.badge-rev{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--vermelho)}
+.admin-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);padding:12px 14px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:600;color:var(--branco);outline:none;transition:border-color .2s;-webkit-appearance:none;margin-bottom:10px}
+.admin-input:focus{border-color:var(--roxo2)}
+.admin-input option{background:#1a1035}
+
 @media print {
+
   body{background:white!important}
   .btn,.no-print,#splash,#banner,#banner-ios,#overlay,#fab-install,#fab-share,body::before,body::after{display:none!important}
   .tela{display:none!important}
@@ -621,6 +665,154 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 </style>
 </head>
 <body>
+
+<!-- ══════════ TELA DE ACESSO ══════════ -->
+<div id="tela-acesso">
+  <img src="logo.png" class="acesso-logo" alt="Simulado" onerror="this.style.display='none'">
+  <div class="acesso-titulo">SIMULADO</div>
+  <div class="acesso-sub">Acesso Exclusivo</div>
+
+  <div class="acesso-card">
+    <!-- PIX -->
+    <div class="pix-box">
+      <div class="pix-label">Valor de acesso</div>
+      <div class="pix-valor" id="pix-valor-display">R$ 5,00</div>
+      <div class="pix-label" style="margin-top:4px">pagamento único · acesso vitalício</div>
+      <div class="pix-chave-wrap">
+        <span class="pix-chave-txt" id="pix-chave-display">rodrigo.rodrigues0311@gmail.com</span>
+        <button class="pix-copy" onclick="copiarPix()">COPIAR</button>
+      </div>
+      <div class="pix-instrucao">
+        1. Abra seu banco e faça o Pix<br>
+        2. Envie o comprovante no WhatsApp<br>
+        3. Receba seu código de acesso
+      </div>
+    </div>
+
+    <!-- WHATSAPP -->
+    <button class="wpp-btn" onclick="abrirWppAcesso()">
+      💬 ENVIAR COMPROVANTE NO WHATSAPP
+    </button>
+
+    <!-- SEPARADOR -->
+    <div class="sep">
+      <div class="sep-line"></div>
+      <div class="sep-txt">JÁ TEM O CÓDIGO?</div>
+      <div class="sep-line"></div>
+    </div>
+
+    <!-- CÓDIGO DE ACESSO -->
+    <input class="codigo-input" id="codigo-acesso" type="text"
+      placeholder="XXXX-XXXX" maxlength="9"
+      oninput="formatarCodigo(this)"
+      onkeydown="if(event.key==='Enter')verificarCodigo()">
+    <div class="codigo-erro" id="codigo-erro"></div>
+    <button class="btn btn-roxo" onclick="verificarCodigo()" style="font-size:.88rem">
+      🔓 DESBLOQUEAR ACESSO
+    </button>
+
+    <!-- ADMIN OCULTO -->
+    <div style="text-align:center;margin-top:16px">
+      <button onclick="abrirAdmin()" style="background:none;border:none;color:rgba(255,255,255,.08);font-size:.6rem;cursor:pointer;font-family:'Orbitron',monospace;letter-spacing:1px">
+        ··· admin ···
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAINEL ADMIN ══════════ -->
+<div id="tela-admin">
+  <div style="max-width:480px;margin:0 auto">
+    <div class="admin-header">
+      <div>
+        <div class="admin-titulo">🔐 PAINEL ADMIN</div>
+        <div style="font-size:.72rem;font-weight:600;color:var(--cinza);margin-top:2px">Gerenciador de Códigos</div>
+      </div>
+      <button class="admin-close" onclick="fecharAdmin()">✕ FECHAR</button>
+    </div>
+
+    <!-- LOGIN ADMIN -->
+    <div id="admin-login" class="card">
+      <div class="sec"><div class="ic">🔑</div>AUTENTICAÇÃO</div>
+      <div class="campo">
+        <label>Senha do administrador</label>
+        <input class="admin-input" type="password" id="admin-senha" placeholder="Digite a senha..."
+          onkeydown="if(event.key==='Enter')loginAdmin()">
+      </div>
+      <button class="btn btn-roxo" onclick="loginAdmin()">ENTRAR</button>
+      <div id="admin-login-erro" style="color:var(--vermelho);font-size:.78rem;font-weight:800;text-align:center;margin-top:8px;font-family:'Orbitron',monospace;min-height:18px"></div>
+    </div>
+
+    <!-- PAINEL LOGADO -->
+    <div id="admin-painel" style="display:none">
+
+      <!-- CONFIG PIX -->
+      <div class="card">
+        <div class="sec"><div class="ic">💚</div>CONFIGURAR PIX</div>
+        <div class="campo">
+          <label>Valor cobrado</label>
+          <select id="admin-valor" class="admin-input">
+            <option value="R$ 2,00">R$ 2,00</option>
+            <option value="R$ 5,00" selected>R$ 5,00</option>
+            <option value="R$ 10,00">R$ 10,00</option>
+            <option value="R$ 15,00">R$ 15,00</option>
+            <option value="R$ 20,00">R$ 20,00</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Chave Pix</label>
+          <input class="admin-input" id="admin-pix" type="text"
+            placeholder="CPF, e-mail, telefone ou chave aleatória"
+            value="rodrigo.rodrigues0311@gmail.com">
+        </div>
+        <div class="campo">
+          <label>Seu WhatsApp (com DDD)</label>
+          <input class="admin-input" id="admin-wpp" type="text"
+            placeholder="Ex: 11999999999" value="11999999999">
+        </div>
+        <button class="btn btn-cyan" onclick="salvarConfig()" style="font-size:.85rem">💾 SALVAR CONFIGURAÇÕES</button>
+      </div>
+
+      <!-- GERAR CÓDIGO -->
+      <div class="card">
+        <div class="sec"><div class="ic">⚡</div>GERAR CÓDIGO</div>
+        <div class="campo">
+          <label>Nome do aluno (opcional)</label>
+          <input class="admin-input" id="admin-nome-aluno" type="text" placeholder="Ex: Maria Clara">
+        </div>
+        <div class="campo">
+          <label>Usos permitidos</label>
+          <select id="admin-usos" class="admin-input">
+            <option value="1">1 dispositivo</option>
+            <option value="3">3 dispositivos</option>
+            <option value="999">Ilimitado</option>
+          </select>
+        </div>
+        <button class="btn btn-roxo" onclick="gerarCodigo()" style="font-size:.85rem">✦ GERAR CÓDIGO</button>
+        <div id="codigo-novo-wrap" style="display:none;margin-top:12px">
+          <div style="font-family:'Orbitron',monospace;font-size:.72rem;color:var(--cinza);margin-bottom:6px;letter-spacing:.5px">CÓDIGO GERADO:</div>
+          <div style="background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.4);border-radius:var(--rs);padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <span id="codigo-novo-val" style="font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;color:var(--roxo3);letter-spacing:4px"></span>
+            <button onclick="copiarCodigoNovo()" style="background:var(--roxo2);color:#fff;border:none;border-radius:6px;padding:8px 12px;font-family:'Orbitron',monospace;font-size:.75rem;font-weight:800;cursor:pointer;letter-spacing:.5px">COPIAR</button>
+          </div>
+          <button class="wpp-btn" onclick="enviarCodigoWpp()" style="margin-top:8px;font-size:.8rem">💬 ENVIAR PELO WHATSAPP</button>
+        </div>
+      </div>
+
+      <!-- LISTA DE CÓDIGOS -->
+      <div class="card">
+        <div class="sec"><div class="ic">📋</div>CÓDIGOS GERADOS</div>
+        <div id="lista-codigos">
+          <div style="text-align:center;color:var(--cinza);font-size:.82rem;font-weight:600;padding:20px 0">Nenhum código gerado ainda</div>
+        </div>
+        <button class="btn btn-ghost" onclick="limparUsados()" style="margin-top:10px;font-size:.8rem">🗑 LIMPAR USADOS</button>
+      </div>
+
+      <button class="btn btn-ghost" onclick="logoutAdmin()" style="font-size:.82rem">↩ SAIR DO ADMIN</button>
+    </div>
+    <div style="height:40px"></div>
+  </div>
+</div>
 
 <!-- ══════════ SPLASH ══════════ -->
 <div id="splash">
@@ -667,7 +859,6 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 </div>
 
 <button id="fab-install" onclick="clicarInstalar()">⬇ INSTALAR</button>
-<button id="fab-share" class="no-print" onclick="irPara('tela-compartilhar')" title="Compartilhar">🔗</button>
 
 <!-- ══════════ TELA INÍCIO ══════════ -->
 <div id="tela-inicio" class="tela ativa">
@@ -970,13 +1161,277 @@ const WORKER_URL = 'https://simulado-api.rodrigo-rodrigues0311.workers.dev';
 const APP_URL = location.href.split('?')[0].split('#')[0];
 
 // ═══════════════════════════════════════════
+// SISTEMA DE ACESSO — CONFIGURAÇÕES
+// ═══════════════════════════════════════════
+// ⚠️ TROQUE a senha do admin abaixo!
+const ADMIN_SENHA = 'simulado@admin2025';
+
+// Carrega config salva ou usa padrão
+function getConfig(){
+  try{ return JSON.parse(localStorage.getItem('sim_config'))||{}; }
+  catch(e){ return {}; }
+}
+function salvarConfigLocal(c){ localStorage.setItem('sim_config', JSON.stringify(c)); }
+
+// Códigos: { XXXX-XXXX: { nome, usos, usosMax, criado, ativo } }
+function getCodigos(){
+  try{ return JSON.parse(localStorage.getItem('sim_codigos'))||{}; }
+  catch(e){ return {}; }
+}
+function salvarCodigos(c){ localStorage.setItem('sim_codigos', JSON.stringify(c)); }
+
+// Verifica se este dispositivo já está liberado
+function estaLiberado(){
+  return localStorage.getItem('sim_acesso') === 'ok';
+}
+
+// ── Inicializa tela de acesso ──
+function iniciarSistemaAcesso(){
+  const cfg = getConfig();
+  // Atualiza UI com config salva
+  const val = cfg.valor || 'R$ 5,00';
+  const pix = cfg.pix || 'rodrigo.rodrigues0311@gmail.com';
+  document.getElementById('pix-valor-display').textContent = val;
+  document.getElementById('pix-chave-display').textContent = pix;
+}
+
+// ── Copiar chave Pix ──
+function copiarPix(){
+  const pix = document.getElementById('pix-chave-display').textContent;
+  navigator.clipboard.writeText(pix).then(()=>{
+    const btn = document.querySelector('.pix-copy');
+    const orig = btn.textContent;
+    btn.textContent = '✓ OK';
+    setTimeout(()=>btn.textContent=orig, 2000);
+  }).catch(()=>prompt('Copie sua chave Pix:', pix));
+}
+
+// ── Abrir WhatsApp com mensagem ──
+function abrirWppAcesso(){
+  const cfg = getConfig();
+  const wpp = cfg.wpp || '11999999999';
+  const val = cfg.valor || 'R$ 5,00';
+  const pix = cfg.pix || 'rodrigo.rodrigues0311@gmail.com';
+  const msg = encodeURIComponent(
+    `Olá! Gostaria de adquirir acesso ao *Simulado App* 📚\n\n`+
+    `Valor: *${val}*\nChave Pix: *${pix}*\n\nEstou enviando o comprovante! 👇`
+  );
+  window.open(`https://wa.me/55${wpp}?text=${msg}`, '_blank');
+}
+
+// ── Formatar código XXXX-XXXX ──
+function formatarCodigo(input){
+  let v = input.value.replace(/[^A-Z0-9a-z]/g,'').toUpperCase();
+  if(v.length > 4) v = v.slice(0,4)+'-'+v.slice(4,8);
+  input.value = v;
+  document.getElementById('codigo-erro').textContent='';
+}
+
+// ── Verificar código ──
+function verificarCodigo(){
+  const codigo = document.getElementById('codigo-acesso').value.trim().toUpperCase();
+  const erroEl = document.getElementById('codigo-erro');
+
+  if(codigo.length < 9){
+    erroEl.textContent='Digite o código completo (XXXX-XXXX)';
+    return;
+  }
+
+  const codigos = getCodigos();
+  const entry = codigos[codigo];
+
+  if(!entry){
+    erroEl.textContent='❌ CÓDIGO INVÁLIDO';
+    document.getElementById('codigo-acesso').style.borderColor='var(--vermelho)';
+    setTimeout(()=>document.getElementById('codigo-acesso').style.borderColor='',2000);
+    return;
+  }
+  if(!entry.ativo){
+    erroEl.textContent='❌ CÓDIGO REVOGADO';
+    return;
+  }
+  if(entry.usos >= entry.usosMax){
+    erroEl.textContent='❌ CÓDIGO JÁ UTILIZADO';
+    return;
+  }
+
+  // Código válido — registra uso
+  entry.usos = (entry.usos||0) + 1;
+  entry.ultimoUso = new Date().toLocaleDateString('pt-BR');
+  codigos[codigo] = entry;
+  salvarCodigos(codigos);
+
+  // Libera acesso neste dispositivo
+  localStorage.setItem('sim_acesso','ok');
+  localStorage.setItem('sim_codigo_usado', codigo);
+
+  // Anima e libera
+  document.getElementById('codigo-erro').style.color='var(--verde)';
+  document.getElementById('codigo-erro').textContent='✅ ACESSO LIBERADO!';
+  setTimeout(()=>{
+    document.getElementById('tela-acesso').classList.add('hide');
+  }, 1200);
+}
+
+// ══════════════════════════════════════════
+// PAINEL ADMIN
+// ══════════════════════════════════════════
+let adminLogado = false;
+let codigoNovoAtual = '';
+
+function abrirAdmin(){
+  document.getElementById('tela-admin').classList.add('ativa');
+  document.getElementById('admin-painel').style.display='none';
+  document.getElementById('admin-login').style.display='block';
+  document.getElementById('admin-senha').value='';
+  document.getElementById('admin-login-erro').textContent='';
+}
+
+function fecharAdmin(){
+  document.getElementById('tela-admin').classList.remove('ativa');
+}
+
+function loginAdmin(){
+  const senha = document.getElementById('admin-senha').value;
+  if(senha === ADMIN_SENHA){
+    adminLogado = true;
+    document.getElementById('admin-login').style.display='none';
+    document.getElementById('admin-painel').style.display='block';
+    carregarConfigAdmin();
+    renderizarCodigos();
+  } else {
+    document.getElementById('admin-login-erro').textContent='❌ SENHA INCORRETA';
+    document.getElementById('admin-senha').value='';
+  }
+}
+
+function logoutAdmin(){
+  adminLogado = false;
+  fecharAdmin();
+}
+
+function carregarConfigAdmin(){
+  const cfg = getConfig();
+  if(cfg.valor) document.getElementById('admin-valor').value = cfg.valor;
+  if(cfg.pix)   document.getElementById('admin-pix').value   = cfg.pix;
+  if(cfg.wpp)   document.getElementById('admin-wpp').value   = cfg.wpp;
+}
+
+function salvarConfig(){
+  const cfg = {
+    valor: document.getElementById('admin-valor').value,
+    pix:   document.getElementById('admin-pix').value.trim(),
+    wpp:   document.getElementById('admin-wpp').value.trim().replace(/\D/g,''),
+  };
+  salvarConfigLocal(cfg);
+  // Atualiza tela de acesso
+  document.getElementById('pix-valor-display').textContent = cfg.valor;
+  document.getElementById('pix-chave-display').textContent = cfg.pix;
+  alert('✅ Configurações salvas!');
+}
+
+function gerarCodigo(){
+  // Gera código aleatório XXXX-XXXX
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const parte = ()=>[...Array(4)].map(()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  const codigo = parte()+'-'+parte();
+
+  const nome  = document.getElementById('admin-nome-aluno').value.trim();
+  const usos  = parseInt(document.getElementById('admin-usos').value);
+
+  const codigos = getCodigos();
+  codigos[codigo] = {
+    nome:    nome||'Não informado',
+    usos:    0,
+    usosMax: usos,
+    criado:  new Date().toLocaleDateString('pt-BR')+' '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+    ativo:   true
+  };
+  salvarCodigos(codigos);
+  codigoNovoAtual = codigo;
+
+  document.getElementById('codigo-novo-val').textContent = codigo;
+  document.getElementById('codigo-novo-wrap').style.display='block';
+  document.getElementById('admin-nome-aluno').value='';
+  renderizarCodigos();
+}
+
+function copiarCodigoNovo(){
+  navigator.clipboard.writeText(codigoNovoAtual).then(()=>{
+    alert('Código copiado: '+codigoNovoAtual);
+  }).catch(()=>prompt('Copie o código:', codigoNovoAtual));
+}
+
+function enviarCodigoWpp(){
+  const cfg = getConfig();
+  const wpp = cfg.wpp||'11999999999';
+  const codigos = getCodigos();
+  const entry = codigos[codigoNovoAtual];
+  const msg = encodeURIComponent(
+    `✅ Olá ${entry?.nome||''}! Seu acesso ao *Simulado App* foi liberado!\n\n`+
+    `🔑 Seu código de acesso:\n*${codigoNovoAtual}*\n\n`+
+    `📱 Acesse o app e insira o código:\n${APP_URL}\n\n`+
+    `⚠️ Não compartilhe este código com ninguém!`
+  );
+  window.open(`https://wa.me/?text=${msg}`,'_blank');
+}
+
+function revogarCodigo(codigo){
+  if(!confirm(`Revogar o código ${codigo}?`)) return;
+  const codigos = getCodigos();
+  if(codigos[codigo]) codigos[codigo].ativo = false;
+  salvarCodigos(codigos);
+  renderizarCodigos();
+}
+
+function renderizarCodigos(){
+  const codigos = getCodigos();
+  const lista = document.getElementById('lista-codigos');
+  const entries = Object.entries(codigos).reverse();
+  if(entries.length===0){
+    lista.innerHTML='<div style="text-align:center;color:var(--cinza);font-size:.82rem;font-weight:600;padding:20px 0">Nenhum código gerado ainda</div>';
+    return;
+  }
+  lista.innerHTML = entries.map(([cod, entry])=>{
+    const badge = !entry.ativo
+      ? `<span class="badge badge-rev">REVOGADO</span>`
+      : entry.usos >= entry.usosMax
+        ? `<span class="badge badge-ok">USADO</span>`
+        : `<span class="badge badge-novo">ATIVO</span>`;
+    const revogarBtn = entry.ativo && entry.usos < entry.usosMax
+      ? `<button onclick="revogarCodigo('${cod}')" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--vermelho);border-radius:6px;padding:5px 8px;font-family:'Orbitron',monospace;font-size:.65rem;font-weight:800;cursor:pointer;letter-spacing:.5px">✕</button>`
+      : '';
+    return `<div class="codigo-item ${entry.usos>=entry.usosMax?'usado':''} ${!entry.ativo?'revogado':''}">
+      <div style="flex:1;min-width:0">
+        <div class="codigo-val">${cod}</div>
+        <div class="codigo-info">${entry.nome} · ${entry.usos}/${entry.usosMax===999?'∞':entry.usosMax} usos · ${entry.criado}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">${badge}${revogarBtn}</div>
+    </div>`;
+  }).join('');
+}
+
+function limparUsados(){
+  if(!confirm('Remover todos os códigos usados e revogados?')) return;
+  const codigos = getCodigos();
+  const limpos = {};
+  Object.entries(codigos).forEach(([cod,entry])=>{
+    if(entry.ativo && entry.usos < entry.usosMax) limpos[cod] = entry;
+  });
+  salvarCodigos(limpos);
+  renderizarCodigos();
+}
+
+// ══════════════════════════════════════════
+
+// ═══════════════════════════════════════════
 // LIMPA CACHE ANTIGO FORÇADO
 // ═══════════════════════════════════════════
 (async function(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulado-v12') await caches.delete(key);
+      if(key !== 'simulado-v14') await caches.delete(key);
     }
   }
 })();
@@ -985,10 +1440,19 @@ const APP_URL = location.href.split('?')[0].split('#')[0];
 // SPLASH
 // ═══════════════════════════════════════════
 window.addEventListener('load', () => {
+  iniciarSistemaAcesso();
   setTimeout(() => {
     const s = document.getElementById('splash');
     s.classList.add('hide');
-    setTimeout(() => s.style.display='none', 700);
+    setTimeout(() => {
+      s.style.display='none';
+      // Verifica acesso após splash
+      if(!estaLiberado()){
+        document.getElementById('tela-acesso').style.display='flex';
+      } else {
+        document.getElementById('tela-acesso').classList.add('hide');
+      }
+    }, 700);
   }, 2400);
 });
 
