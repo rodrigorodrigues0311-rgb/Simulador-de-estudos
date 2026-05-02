@@ -3,402 +3,621 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#5b21b6">
+<meta name="theme-color" content="#0f0a1e">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Simulado">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <title>Simulado — Estude. Pratique. Evolua.</title>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
-/* ══════════════ RESET & VARS ══════════════ */
-:root{
-  --roxo:#5b21b6;--roxo2:#7c3aed;--roxo3:#a855f7;--roxo-claro:#ede9fe;
-  --verde:#059669;--verde-claro:#f0fdf4;
-  --amarelo:#d97706;--vermelho:#dc2626;--vermelho-claro:#fff1f2;
-  --cinza:#6b7280;--cinza-claro:#f9fafb;--branco:#fff;
-  --sombra:0 4px 24px rgba(91,33,182,.15);
-  --r:20px;--rs:12px;
+/* ═══════════════════════════════════
+   GAME DESIGN SYSTEM
+═══════════════════════════════════ */
+:root {
+  --bg: #0f0a1e;
+  --bg2: #1a1035;
+  --roxo: #7c3aed;
+  --roxo2: #a855f7;
+  --roxo3: #c084fc;
+  --cyan: #06b6d4;
+  --verde: #10b981;
+  --amarelo: #f59e0b;
+  --vermelho: #ef4444;
+  --rosa: #ec4899;
+  --branco: #f8fafc;
+  --cinza: #94a3b8;
+  --card: rgba(255,255,255,.04);
+  --borda: rgba(255,255,255,.08);
+  --glow-roxo: 0 0 20px rgba(124,58,237,.5);
+  --glow-cyan: 0 0 20px rgba(6,182,212,.5);
+  --glow-verde: 0 0 20px rgba(16,185,129,.5);
+  --glow-verm: 0 0 20px rgba(239,68,68,.5);
+  --r: 16px; --rs: 10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{font-size:18px}
-html,body{height:100%}
+html{font-size:17px}
 body{
   font-family:'Nunito',sans-serif;
-  background:linear-gradient(155deg,#3730a3 0%,#5b21b6 40%,#7c3aed 70%,#a855f7 100%);
-  min-height:100vh;padding:16px 16px 40px;
-  font-size:1rem;
+  background:var(--bg);
+  min-height:100vh;
+  color:var(--branco);
+  overflow-x:hidden;
 }
 
-/* ══ SPLASH ══ */
+/* ── PARTÍCULAS DE FUNDO ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(124,58,237,.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(6,182,212,.1) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 50%, rgba(168,85,247,.05) 0%, transparent 80%);
+  pointer-events:none;
+}
+
+/* ── GRID DE FUNDO ── */
+body::after{
+  content:'';
+  position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(124,58,237,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,.06) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+
+/* ── SPLASH ── */
 #splash{
   position:fixed;inset:0;z-index:9999;
-  background:linear-gradient(155deg,#3730a3,#5b21b6,#7c3aed);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
-  transition:opacity .6s ease;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .7s ease;
 }
 #splash.hide{opacity:0;pointer-events:none}
-
-/* ── Lápis animado ── */
-.pencil-scene{
-  width:160px;height:160px;
-  position:relative;margin-bottom:24px;
+.splash-logo-wrap{
+  position:relative;margin-bottom:20px;
+  animation:floatUp 1s ease forwards;
+  opacity:0;
 }
-/* Caderno de fundo */
-.notebook{
-  position:absolute;bottom:8px;left:10px;right:10px;
-  height:90px;border-radius:10px;
-  background:#fff;
-  box-shadow:0 4px 20px rgba(0,0,0,.2);
-  overflow:hidden;
-}
-.notebook-line{
-  height:2px;background:#e0e7ff;
-  margin:16px 12px 0;
-  border-radius:1px;
-}
-.notebook-line:nth-child(2){margin-top:12px}
-.notebook-line:nth-child(3){margin-top:12px;width:60%}
-/* Linha animada sendo escrita */
-.writing-line{
-  position:absolute;bottom:8px;left:22px;
-  height:2px;background:linear-gradient(90deg,var(--roxo2),var(--roxo3));
-  border-radius:1px;
-  width:0;
-  animation:escreve 2s ease-in-out infinite;
-}
-@keyframes escreve{
-  0%{width:0;opacity:1}
-  60%{width:90px;opacity:1}
-  80%{width:90px;opacity:0}
-  100%{width:0;opacity:0}
-}
-/* Lápis */
-.pencil{
-  position:absolute;
-  top:0;left:50%;
-  transform:translateX(-50%) rotate(-35deg);
-  transform-origin:bottom center;
-  animation:pencilMove 2s ease-in-out infinite;
-}
-@keyframes pencilMove{
-  0%{transform:translateX(-60%) rotate(-35deg)}
-  60%{transform:translateX(20%) rotate(-35deg)}
-  80%{transform:translateX(20%) rotate(-35deg) scale(1.05)}
-  100%{transform:translateX(-60%) rotate(-35deg)}
-}
-.pencil-body{
-  width:18px;height:90px;
-  background:linear-gradient(180deg,#fbbf24 0%,#f59e0b 70%,#f97316 70%,#ea580c 80%,#1f2937 80%,#111827 90%,#d4d4d4 90%,#d4d4d4 95%,#f97316 95%);
-  border-radius:2px 2px 0 0;
-  position:relative;
-  box-shadow:2px 2px 8px rgba(0,0,0,.2);
-}
-/* borracha no topo */
-.pencil-body::before{
-  content:'';
-  position:absolute;top:-10px;left:0;right:0;height:10px;
-  background:linear-gradient(#f472b6,#ec4899);
-  border-radius:2px 2px 0 0;
-}
-/* ponta */
-.pencil-body::after{
-  content:'';
-  position:absolute;bottom:-12px;left:50%;
-  transform:translateX(-50%);
-  width:0;height:0;
-  border-left:9px solid transparent;
-  border-right:9px solid transparent;
-  border-top:12px solid #ea580c;
-}
-/* brilho */
-.pencil-shine{
-  position:absolute;top:8px;left:3px;
-  width:4px;height:50px;
-  background:rgba(255,255,255,.3);
-  border-radius:2px;
-}
-
-/* Logo sobre o caderno */
+@keyframes floatUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 .splash-logo{
-  width:72px;height:72px;border-radius:18px;
-  object-fit:contain;background:white;
-  box-shadow:0 6px 24px rgba(0,0,0,.2);
-  position:absolute;bottom:28px;right:8px;
-  border:3px solid white;
+  width:120px;height:120px;border-radius:28px;
+  object-fit:contain;background:rgba(124,58,237,.15);
+  border:2px solid rgba(124,58,237,.4);
+  box-shadow:var(--glow-roxo),inset 0 0 30px rgba(124,58,237,.1);
+  display:block;
 }
-
-.splash-titulo{
-  font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;
-  color:white;letter-spacing:-1px;
-  text-shadow:0 2px 12px rgba(0,0,0,.2);
+.splash-ring{
+  position:absolute;inset:-12px;
+  border-radius:36px;
+  border:2px solid transparent;
+  border-top-color:var(--roxo2);
+  border-right-color:var(--cyan);
+  animation:ringRotate 2s linear infinite;
 }
-.splash-titulo span{color:#fbbf24}
+@keyframes ringRotate{to{transform:rotate(360deg)}}
+.splash-title{
+  font-family:'Orbitron',monospace;
+  font-size:2.2rem;font-weight:900;
+  background:linear-gradient(135deg,#fff,var(--roxo3),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-shadow:none;letter-spacing:2px;
+  animation:floatUp .8s .3s ease forwards;opacity:0;
+}
 .splash-sub{
-  font-size:.85rem;font-weight:700;
-  color:rgba(255,255,255,.7);
-  letter-spacing:2px;text-transform:uppercase;
-  margin-top:4px;
+  font-size:.82rem;font-weight:700;
+  color:var(--cinza);letter-spacing:3px;text-transform:uppercase;
+  margin-top:6px;
+  animation:floatUp .8s .5s ease forwards;opacity:0;
 }
-.splash-bar{
-  width:160px;height:4px;border-radius:2px;
-  background:rgba(255,255,255,.2);
-  margin-top:28px;overflow:hidden;
+.splash-bar-wrap{
+  width:200px;height:4px;background:rgba(255,255,255,.1);
+  border-radius:2px;margin-top:32px;overflow:hidden;
+  animation:floatUp .8s .6s ease forwards;opacity:0;
 }
-.splash-bar-fill{
-  height:100%;border-radius:2px;
-  background:linear-gradient(90deg,#fbbf24,#f97316);
-  animation:barLoad 1.8s ease forwards;
-}
+.splash-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--roxo),var(--cyan));animation:barLoad 2s ease forwards}
 @keyframes barLoad{from{width:0}to{width:100%}}
+.splash-dots{
+  display:flex;gap:8px;margin-top:16px;
+  animation:floatUp .8s .7s ease forwards;opacity:0;
+}
+.splash-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--roxo2);
+  animation:dotPulse 1.2s ease-in-out infinite;
+}
+.splash-dot:nth-child(2){animation-delay:.2s;background:var(--roxo3)}
+.splash-dot:nth-child(3){animation-delay:.4s;background:var(--cyan)}
+@keyframes dotPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.4);opacity:1}}
 
-/* ══ BANNER INSTALAR ══ */
-#overlay{display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.4);backdrop-filter:blur(3px)}
-#overlay.on{display:block}
+/* ── TELAS ── */
+.tela{display:none;position:relative;z-index:1;max-width:520px;margin:0 auto;padding:16px 16px 40px;animation:slideUp .35s ease}
+.tela.ativa{display:block}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
-#banner{
-  position:fixed;bottom:0;left:0;right:0;z-index:8001;
-  background:white;border-radius:24px 24px 0 0;
-  padding:0 20px 36px;
-  box-shadow:0 -8px 48px rgba(91,33,182,.25);
-  transform:translateY(110%);
-  transition:transform .45s cubic-bezier(.34,1.4,.64,1);
-  max-width:520px;margin:0 auto;
+/* ── HEADER GAME ── */
+.game-header{text-align:center;padding:20px 0 10px}
+.game-logo{
+  width:90px;height:90px;border-radius:22px;
+  object-fit:contain;background:rgba(124,58,237,.15);
+  border:2px solid rgba(124,58,237,.35);
+  box-shadow:var(--glow-roxo);
+  display:block;margin:0 auto 10px;
+  transition:transform .3s;
 }
-#banner.on{transform:translateY(0)}
-.banner-handle{width:44px;height:5px;background:#e5e7eb;border-radius:3px;margin:14px auto 20px}
-.banner-row{display:flex;align-items:center;gap:14px;margin-bottom:18px}
-.banner-icon{
-  width:68px;height:68px;border-radius:18px;
-  object-fit:contain;background:var(--roxo-claro);
-  flex-shrink:0;box-shadow:0 4px 16px rgba(91,33,182,.2);
+.game-logo:hover{transform:scale(1.05)}
+.game-title{
+  font-family:'Orbitron',monospace;
+  font-size:1.5rem;font-weight:900;
+  background:linear-gradient(135deg,#fff,var(--roxo3),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:2px;
 }
-.banner-title{font-family:'Baloo 2',cursive;font-size:1.15rem;font-weight:800;color:#111;margin-bottom:3px}
-.banner-desc{font-size:.82rem;font-weight:600;color:#6b7280;line-height:1.4}
-.banner-btns{display:flex;gap:10px}
-#btn-instalar-ok{
-  flex:1;padding:14px;border:none;border-radius:var(--rs);
-  background:linear-gradient(135deg,#5b21b6,#7c3aed);
-  color:white;font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-  box-shadow:0 4px 16px rgba(91,33,182,.35);transition:transform .15s;
+.game-sub{font-size:.82rem;font-weight:700;color:var(--cinza);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+
+/* ── CARD GAME ── */
+.card{
+  background:var(--card);
+  border:1px solid var(--borda);
+  border-radius:var(--r);
+  padding:20px;
+  margin-bottom:14px;
+  backdrop-filter:blur(10px);
+  position:relative;overflow:hidden;
 }
-#btn-instalar-ok:active{transform:scale(.97)}
-#btn-instalar-nao{
-  padding:14px 18px;border:2px solid #e5e7eb;border-radius:var(--rs);
-  background:#f9fafb;color:#6b7280;font-family:'Baloo 2',cursive;
-  font-size:.95rem;font-weight:800;cursor:pointer;white-space:nowrap;
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(124,58,237,.5),transparent);
 }
 
-/* Banner iOS */
-#banner-ios{
-  position:fixed;bottom:0;left:0;right:0;z-index:8001;
-  background:white;border-radius:24px 24px 0 0;
-  padding:0 20px 40px;
-  box-shadow:0 -8px 48px rgba(91,33,182,.25);
-  transform:translateY(110%);
-  transition:transform .45s cubic-bezier(.34,1.4,.64,1);
+/* ── SEÇÃO ── */
+.sec{
+  font-family:'Orbitron',monospace;
+  font-size:.95rem;font-weight:700;
+  color:var(--roxo3);margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;
+  text-transform:uppercase;letter-spacing:1px;
 }
-#banner-ios.on{transform:translateY(0)}
-.ios-titulo{font-family:'Baloo 2',cursive;font-size:1.05rem;font-weight:800;color:#111;margin-bottom:6px}
-.ios-sub{font-size:.82rem;color:#6b7280;font-weight:600;margin-bottom:16px}
-.ios-passo{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed #f3f4f6;font-size:.9rem;font-weight:700;color:#374151}
-.ios-passo:last-of-type{border-bottom:none}
-.ios-passo span:first-child{font-size:1.4rem}
-.ios-fechar{width:100%;padding:13px;border:2px solid #e5e7eb;border-radius:var(--rs);background:#f9fafb;color:#6b7280;font-family:'Baloo 2',cursive;font-weight:800;font-size:.95rem;cursor:pointer;margin-top:14px}
-
-/* FAB instalar (após fechar banner) */
-#fab-install{
-  position:fixed;bottom:80px;right:18px;z-index:700;
-  background:linear-gradient(135deg,#5b21b6,#7c3aed);
-  color:white;border:none;border-radius:50px;
-  padding:11px 16px;display:none;align-items:center;gap:7px;
-  font-family:'Baloo 2',cursive;font-weight:800;font-size:.88rem;
-  cursor:pointer;box-shadow:0 6px 20px rgba(91,33,182,.4);
-  animation:pulse 2.5s ease-in-out infinite;
+.sec .ic{
+  width:32px;height:32px;border-radius:8px;
+  background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);
+  display:flex;align-items:center;justify-content:center;font-size:.9rem;
 }
-@keyframes pulse{0%,100%{box-shadow:0 6px 20px rgba(91,33,182,.4)}50%{box-shadow:0 6px 30px rgba(91,33,182,.7)}}
-#fab-install:active{transform:scale(.95)}
 
-/* FAB compartilhar */
-#fab-share{
-  position:fixed;bottom:22px;right:18px;z-index:700;
-  width:50px;height:50px;border-radius:50%;
-  background:rgba(255,255,255,.18);backdrop-filter:blur(8px);
-  border:2px solid rgba(255,255,255,.35);
-  color:white;font-size:1.3rem;cursor:pointer;
+/* ── INPUTS ── */
+.campo{margin-bottom:14px}
+label{
+  display:block;font-weight:700;font-size:.8rem;
+  color:var(--cinza);margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:.8px;
+}
+input[type=text],input[type=number],select,textarea{
+  width:100%;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--rs);
+  padding:13px 15px;
+  font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;
+  color:var(--branco);outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  -webkit-appearance:none;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--roxo2);
+  background:rgba(124,58,237,.1);
+  box-shadow:0 0 0 3px rgba(124,58,237,.15),var(--glow-roxo);
+}
+select option{background:#1a1035;color:#f8fafc}
+textarea{resize:vertical;min-height:84px}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
+
+/* ── BOTÕES GAME ── */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:15px;border:none;border-radius:var(--rs);
+  font-family:'Orbitron',monospace;font-size:.95rem;font-weight:800;
+  cursor:pointer;letter-spacing:1px;text-transform:uppercase;
+  transition:transform .15s,box-shadow .15s,opacity .15s;
+  position:relative;overflow:hidden;
+}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background .2s}
+.btn:active{transform:scale(.96)}
+.btn:active::after{background:rgba(255,255,255,.08)}
+.btn+.btn{margin-top:8px}
+
+.btn-roxo{
+  background:linear-gradient(135deg,#5b21b6,#7c3aed,#a855f7);
+  color:#fff;box-shadow:var(--glow-roxo),inset 0 1px 0 rgba(255,255,255,.15);
+}
+.btn-cyan{
+  background:linear-gradient(135deg,#0e7490,#06b6d4);
+  color:#fff;box-shadow:var(--glow-cyan),inset 0 1px 0 rgba(255,255,255,.15);
+}
+.btn-verde{
+  background:linear-gradient(135deg,#065f46,#10b981);
+  color:#fff;box-shadow:var(--glow-verde),inset 0 1px 0 rgba(255,255,255,.15);
+}
+.btn-ghost{
+  background:transparent;color:var(--cinza);
+  border:1px solid rgba(255,255,255,.15);
+}
+.btn-wpp{
+  background:linear-gradient(135deg,#15803d,#22c55e);
+  color:#fff;box-shadow:0 0 20px rgba(34,197,94,.4);
+}
+
+/* ── SELETORES DE MODO E DIFICULDADE ── */
+.selector-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.selector-item{
+  position:relative;cursor:pointer;
+}
+.selector-item input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.selector-label{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:16px 8px;border-radius:12px;
+  border:2px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);
+  transition:all .2s;text-align:center;cursor:pointer;
+  gap:6px;
+}
+.selector-label:hover{border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.08)}
+.selector-item input:checked + .selector-label{
+  border-color:var(--roxo2);
+  background:rgba(124,58,237,.15);
+  box-shadow:var(--glow-roxo);
+}
+.selector-emoji{font-size:2rem}
+.selector-nome{font-family:'Orbitron',monospace;font-size:.75rem;font-weight:800;color:var(--branco);letter-spacing:.5px}
+.selector-desc{font-size:.72rem;font-weight:600;color:var(--cinza);line-height:1.3}
+
+/* Dificuldade especial */
+.selector-item.facil input:checked + .selector-label{
+  border-color:var(--verde);background:rgba(16,185,129,.12);box-shadow:var(--glow-verde);
+}
+.selector-item.sinistro input:checked + .selector-label{
+  border-color:var(--vermelho);background:rgba(239,68,68,.12);box-shadow:var(--glow-verm);
+}
+.selector-item.sinistro .selector-nome{color:var(--vermelho)}
+.selector-item.facil .selector-nome{color:var(--verde)}
+
+/* ── FOTO ALUNO ── */
+.foto-ring{
+  width:84px;height:84px;border-radius:50%;
+  background:rgba(124,58,237,.1);
+  border:2px dashed rgba(124,58,237,.4);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;overflow:hidden;transition:all .2s;flex-shrink:0;
+}
+.foto-ring:hover{border-color:var(--roxo2);background:rgba(124,58,237,.2);box-shadow:var(--glow-roxo)}
+.foto-ring.tem-foto{border-style:solid;border-color:var(--roxo2);box-shadow:var(--glow-roxo)}
+
+/* ── CARD INSTALAR ── */
+.install-card{
+  background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(6,182,212,.1));
+  border:1px solid rgba(124,58,237,.35);
+  border-radius:var(--r);padding:18px;margin-bottom:14px;
+  position:relative;overflow:hidden;
+}
+.install-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--roxo2),transparent);
+}
+
+/* ── LOADING ── */
+.loader{text-align:center;padding:48px 16px}
+.loader-ring-wrap{position:relative;width:80px;height:80px;margin:0 auto 20px}
+.loader-ring{
+  width:80px;height:80px;border-radius:50%;
+  border:4px solid rgba(255,255,255,.08);
+  border-top-color:var(--roxo2);border-right-color:var(--cyan);
+  animation:rot 1s linear infinite;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+.loader-logo{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:44px;height:44px;border-radius:11px;
+  object-fit:contain;background:rgba(124,58,237,.2);
+}
+.loader h3{font-family:'Orbitron',monospace;font-size:1rem;font-weight:800;color:var(--roxo3);margin-bottom:8px;letter-spacing:1px}
+.loader p{color:var(--cinza);font-weight:600;font-size:.88rem}
+
+/* ── BARRA PROGRESSO ── */
+.prog-wrap{
+  height:8px;background:rgba(255,255,255,.08);
+  border-radius:4px;margin-bottom:16px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.05);
+}
+.prog-fill{
+  height:100%;border-radius:4px;
+  background:linear-gradient(90deg,var(--roxo),var(--cyan));
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 10px rgba(124,58,237,.6);
+}
+
+/* ── QUESTÃO ── */
+.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.q-badge{
+  font-family:'Orbitron',monospace;font-size:.72rem;font-weight:800;
+  color:var(--branco);background:linear-gradient(135deg,var(--roxo),var(--roxo2));
+  padding:4px 12px;border-radius:20px;letter-spacing:.5px;
+  box-shadow:var(--glow-roxo);
+}
+.q-prog{font-size:.8rem;font-weight:700;color:var(--cinza)}
+.q-disc{
+  font-size:.72rem;font-weight:800;color:var(--cyan);
+  border:1px solid rgba(6,182,212,.3);background:rgba(6,182,212,.08);
+  padding:3px 10px;border-radius:20px;margin-bottom:12px;display:inline-block;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.q-nivel{
+  font-size:.7rem;font-weight:800;
+  padding:3px 10px;border-radius:20px;margin-bottom:12px;margin-left:6px;display:inline-block;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.q-nivel.facil{color:var(--verde);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.08)}
+.q-nivel.sinistro{color:var(--vermelho);border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08)}
+.q-texto{font-size:1.05rem;font-weight:700;color:var(--branco);line-height:1.65;margin-bottom:18px}
+
+/* ── ALTERNATIVAS MÚLTIPLA ESCOLHA ── */
+.alts{list-style:none}
+.alts li{margin-bottom:10px}
+.alt{
+  display:flex;align-items:flex-start;gap:12px;width:100%;
+  padding:13px 15px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--rs);
+  background:rgba(255,255,255,.04);
+  font-family:'Nunito',sans-serif;font-size:.97rem;font-weight:700;
+  color:var(--branco);cursor:pointer;text-align:left;
+  transition:all .18s;line-height:1.45;
+}
+.alt-l{
+  min-width:30px;height:30px;border-radius:8px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 16px rgba(0,0,0,.2);transition:transform .15s;
+  font-weight:900;font-size:.82rem;color:var(--cinza);
+  transition:all .18s;flex-shrink:0;
+  font-family:'Orbitron',monospace;
+}
+.alt:hover{border-color:rgba(124,58,237,.5);background:rgba(124,58,237,.1);box-shadow:var(--glow-roxo)}
+.alt:hover .alt-l{background:var(--roxo);border-color:var(--roxo2);color:#fff}
+.alt.ok{border-color:var(--verde);background:rgba(16,185,129,.12);box-shadow:var(--glow-verde)}
+.alt.ok .alt-l{background:var(--verde);border-color:var(--verde);color:#fff}
+.alt.err{border-color:var(--vermelho);background:rgba(239,68,68,.1);box-shadow:var(--glow-verm)}
+.alt.err .alt-l{background:var(--vermelho);border-color:var(--vermelho);color:#fff}
+.alt:disabled{cursor:default}
+
+/* ── MODO DISCURSIVO ── */
+.disc-wrap{margin-top:4px}
+.disc-textarea{
+  width:100%;min-height:120px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--rs);
+  padding:14px;
+  font-family:'Nunito',sans-serif;font-size:1rem;font-weight:600;
+  color:var(--branco);outline:none;resize:vertical;
+  transition:border-color .2s,box-shadow .2s;
+  line-height:1.6;
+}
+.disc-textarea:focus{
+  border-color:var(--cyan);
+  box-shadow:var(--glow-cyan);
+  background:rgba(6,182,212,.05);
+}
+.disc-textarea::placeholder{color:rgba(255,255,255,.2)}
+.disc-counter{font-size:.75rem;font-weight:700;color:var(--cinza);text-align:right;margin-top:4px}
+.disc-corrigindo{
+  text-align:center;padding:16px;
+  font-family:'Orbitron',monospace;font-size:.82rem;
+  color:var(--cyan);letter-spacing:1px;
+}
+.disc-corrigindo .mini-spin{
+  display:inline-block;width:16px;height:16px;
+  border:2px solid rgba(6,182,212,.3);border-top-color:var(--cyan);
+  border-radius:50%;animation:rot .8s linear infinite;
+  margin-right:8px;vertical-align:middle;
+}
+
+/* ── FEEDBACK DISCURSIVO ── */
+.disc-feedback{
+  margin-top:14px;padding:16px;border-radius:var(--rs);
+  display:none;line-height:1.6;
+}
+.disc-feedback.on{display:block;animation:slideUp .3s ease}
+.disc-feedback.ok{
+  background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);
+  box-shadow:var(--glow-verde);
+}
+.disc-feedback.parcial{
+  background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);
+  box-shadow:0 0 15px rgba(245,158,11,.3);
+}
+.disc-feedback.err{
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);
+  box-shadow:var(--glow-verm);
+}
+.disc-feedback-titulo{
+  font-family:'Orbitron',monospace;font-size:.78rem;font-weight:800;
+  letter-spacing:.5px;margin-bottom:8px;
+}
+.disc-feedback.ok .disc-feedback-titulo{color:var(--verde)}
+.disc-feedback.parcial .disc-feedback-titulo{color:var(--amarelo)}
+.disc-feedback.err .disc-feedback-titulo{color:var(--vermelho)}
+.disc-feedback p{font-size:.9rem;font-weight:600;color:rgba(255,255,255,.85)}
+
+/* ── OBSERVAÇÃO ── */
+.obs{
+  margin-top:12px;padding:13px;border-radius:var(--rs);
+  background:rgba(245,158,11,.08);border-left:3px solid var(--amarelo);
+  font-size:.9rem;font-weight:600;color:rgba(255,255,255,.8);
+  display:none;line-height:1.55;
+}
+.obs.on{display:block;animation:slideUp .3s ease}
+
+/* ── RESULTADO ── */
+.res-topo{text-align:center;padding:20px 8px 12px}
+.nota-ring{
+  width:130px;height:130px;border-radius:50%;
+  margin:0 auto 16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;
+}
+.nota-ring::before{
+  content:'';position:absolute;inset:-4px;
+  border-radius:50%;
+  background:conic-gradient(var(--roxo2) var(--pct,0%), rgba(255,255,255,.08) 0%);
+  z-index:0;
+  transition:background 1s ease;
+}
+.nota-ring::after{
+  content:'';position:absolute;inset:4px;
+  border-radius:50%;background:var(--bg2);z-index:1;
+}
+.nota-ring-inner{position:relative;z-index:2;text-align:center}
+.nota-v{font-family:'Orbitron',monospace;font-size:2.6rem;font-weight:900;line-height:1}
+.nota-l{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--cinza)}
+.nota-verde .nota-v{color:var(--verde);text-shadow:var(--glow-verde)}
+.nota-amarelo .nota-v{color:var(--amarelo);text-shadow:0 0 20px rgba(245,158,11,.5)}
+.nota-vermelho .nota-v{color:var(--vermelho);text-shadow:var(--glow-verm)}
+.msg-a{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:800;line-height:1.55;margin-bottom:8px;letter-spacing:.5px}
+.msg-a .nome{color:var(--roxo3)}
+.ac-info{font-size:.9rem;font-weight:700;color:var(--cinza)}
+.emoji-b{font-size:2.6rem;display:block;text-align:center;animation:bounce .8s ease infinite alternate;margin-bottom:8px}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-12px)}}
+
+.det-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.9rem;font-weight:600}
+.det-row:last-child{border-bottom:none}
+.det-k{color:var(--cinza)}.det-v{color:var(--branco);font-weight:800;text-align:right;max-width:60%}
+
+.gab-item{padding:13px;border-radius:var(--rs);margin-bottom:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
+.gab-item.ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.06)}
+.gab-item.parcial{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.06)}
+.gab-item.err{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.05)}
+.gab-n{font-family:'Orbitron',monospace;font-size:.7rem;font-weight:800;color:var(--cinza);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.gab-p{font-size:.95rem;font-weight:700;color:var(--branco);margin-bottom:6px;line-height:1.45}
+.gab-r.ok{color:var(--verde);font-size:.88rem;font-weight:700}
+.gab-r.parcial{color:var(--amarelo);font-size:.88rem;font-weight:700}
+.gab-r.err{color:var(--vermelho);font-size:.88rem;font-weight:700}
+.gab-c{color:rgba(255,255,255,.6);font-size:.85rem;font-weight:600;margin-top:4px}
+.gab-obs{font-size:.83rem;color:var(--cinza);font-weight:600;margin-top:6px;line-height:1.45;border-top:1px solid rgba(255,255,255,.06);padding-top:6px}
+
+/* ── COMPARTILHAR ── */
+.share-titulo{
+  font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;
+  background:linear-gradient(135deg,#fff,var(--roxo3),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-align:center;margin-bottom:2px;letter-spacing:2px;
+}
+.share-sub{text-align:center;font-size:.72rem;font-weight:700;color:var(--cinza);margin-bottom:16px;letter-spacing:2px;text-transform:uppercase}
+.link-box{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:10px;
+}
+.link-url{flex:1;font-size:.78rem;font-weight:700;color:var(--roxo3);word-break:break-all;font-family:monospace}
+.copy-btn{
+  background:var(--roxo2);color:#fff;border:none;border-radius:8px;
+  padding:8px 13px;font-family:'Orbitron',monospace;font-weight:800;font-size:.75rem;
+  cursor:pointer;flex-shrink:0;transition:background .2s;letter-spacing:.5px;
+}
+.copy-btn.ok{background:var(--verde)}
+.qr-wrap{
+  text-align:center;padding:16px;
+  background:rgba(255,255,255,.03);border-radius:var(--rs);
+  border:1px dashed rgba(255,255,255,.1);margin-bottom:10px;
+}
+.qr-wrap canvas{border-radius:12px}
+.qr-label{font-size:.75rem;font-weight:700;color:var(--cinza);margin-top:10px;text-transform:uppercase;letter-spacing:1px}
+
+/* ── FABs ── */
+#fab-install{
+  position:fixed;bottom:80px;right:16px;z-index:800;
+  background:linear-gradient(135deg,var(--roxo),var(--roxo2));
+  color:#fff;border:none;border-radius:50px;
+  padding:11px 16px;display:none;align-items:center;gap:6px;
+  font-family:'Orbitron',monospace;font-weight:800;font-size:.78rem;
+  cursor:pointer;box-shadow:var(--glow-roxo);
+  animation:pulseFab 2.5s ease-in-out infinite;letter-spacing:.5px;
+}
+@keyframes pulseFab{0%,100%{box-shadow:var(--glow-roxo)}50%{box-shadow:0 0 35px rgba(124,58,237,.8)}}
+#fab-share{
+  position:fixed;bottom:22px;right:16px;z-index:800;
+  width:50px;height:50px;border-radius:50%;
+  background:rgba(255,255,255,.08);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.15);
+  color:#fff;font-size:1.2rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);transition:transform .2s;
 }
 #fab-share:active{transform:scale(.9)}
 
-/* ══ TELAS ══ */
-.tela{display:none;max-width:500px;margin:0 auto;animation:up .35s ease}
-.tela.ativa{display:block}
-@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-
-/* Header */
-.app-header{text-align:center;padding:18px 0 10px}
-.header-logo{
-  width:88px;height:88px;border-radius:22px;
-  object-fit:contain;background:white;
-  box-shadow:0 6px 28px rgba(0,0,0,.22);
-  display:block;margin:0 auto 10px;
+/* ── BANNERS ── */
+#overlay{display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+#overlay.on{display:block}
+#banner,#banner-ios{
+  position:fixed;bottom:0;left:0;right:0;z-index:8001;
+  background:var(--bg2);border-radius:24px 24px 0 0;
+  border-top:1px solid rgba(124,58,237,.3);
+  padding:0 20px 40px;
+  box-shadow:0 -8px 48px rgba(0,0,0,.5),var(--glow-roxo);
+  transform:translateY(110%);
+  transition:transform .45s cubic-bezier(.34,1.4,.64,1);
 }
-.header-logo-sm{
-  width:58px;height:58px;border-radius:16px;
-  object-fit:contain;background:white;
-  box-shadow:0 4px 14px rgba(0,0,0,.2);
-  display:block;margin:0 auto 8px;
-}
-.app-tag{font-family:'Baloo 2',cursive;font-size:.78rem;font-weight:700;color:rgba(255,255,255,.65);letter-spacing:2px;text-transform:uppercase}
-.app-sub{color:rgba(255,255,255,.88);font-size:.9rem;margin-top:4px;font-weight:600}
-
-/* Card */
-.card{background:white;border-radius:var(--r);padding:22px;box-shadow:var(--sombra);margin-bottom:14px}
-
-/* Seção */
-.sec{font-family:'Baloo 2',cursive;font-size:1.18rem;font-weight:800;color:var(--roxo);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.sec .ic{width:30px;height:30px;border-radius:50%;background:var(--roxo-claro);display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0}
-
-/* Form */
-.campo{margin-bottom:13px}
-label{display:block;font-weight:700;font-size:.9rem;color:var(--cinza);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-input[type=text],input[type=number],select,textarea{
-  width:100%;border:2px solid #e5e7eb;border-radius:var(--rs);
-  padding:13px 15px;font-family:'Nunito',sans-serif;font-size:1.05rem;
-  font-weight:600;color:#1f2937;background:#f9fafb;outline:none;
-  transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;
-}
-input:focus,select:focus,textarea:focus{border-color:var(--roxo2);background:white;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
-textarea{resize:vertical;min-height:84px}
-
-/* Botões */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border:none;border-radius:var(--rs);font-family:'Baloo 2',cursive;font-size:1.18rem;font-weight:800;cursor:pointer;transition:transform .15s,opacity .15s}
-.btn:active{transform:scale(.97)}
-.btn+.btn{margin-top:8px}
-.btn-p{background:linear-gradient(135deg,#5b21b6,#7c3aed);color:white;box-shadow:0 4px 16px rgba(91,33,182,.3)}
-.btn-g{background:linear-gradient(135deg,#059669,#34a853);color:white;box-shadow:0 4px 16px rgba(5,150,105,.25)}
-.btn-b{background:linear-gradient(135deg,#1d4ed8,#1a73e8);color:white;box-shadow:0 4px 16px rgba(29,78,216,.25)}
-.btn-w{background:linear-gradient(135deg,#16a34a,#25d366);color:white;box-shadow:0 4px 16px rgba(22,163,74,.25)}
-.btn-s{background:#f3f4f6;color:#374151;border:2px solid #e5e7eb}
-.btn-o{background:transparent;color:white;border:2px solid rgba(255,255,255,.45)}
-
-/* ══ LOADING ══ */
-.loader{text-align:center;padding:44px 16px}
-.spin-wrap{position:relative;width:72px;height:72px;margin:0 auto 20px}
-.spin{width:72px;height:72px;border:5px solid #ede9fe;border-top-color:var(--roxo2);border-radius:50%;animation:rot 1s linear infinite}
-@keyframes rot{to{transform:rotate(360deg)}}
-.spin-logo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:10px;object-fit:contain;background:white}
-.loader h3{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:#4c1d95;margin-bottom:5px}
-.loader p{color:#6b7280;font-weight:600;font-size:.87rem}
-
-/* ══ QUESTÃO ══ */
-.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.q-num{font-family:'Baloo 2',cursive;font-size:.82rem;font-weight:800;color:white;background:linear-gradient(135deg,#5b21b6,#7c3aed);padding:3px 13px;border-radius:20px}
-.q-prog{font-size:.8rem;font-weight:700;color:#9ca3af}
-.q-disc{font-size:.77rem;font-weight:800;color:var(--roxo2);background:var(--roxo-claro);padding:2px 10px;border-radius:20px;margin-bottom:11px;display:inline-block}
-.q-texto{font-size:1.1rem;font-weight:700;color:#111827;line-height:1.65;margin-bottom:16px}
-.prog-wrap{background:#ede9fe;border-radius:20px;height:7px;margin-bottom:14px;overflow:hidden}
-.prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#5b21b6,#a855f7);transition:width .5s cubic-bezier(.4,0,.2,1)}
-
-.alts{list-style:none}
-.alts li{margin-bottom:10px}
-.alt{display:flex;align-items:flex-start;gap:12px;width:100%;padding:14px 15px;border:2px solid #e5e7eb;border-radius:var(--rs);background:#f9fafb;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:600;color:#374151;cursor:pointer;text-align:left;transition:all .18s;line-height:1.5}
-.alt-l{min-width:30px;height:30px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.88rem;color:#6b7280;transition:all .18s;flex-shrink:0}
-.alt:hover{border-color:var(--roxo2);background:var(--roxo-claro)}
-.alt:hover .alt-l{background:var(--roxo2);color:white}
-.alt.ok{border-color:#22c55e;background:#f0fdf4}.alt.ok .alt-l{background:#22c55e;color:white}
-.alt.err{border-color:#ef4444;background:#fff1f2}.alt.err .alt-l{background:#ef4444;color:white}
-.alt:disabled{cursor:default}
-.obs{margin-top:13px;padding:14px;border-radius:var(--rs);background:#fffbeb;border-left:4px solid #f59e0b;font-size:.95rem;font-weight:600;color:#78350f;display:none;line-height:1.55}
-.obs.on{display:block;animation:up .3s ease}
-
-/* ══ RESULTADO ══ */
-.res-topo{text-align:center;padding:16px 6px 10px}
-.nota-circle{width:112px;height:112px;border-radius:50%;margin:0 auto 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Baloo 2',cursive;box-shadow:0 8px 28px rgba(0,0,0,.18)}
-.nota-circle .v{font-size:2.7rem;font-weight:800;color:white;line-height:1}
-.nota-circle .l{font-size:.7rem;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase}
-.nv{background:linear-gradient(135deg,#059669,#34a853)}
-.na{background:linear-gradient(135deg,#d97706,#fbbc04)}
-.nr{background:linear-gradient(135deg,#dc2626,#ea4335)}
-.msg-a{font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:800;line-height:1.5;color:#1f2937;margin-bottom:5px}
-.msg-a .nome{color:var(--roxo2)}
-.ac-info{font-size:1rem;font-weight:700;color:#6b7280}
-.emoji-b{font-size:2.8rem;display:block;text-align:center;animation:bounce .75s ease infinite alternate;margin-bottom:7px}
-@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
-.det-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed #f3f4f6;font-size:.95rem;font-weight:600}
-.det-row:last-child{border-bottom:none}
-.det-k{color:#9ca3af}.det-v{color:#111827;font-weight:800;text-align:right;max-width:58%}
-.gab-item{padding:13px;border-radius:var(--rs);margin-bottom:9px;border:2px solid #e5e7eb}
-.gab-item.ok{border-color:#86efac;background:#f0fdf4}
-.gab-item.err{border-color:#fca5a5;background:#fff1f2}
-.gab-n{font-size:.82rem;font-weight:800;color:#9ca3af;margin-bottom:4px;text-transform:uppercase}
-.gab-p{font-size:.97rem;font-weight:700;color:#1f2937;margin-bottom:5px;line-height:1.45}
-.gab-r.ok{color:#16a34a;font-size:.92rem;font-weight:700}
-.gab-r.err{color:#dc2626;font-size:.92rem;font-weight:700}
-.gab-c{color:#16a34a;font-size:.9rem;font-weight:700;margin-top:3px}
-.gab-obs{font-size:.87rem;color:#6b7280;font-weight:600;margin-top:5px;line-height:1.45}
-
-/* ══ COMPARTILHAR ══ */
-.share-t{font-family:'Baloo 2',cursive;font-size:1.55rem;font-weight:800;background:linear-gradient(135deg,#5b21b6,#7c3aed,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:2px}
-.share-s{text-align:center;font-size:.78rem;font-weight:700;color:rgba(255,255,255,.65);margin-bottom:16px;letter-spacing:2px;text-transform:uppercase}
-.link-box{background:#f3f4f6;border:2px solid #e5e7eb;border-radius:var(--rs);padding:11px 13px;display:flex;align-items:center;gap:9px;margin-bottom:10px}
-.link-url{flex:1;font-size:.79rem;font-weight:700;color:var(--roxo2);word-break:break-all;font-family:monospace}
-.copy-btn{background:var(--roxo2);color:white;border:none;border-radius:8px;padding:7px 12px;font-family:'Baloo 2',cursive;font-weight:800;font-size:.83rem;cursor:pointer;flex-shrink:0;transition:background .2s}
-.copy-btn.ok{background:#16a34a}
-.qr-wrap{text-align:center;padding:16px;background:#f9fafb;border-radius:var(--rs);border:2px dashed #e5e7eb;margin-bottom:10px}
-.qr-label{font-size:.75rem;font-weight:700;color:#9ca3af;margin-top:9px;text-transform:uppercase;letter-spacing:1px}
-.pb{border-radius:var(--rs);padding:14px;margin-bottom:10px}
-.pt{font-family:'Baloo 2',cursive;font-weight:800;font-size:.95rem;margin-bottom:9px;display:flex;align-items:center;gap:6px}
-.pp{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px;font-size:.85rem;font-weight:600;line-height:1.45}
-.pp:last-child{margin-bottom:0}
-.pn{width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;color:white;flex-shrink:0}
-.badges{display:flex;gap:9px;margin-top:4px}
-.badge{flex:1;background:white;border:2px solid #e5e7eb;border-radius:11px;padding:10px 5px;text-align:center}
-.badge-i{font-size:1.4rem;display:block;margin-bottom:2px}
-.badge-t{font-size:.72rem;font-weight:700;color:#374151}
+#banner.on,#banner-ios.on{transform:translateY(0)}
+.banner-handle{width:44px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:14px auto 20px}
+.banner-row{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.banner-icon{width:64px;height:64px;border-radius:16px;object-fit:contain;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);flex-shrink:0;box-shadow:var(--glow-roxo)}
+.banner-title{font-family:'Orbitron',monospace;font-size:1rem;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:.5px}
+.banner-desc{font-size:.82rem;font-weight:600;color:var(--cinza);line-height:1.4}
+.banner-btns{display:flex;gap:10px}
+#btn-instalar-ok{flex:1;padding:14px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,var(--roxo),var(--roxo2));color:#fff;font-family:'Orbitron',monospace;font-size:.88rem;font-weight:800;cursor:pointer;box-shadow:var(--glow-roxo);letter-spacing:.5px;transition:transform .15s}
+#btn-instalar-ok:active{transform:scale(.97)}
+#btn-instalar-nao{padding:14px 16px;border:1px solid rgba(255,255,255,.15);border-radius:var(--rs);background:transparent;color:var(--cinza);font-family:'Orbitron',monospace;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap;letter-spacing:.5px}
+.ios-titulo{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:.5px}
+.ios-sub{font-size:.82rem;color:var(--cinza);font-weight:600;margin-bottom:16px}
+.ios-passo{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.88rem;font-weight:700;color:rgba(255,255,255,.85)}
+.ios-passo:last-of-type{border-bottom:none}
+.ios-passo span:first-child{font-size:1.35rem}
+.ios-fechar{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:var(--rs);background:transparent;color:var(--cinza);font-family:'Orbitron',monospace;font-weight:800;font-size:.82rem;cursor:pointer;margin-top:14px;letter-spacing:.5px}
 
 @media print{
-  body{background:white!important;padding:0}
-  .btn,.no-print,#splash,#banner,#banner-ios,#overlay,#fab-install,#fab-share{display:none!important}
+  body{background:white!important}
+  .btn,.no-print,#splash,#banner,#banner-ios,#overlay,#fab-install,#fab-share,body::before,body::after{display:none!important}
   .tela{display:none!important}
-  #tela-resultado{display:block!important;max-width:100%}
-  .card{box-shadow:none;border:1px solid #e5e7eb;margin-bottom:8px}
-  .nota-circle,.gab-item{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .app-header{display:none}
+  #tela-resultado{display:block!important;max-width:100%;padding:12px}
+  .card{background:white!important;border:1px solid #e5e7eb;margin-bottom:8px;box-shadow:none}
+  .card::before{display:none}
+  *{color:#111!important;-webkit-text-fill-color:#111!important}
+  .nota-ring::before,.nota-ring::after{display:none}
+  .nota-v{font-size:2rem}
+  .gab-item.ok{background:#f0fdf4!important;border-color:#86efac!important}
+  .gab-item.err{background:#fff1f2!important;border-color:#fca5a5!important}
+  .nota-verde .nota-v{color:#059669!important;-webkit-text-fill-color:#059669!important}
+  .nota-amarelo .nota-v{color:#d97706!important;-webkit-text-fill-color:#d97706!important}
+  .nota-vermelho .nota-v{color:#dc2626!important;-webkit-text-fill-color:#dc2626!important}
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
 }
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:rgba(124,58,237,.25);border-radius:3px}
 </style>
 </head>
 <body>
 
 <!-- ══════════ SPLASH ══════════ -->
 <div id="splash">
-  <div class="pencil-scene">
-    <!-- caderno -->
-    <div class="notebook">
-      <div class="notebook-line"></div>
-      <div class="notebook-line"></div>
-      <div class="notebook-line"></div>
-    </div>
-    <div class="writing-line"></div>
-    <!-- lápis animado -->
-    <div class="pencil">
-      <div class="pencil-body"><div class="pencil-shine"></div></div>
-    </div>
-    <!-- logo do app -->
-    <img src="logo.png" class="splash-logo" alt="Simulado"
-         onerror="this.style.display='none'">
+  <div class="splash-logo-wrap">
+    <img src="logo.png" class="splash-logo" alt="Simulado" onerror="this.style.display='none'">
+    <div class="splash-ring"></div>
   </div>
-  <div class="splash-titulo">Simula<span>do</span></div>
+  <div class="splash-title">SIMULADO</div>
   <div class="splash-sub">Estude · Pratique · Evolua</div>
-  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+  <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
 </div>
 
 <!-- ══════════ OVERLAY + BANNERS ══════════ -->
@@ -407,69 +626,66 @@ textarea{resize:vertical;min-height:84px}
 <div id="banner">
   <div class="banner-handle"></div>
   <div class="banner-row">
-    <img src="logo.png" class="banner-icon" alt="Simulado"
-         onerror="this.style.background='#ede9fe';this.textContent='📝'">
+    <img src="icon-192.png" class="banner-icon" alt="Simulado" onerror="this.style.display='none'">
     <div>
-      <div class="banner-title">📲 Instalar Simulado</div>
-      <div class="banner-desc">Adicione à tela inicial — acessa como app, sem abrir o navegador!</div>
+      <div class="banner-title">⬇ INSTALAR SIMULADO</div>
+      <div class="banner-desc">Adicione à tela inicial — abre como app, sem navegador!</div>
     </div>
   </div>
   <div class="banner-btns">
-    <button id="btn-instalar-ok" onclick="instalarPWA()">⬇️ Instalar Agora</button>
-    <button id="btn-instalar-nao" onclick="fecharBanner()">Agora não</button>
+    <button id="btn-instalar-ok" onclick="instalarPWA()">⬇ INSTALAR AGORA</button>
+    <button id="btn-instalar-nao" onclick="fecharBanner()">Depois</button>
   </div>
 </div>
 
 <div id="banner-ios">
   <div class="banner-handle"></div>
-  <div class="ios-titulo">📱 Instalar no iPhone / iPad</div>
+  <div class="ios-titulo">📱 INSTALAR NO IPHONE</div>
   <div class="ios-sub">Siga os passos para adicionar à tela inicial:</div>
   <div class="ios-passo"><span>1️⃣</span><span>Toque no botão <strong>Compartilhar ⬆️</strong> na barra inferior do Safari</span></div>
   <div class="ios-passo"><span>2️⃣</span><span>Role e toque em <strong>"Adicionar à Tela de Início"</strong></span></div>
   <div class="ios-passo"><span>3️⃣</span><span>Toque em <strong>Adicionar</strong> — o ícone aparece na tela! 🎉</span></div>
-  <button class="ios-fechar" onclick="fecharIos()">Entendido ✓</button>
+  <button class="ios-fechar" onclick="fecharIos()">ENTENDIDO ✓</button>
 </div>
 
-<button id="fab-install" onclick="mostrarBannerCorreto()">⬇️ Instalar App</button>
-<button id="fab-share" class="no-print" onclick="irPara('tela-compartilhar')">🔗</button>
+<button id="fab-install" onclick="clicarInstalar()">⬇ INSTALAR</button>
+<button id="fab-share" class="no-print" onclick="irPara('tela-compartilhar')" title="Compartilhar">🔗</button>
 
 <!-- ══════════ TELA INÍCIO ══════════ -->
 <div id="tela-inicio" class="tela ativa">
-  <div class="app-header">
-    <img src="logo.png" class="header-logo" alt="Simulado" onerror="this.style.display='none'">
-    <div class="app-tag">Estude · Pratique · Evolua</div>
-    <div class="app-sub">Simulados personalizados com Inteligência Artificial ✨</div>
+  <div class="game-header">
+    <img src="logo.png" class="game-logo" alt="Simulado" onerror="this.style.display='none'">
+    <div class="game-title">SIMULADO</div>
+    <div class="game-sub">Powered by AI · Level Up!</div>
   </div>
 
+  <!-- DADOS DO ALUNO -->
   <div class="card">
-    <div class="sec"><div class="ic">👤</div>Dados do Aluno</div>
-
-    <!-- Foto do aluno -->
+    <div class="sec"><div class="ic">👤</div>Player</div>
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
       <div style="position:relative;flex-shrink:0">
-        <div id="foto-wrap" onclick="document.getElementById('input-foto').click()"
-          style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#ede9fe,#ddd6fe);border:3px dashed #a78bfa;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:all .2s">
+        <div id="foto-wrap" class="foto-ring" onclick="document.getElementById('input-foto').click()">
           <img id="foto-preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%">
           <div id="foto-placeholder" style="text-align:center">
-            <div style="font-size:1.8rem">📷</div>
-            <div style="font-size:.65rem;font-weight:700;color:#7c3aed;margin-top:2px">Adicionar<br>foto</div>
+            <div style="font-size:1.6rem">📷</div>
+            <div style="font-size:.6rem;font-weight:800;color:var(--roxo3);margin-top:2px;font-family:'Orbitron',monospace;letter-spacing:.5px">FOTO</div>
           </div>
         </div>
-        <div id="foto-remove" onclick="removerFoto()" style="display:none;position:absolute;top:-4px;right:-4px;width:22px;height:22px;background:#ef4444;border-radius:50%;color:white;font-size:.75rem;font-weight:800;display:none;align-items:center;justify-content:center;cursor:pointer;border:2px solid white">✕</div>
+        <button id="foto-remove" onclick="removerFoto()" style="display:none;position:absolute;top:-4px;right:-4px;width:22px;height:22px;background:var(--vermelho);border-radius:50%;color:#fff;font-size:.7rem;font-weight:800;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg);outline:none">✕</button>
       </div>
       <div style="flex:1">
-        <div style="font-size:.82rem;font-weight:700;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Foto do Aluno</div>
-        <div style="font-size:.85rem;font-weight:600;color:#9ca3af;line-height:1.4">Toque na foto para adicionar uma imagem (opcional)</div>
+        <div style="font-size:.7rem;font-weight:800;color:var(--cinza);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px;font-family:'Orbitron',monospace">Avatar do Aluno</div>
+        <div style="font-size:.82rem;font-weight:600;color:rgba(255,255,255,.4);line-height:1.4">Toque para adicionar uma foto (opcional)</div>
       </div>
     </div>
     <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="carregarFoto(event)">
-
-    <div class="campo"><label>Nome completo</label><input type="text" id="nomeAluno" placeholder="Ex: Maria Clara Souza" maxlength="60"></div>
+    <div class="campo"><label>Nome do Player</label><input type="text" id="nomeAluno" placeholder="Ex: Maria Clara Souza" maxlength="60"></div>
     <div class="campo"><label>Idade</label><input type="number" id="idadeAluno" placeholder="Ex: 13" min="5" max="18"></div>
   </div>
 
+  <!-- INFOS ESCOLARES -->
   <div class="card">
-    <div class="sec"><div class="ic">🏫</div>Informações Escolares</div>
+    <div class="sec"><div class="ic">🏫</div>Missão</div>
     <div class="campo">
       <label>Ano / Série</label>
       <select id="serie">
@@ -502,14 +718,58 @@ textarea{resize:vertical;min-height:84px}
         <option>Artes</option><option>Educação Física</option><option>Filosofia</option><option>Sociologia</option>
       </select>
     </div>
-    <div class="campo">
-      <label>Conteúdo / Tema</label>
-      <textarea id="conteudo" placeholder="Ex: Frações — operações, simplificação e comparação." rows="3"></textarea>
+    <div class="campo"><label>Conteúdo / Tema</label><textarea id="conteudo" placeholder="Ex: Frações — operações e simplificação." rows="3"></textarea></div>
+  </div>
+
+  <!-- MODO DE QUESTÃO -->
+  <div class="card">
+    <div class="sec"><div class="ic">🎮</div>Modo de Jogo</div>
+    <div class="selector-grid">
+      <label class="selector-item">
+        <input type="radio" name="modo" value="multipla" checked>
+        <div class="selector-label">
+          <span class="selector-emoji">🎯</span>
+          <span class="selector-nome">Múltipla<br>Escolha</span>
+          <span class="selector-desc">4 opções, escolha a certa</span>
+        </div>
+      </label>
+      <label class="selector-item">
+        <input type="radio" name="modo" value="discursiva">
+        <div class="selector-label">
+          <span class="selector-emoji">✍️</span>
+          <span class="selector-nome">Discursiva</span>
+          <span class="selector-desc">Escreva sua resposta</span>
+        </div>
+      </label>
     </div>
   </div>
 
+  <!-- NÍVEL DE DIFICULDADE -->
   <div class="card">
-    <div class="sec"><div class="ic">⚙️</div>Configurações</div>
+    <div class="sec"><div class="ic">⚡</div>Dificuldade</div>
+    <div class="selector-grid">
+      <label class="selector-item facil">
+        <input type="radio" name="nivel" value="facil" checked>
+        <div class="selector-label">
+          <span class="selector-emoji">😎</span>
+          <span class="selector-nome">Molezinha</span>
+          <span class="selector-desc">Fácil — questões básicas e diretas</span>
+        </div>
+      </label>
+      <label class="selector-item sinistro">
+        <input type="radio" name="nivel" value="sinistro">
+        <div class="selector-label">
+          <span class="selector-emoji">💀</span>
+          <span class="selector-nome">Sinistro</span>
+          <span class="selector-desc">Difícil — questões avançadas e complexas</span>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- CONFIGURAÇÕES -->
+  <div class="card">
+    <div class="sec"><div class="ic">⚙️</div>Config</div>
     <div class="campo">
       <label>Quantidade de questões</label>
       <select id="qtd">
@@ -519,124 +779,144 @@ textarea{resize:vertical;min-height:84px}
         <option value="20">20 questões</option>
       </select>
     </div>
-    <div id="chave-status" style="margin-top:10px;padding:10px 12px;border-radius:10px;font-size:.82rem;font-weight:700;background:#f0fdf4;border:2px solid #86efac;color:#166534;display:flex;align-items:center;gap:8px">
-      ✅ Simulado gratuito — sem cadastro necessário!
+    <div style="padding:10px 12px;border-radius:10px;font-size:.82rem;font-weight:700;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:var(--verde)">
+      ✅ Gratuito — sem cadastro necessário!
     </div>
   </div>
 
-  <button class="btn btn-p" onclick="iniciar()">🚀 Gerar Simulado com IA</button>
-
-  <!-- Card instalação — sempre visível -->
-  <div id="card-instalar" class="card" style="margin-top:14px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);border:2px solid #a78bfa">
+  <!-- CARD INSTALAR -->
+  <div id="card-instalar" class="install-card">
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-      <img src="icon-192.png" style="width:56px;height:56px;border-radius:14px;box-shadow:0 4px 12px rgba(91,33,182,.25)" alt="Simulado">
+      <img src="icon-192.png" style="width:52px;height:52px;border-radius:13px;border:1px solid rgba(124,58,237,.4);box-shadow:var(--glow-roxo)" alt="Simulado" onerror="this.style.display='none'">
       <div>
-        <div style="font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:#4c1d95">📲 Instalar Simulado</div>
-        <div style="font-size:.88rem;font-weight:600;color:#6d28d9;line-height:1.4">Adicione à tela inicial — abre como app!</div>
+        <div style="font-family:'Orbitron',monospace;font-size:.9rem;font-weight:800;color:#fff;letter-spacing:.5px">📲 INSTALAR APP</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--cinza);margin-top:2px">Abre direto como app, sem navegador!</div>
       </div>
     </div>
     <button id="btn-instalar-card" onclick="clicarInstalar()"
-      style="width:100%;padding:15px;border:none;border-radius:12px;background:linear-gradient(135deg,#5b21b6,#7c3aed);color:white;font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(91,33,182,.35)">
-      ⬇️ Instalar na Tela Inicial
+      style="width:100%;padding:14px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,var(--roxo),var(--roxo2));color:#fff;font-family:'Orbitron',monospace;font-size:.88rem;font-weight:800;cursor:pointer;box-shadow:var(--glow-roxo);letter-spacing:.5px">
+      ⬇ INSTALAR NA TELA INICIAL
     </button>
-    <div id="instalar-instrucao" style="display:none;margin-top:12px;padding:12px;background:white;border-radius:10px;font-size:.9rem;font-weight:600;color:#374151;line-height:1.6">
-      <strong>Android (Chrome):</strong><br>
-      Menu <strong>⋮</strong> → <strong>"Adicionar à tela inicial"</strong><br><br>
-      <strong>iPhone (Safari):</strong><br>
-      Botão <strong>⬆️</strong> → <strong>"Adicionar à Tela de Início"</strong>
+    <div id="instalar-instrucao" style="display:none;margin-top:12px;padding:12px;background:rgba(255,255,255,.05);border-radius:var(--rs);font-size:.88rem;font-weight:600;color:rgba(255,255,255,.7);line-height:1.6;border:1px solid rgba(255,255,255,.08)">
+      <strong style="color:var(--roxo3)">Android:</strong> Menu <strong>⋮</strong> → <strong>"Adicionar à tela inicial"</strong><br>
+      <strong style="color:var(--cyan)">iPhone:</strong> Botão <strong>⬆️</strong> → <strong>"Adicionar à Tela de Início"</strong>
     </div>
   </div>
 
-  <button class="btn btn-o" style="margin-top:8px" onclick="irPara('tela-compartilhar')">🔗 Compartilhar App</button>
-  <div style="height:28px"></div>
+  <button class="btn btn-roxo" onclick="iniciar()">▶ INICIAR SIMULADO</button>
+  <button class="btn btn-ghost" style="margin-top:8px" onclick="irPara('tela-compartilhar')">🔗 COMPARTILHAR APP</button>
+  <div style="height:32px"></div>
 </div>
 
 <!-- ══════════ TELA CARREGANDO ══════════ -->
 <div id="tela-loading" class="tela">
   <div style="height:100px"></div>
   <div class="card loader">
-    <div class="spin-wrap">
-      <div class="spin"></div>
-      <img src="logo.png" class="spin-logo" alt="" onerror="this.style.display='none'">
+    <div class="loader-ring-wrap">
+      <div class="loader-ring"></div>
+      <img src="logo.png" class="loader-logo" alt="" onerror="this.style.display='none'">
     </div>
-    <h3>Criando seu simulado...</h3>
-    <p>A IA está preparando questões personalizadas</p>
-    <p style="margin-top:5px;font-size:.79rem;color:#c4b5fd">✨ Aguarde alguns instantes</p>
+    <h3>GERANDO MISSÃO...</h3>
+    <p>A IA está criando questões personalizadas</p>
+    <p style="margin-top:6px;font-size:.78rem;color:var(--roxo3);font-family:'Orbitron',monospace;letter-spacing:.5px">✦ AGUARDE ✦</p>
   </div>
 </div>
 
 <!-- ══════════ TELA SIMULADO ══════════ -->
 <div id="tela-simulado" class="tela">
-  <div class="app-header">
-    <img src="logo.png" class="header-logo-sm" alt="" onerror="this.style.display='none'">
-    <div class="app-sub" id="info-sim"></div>
+  <div class="game-header">
+    <img src="logo.png" class="game-logo" alt="" style="width:56px;height:56px;border-radius:14px" onerror="this.style.display='none'">
+    <div style="font-size:.82rem;font-weight:700;color:var(--cinza)" id="info-sim"></div>
   </div>
   <div class="card">
     <div class="q-header">
-      <span class="q-num" id="q-num">Questão 1</span>
+      <span class="q-badge" id="q-num">QUESTÃO 1</span>
       <span class="q-prog" id="q-prog">1 / 10</span>
     </div>
     <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:10%"></div></div>
-    <div class="q-disc" id="q-disc"></div>
+    <div>
+      <span class="q-disc" id="q-disc"></span>
+      <span class="q-nivel" id="q-nivel"></span>
+    </div>
     <p class="q-texto" id="q-texto"></p>
+
+    <!-- Múltipla escolha -->
     <ul class="alts" id="alts"></ul>
+
+    <!-- Discursiva -->
+    <div class="disc-wrap" id="disc-wrap" style="display:none">
+      <textarea class="disc-textarea" id="disc-input" placeholder="Digite sua resposta aqui..." maxlength="800" oninput="atualizarContador()"></textarea>
+      <div class="disc-counter" id="disc-counter">0 / 800</div>
+      <button class="btn btn-cyan" id="btn-responder-disc" onclick="responderDiscursiva()" style="margin-top:10px">
+        ✓ ENVIAR RESPOSTA
+      </button>
+      <div class="disc-corrigindo" id="disc-corrigindo" style="display:none">
+        <span class="mini-spin"></span>CORRIGINDO COM IA...
+      </div>
+      <div class="disc-feedback" id="disc-feedback"></div>
+    </div>
+
     <div class="obs" id="obs"></div>
   </div>
-  <button class="btn btn-p" id="btn-prox" onclick="proxima()" style="display:none">Próxima →</button>
-  <button class="btn btn-g" id="btn-fin"  onclick="finalizar()" style="display:none">✅ Ver Resultado</button>
+  <button class="btn btn-roxo" id="btn-prox" onclick="proxima()" style="display:none">PRÓXIMA ▶</button>
+  <button class="btn btn-verde" id="btn-fin" onclick="finalizar()" style="display:none">✓ VER RESULTADO</button>
   <div style="height:28px"></div>
 </div>
 
 <!-- ══════════ TELA RESULTADO ══════════ -->
 <div id="tela-resultado" class="tela">
-  <div class="app-header no-print">
-    <img src="logo.png" class="header-logo-sm" alt="" style="width:68px;height:68px;border-radius:18px" onerror="this.style.display='none'">
-    <div class="app-sub">🏆 Resultado do Simulado</div>
+  <div class="game-header no-print">
+    <img src="logo.png" class="game-logo" alt="" style="width:68px;height:68px;border-radius:17px" onerror="this.style.display='none'">
+    <div style="font-family:'Orbitron',monospace;font-size:.82rem;color:var(--cinza);letter-spacing:1px">GAME OVER — RESULTADO FINAL</div>
   </div>
   <div class="card">
     <div class="res-topo">
       <span class="emoji-b" id="emoji-r"></span>
-      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px">
-        <img id="foto-resultado" src="" alt="Foto do aluno"
-          style="display:none;width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid #7c3aed;box-shadow:0 4px 14px rgba(91,33,182,.25)">
-        <div class="nota-circle" id="nota-circle"><span class="v" id="nota-v"></span><span class="l">NOTA</span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:14px">
+        <img id="foto-resultado" src="" alt="" style="display:none;width:76px;height:76px;border-radius:50%;object-fit:cover;border:3px solid var(--roxo2);box-shadow:var(--glow-roxo)">
+        <div class="nota-ring" id="nota-ring">
+          <div class="nota-ring-inner">
+            <div class="nota-v" id="nota-v"></div>
+            <div class="nota-l">NOTA</div>
+          </div>
+        </div>
       </div>
       <p class="msg-a" id="msg-a"></p>
       <p class="ac-info" id="ac-info"></p>
     </div>
-    <div id="dets" style="margin-top:10px"></div>
+    <div id="dets" style="margin-top:12px"></div>
   </div>
   <div class="card">
     <div class="sec"><div class="ic">📋</div>Gabarito</div>
     <div id="gab"></div>
   </div>
-  <button class="btn btn-b no-print" onclick="window.print()">🖨️ Exportar PDF / Imprimir</button>
-  <button class="btn btn-s no-print" onclick="irPara('tela-inicio')">🔄 Novo Simulado</button>
+  <button class="btn btn-cyan no-print" onclick="window.print()">🖨 EXPORTAR PDF</button>
+  <button class="btn btn-ghost no-print" style="margin-top:8px" onclick="irPara('tela-inicio')">↺ NOVO SIMULADO</button>
   <div style="height:28px"></div>
 </div>
 
 <!-- ══════════ TELA COMPARTILHAR ══════════ -->
 <div id="tela-compartilhar" class="tela">
-  <div class="app-header">
-    <img src="logo.png" class="header-logo" alt="Simulado" style="width:90px;height:90px" onerror="this.style.display='none'">
-    <div class="share-t">Simulado</div>
-    <div class="share-s">Estude · Pratique · Evolua</div>
+  <div class="game-header">
+    <img src="logo.png" class="game-logo" alt="Simulado" style="width:84px;height:84px" onerror="this.style.display='none'">
+    <div class="share-titulo">SIMULADO</div>
+    <div class="share-sub">Estude · Pratique · Evolua</div>
   </div>
 
   <div class="card">
-    <div class="sec"><div class="ic">📲</div>Instalar como App</div>
-    <button class="btn btn-p" onclick="mostrarBannerCorreto()" style="margin-bottom:8px">⬇️ Instalar na Tela Inicial</button>
-    <p style="font-size:.79rem;font-weight:600;color:#9ca3af;text-align:center">Android (Chrome) e iPhone (Safari)</p>
+    <div class="sec"><div class="ic">📲</div>Instalar App</div>
+    <button class="btn btn-roxo" onclick="clicarInstalar()" style="margin-bottom:8px">⬇ INSTALAR NA TELA INICIAL</button>
+    <p style="font-size:.75rem;font-weight:600;color:var(--cinza);text-align:center;font-family:'Orbitron',monospace;letter-spacing:.5px">ANDROID (CHROME) · IPHONE (SAFARI)</p>
   </div>
 
   <div class="card">
-    <div class="sec"><div class="ic">🔗</div>Compartilhar Link</div>
+    <div class="sec"><div class="ic">🔗</div>Compartilhar</div>
     <div class="link-box">
       <span class="link-url" id="link-txt">carregando...</span>
-      <button class="copy-btn" id="btn-copy" onclick="copiarLink()">📋 Copiar</button>
+      <button class="copy-btn" id="btn-copy" onclick="copiarLink()">COPIAR</button>
     </div>
-    <button class="btn btn-w" onclick="abrirWpp()"><span>💬</span>WhatsApp</button>
-    <button class="btn btn-b" id="btn-share-nat" style="display:none;margin-top:8px" onclick="shareNativo()"><span>📤</span>Compartilhar...</button>
+    <button class="btn btn-wpp" onclick="abrirWpp()"><span>💬</span>WHATSAPP</button>
+    <button class="btn btn-ghost" id="btn-share-nat" style="display:none;margin-top:8px" onclick="shareNativo()"><span>📤</span>COMPARTILHAR</button>
   </div>
 
   <div class="card">
@@ -644,48 +924,40 @@ textarea{resize:vertical;min-height:84px}
     <div class="qr-wrap"><div id="qr-wrap"></div><p class="qr-label">Aponte a câmera para abrir</p></div>
   </div>
 
-  <button class="btn btn-p" onclick="irPara('tela-inicio')">← Voltar</button>
+  <button class="btn btn-ghost" onclick="irPara('tela-inicio')">← VOLTAR</button>
   <div style="height:28px"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ═══════════════════════════════════════════
-// SPLASH — esconde após 2.2s
+const WORKER_URL = 'https://simulado-api.rodrigo-rodrigues0311.workers.dev';
+const APP_URL = location.href.split('?')[0].split('#')[0];
+
+// ═══════════════════════════════════════════
+// SPLASH
 // ═══════════════════════════════════════════
 window.addEventListener('load', () => {
   setTimeout(() => {
     const s = document.getElementById('splash');
     s.classList.add('hide');
-    setTimeout(() => s.style.display='none', 650);
-  }, 2200);
+    setTimeout(() => s.style.display='none', 700);
+  }, 2400);
 });
 
 // ═══════════════════════════════════════════
-// SERVICE WORKER — com detecção de atualização
+// SERVICE WORKER
 // ═══════════════════════════════════════════
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(reg => {
-    // Verifica atualização a cada 60 segundos
     setInterval(() => reg.update(), 60000);
-
-    // Quando novo SW instalado, recarrega a página automaticamente
     reg.addEventListener('updatefound', () => {
       const novo = reg.installing;
       novo.addEventListener('statechange', () => {
-        if (novo.state === 'activated') {
-          window.location.reload();
-        }
+        if (novo.state === 'activated') window.location.reload();
       });
     });
   }).catch(()=>{});
-
-  // Recebe mensagem do SW para limpar cache e recarregar
-  navigator.serviceWorker.addEventListener('message', e => {
-    if (e.data && e.data.type === 'CACHE_CLEARED') {
-      window.location.reload();
-    }
-  });
 }
 
 // ═══════════════════════════════════════════
@@ -694,155 +966,94 @@ if ('serviceWorker' in navigator) {
 let _prompt = null;
 const _ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
 const _standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-
-// Limpa flag dismissed a cada nova visita — sempre mostra o banner
 localStorage.removeItem('pwa_dismissed');
 
 window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  _prompt = e;
-  // Mostra banner após splash sumir (2.5s)
-  if (!_standalone) {
-    setTimeout(mostrarBannerAndroid, 2500);
-  }
+  e.preventDefault(); _prompt = e;
+  if (!_standalone) setTimeout(mostrarBannerAndroid, 2600);
 });
-
 window.addEventListener('appinstalled', () => {
   fecharTodos();
-  document.getElementById('fab-install').style.display = 'none';
-  const card = document.getElementById('card-instalar');
-  if (card) card.style.display = 'none';
-  localStorage.setItem('pwa_installed','1');
-  _prompt = null;
-});
-
-// Se já instalado, esconde o card
-if (_standalone || localStorage.getItem('pwa_installed')) {
-  window.addEventListener('load', () => {
-    const card = document.getElementById('card-instalar');
-    if (card) card.style.display = 'none';
-  });
-}
-
-// iOS — mostra instrução manual
-if (_ios && !_standalone) {
-  setTimeout(mostrarBannerIos, 2800);
-}
-
-function mostrarBannerAndroid() {
-  document.getElementById('banner').classList.add('on');
-  document.getElementById('overlay').classList.add('on');
-}
-function mostrarBannerIos() {
-  document.getElementById('banner-ios').classList.add('on');
-  document.getElementById('overlay').classList.add('on');
-}
-function mostrarBannerCorreto() {
-  clicarInstalar();
-}
-
-// Botão principal de instalar — funciona em qualquer situação
-async function clicarInstalar() {
-  if (_prompt) {
-    // Android com prompt disponível — instala direto
-    document.getElementById('btn-instalar-card').textContent = '⏳ Instalando...';
-    _prompt.prompt();
-    const { outcome } = await _prompt.userChoice;
-    if (outcome === 'accepted') {
-      document.getElementById('card-instalar').style.display = 'none';
-      document.getElementById('fab-install').style.display = 'none';
-    } else {
-      document.getElementById('btn-instalar-card').innerHTML = '⬇️ Instalar na Tela Inicial';
-    }
-    _prompt = null;
-  } else {
-    // Sem prompt (iOS ou Chrome ainda não liberou) — mostra instrução
-    const inst = document.getElementById('instalar-instrucao');
-    inst.style.display = inst.style.display === 'none' ? 'block' : 'none';
-  }
-}
-function fecharBanner() {
-  document.getElementById('banner').classList.remove('on');
-  document.getElementById('overlay').classList.remove('on');
-  // Mostra FAB para reinstalar depois
-  if (_prompt) document.getElementById('fab-install').style.display='flex';
-}
-function fecharIos() {
-  document.getElementById('banner-ios').classList.remove('on');
-  document.getElementById('overlay').classList.remove('on');
-  if (_ios && !_standalone) document.getElementById('fab-install').style.display='flex';
-}
-function fecharTodos() { fecharBanner(); fecharIos(); }
-
-async function instalarPWA() {
-  if (!_prompt) return;
-  document.getElementById('btn-instalar-ok').textContent='⏳ Instalando...';
-  _prompt.prompt();
-  const { outcome } = await _prompt.userChoice;
-  if (outcome==='accepted') { fecharTodos(); document.getElementById('fab-install').style.display='none'; }
-  else document.getElementById('btn-instalar-ok').innerHTML='⬇️ Instalar Agora';
+  document.getElementById('fab-install').style.display='none';
+  const c = document.getElementById('card-instalar');
+  if(c) c.style.display='none';
   _prompt=null;
+});
+if (_ios && !_standalone) setTimeout(mostrarBannerIos, 2800);
+if (_standalone) {
+  const c = document.getElementById('card-instalar');
+  if(c) c.style.display='none';
+}
+
+function mostrarBannerAndroid(){ document.getElementById('banner').classList.add('on'); document.getElementById('overlay').classList.add('on'); }
+function mostrarBannerIos(){ document.getElementById('banner-ios').classList.add('on'); document.getElementById('overlay').classList.add('on'); }
+function fecharBanner(){ document.getElementById('banner').classList.remove('on'); document.getElementById('overlay').classList.remove('on'); if(_prompt) document.getElementById('fab-install').style.display='flex'; }
+function fecharIos(){ document.getElementById('banner-ios').classList.remove('on'); document.getElementById('overlay').classList.remove('on'); if(_ios&&!_standalone) document.getElementById('fab-install').style.display='flex'; }
+function fecharTodos(){ fecharBanner(); fecharIos(); }
+
+async function instalarPWA(){
+  if(!_prompt) return;
+  document.getElementById('btn-instalar-ok').textContent='⏳ INSTALANDO...';
+  _prompt.prompt();
+  const {outcome} = await _prompt.userChoice;
+  if(outcome==='accepted'){ fecharTodos(); document.getElementById('fab-install').style.display='none'; }
+  else document.getElementById('btn-instalar-ok').textContent='⬇ INSTALAR AGORA';
+  _prompt=null;
+}
+async function clicarInstalar(){
+  if(_prompt){ await instalarPWA(); return; }
+  const inst = document.getElementById('instalar-instrucao');
+  if(inst) inst.style.display = inst.style.display==='none' ? 'block' : 'none';
 }
 
 // ═══════════════════════════════════════════
 // FOTO DO ALUNO
 // ═══════════════════════════════════════════
-let fotoBase64 = '';
-
-function carregarFoto(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    fotoBase64 = e.target.result;
-    // Mostra preview
-    const preview = document.getElementById('foto-preview');
-    const placeholder = document.getElementById('foto-placeholder');
-    const removeBtn = document.getElementById('foto-remove');
-    preview.src = fotoBase64;
-    preview.style.display = 'block';
-    placeholder.style.display = 'none';
-    removeBtn.style.display = 'flex';
-    // Borda colorida
-    document.getElementById('foto-wrap').style.border = '3px solid #7c3aed';
+let fotoBase64='';
+function carregarFoto(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=(ev)=>{
+    fotoBase64=ev.target.result;
+    const prev=document.getElementById('foto-preview');
+    prev.src=fotoBase64; prev.style.display='block';
+    document.getElementById('foto-placeholder').style.display='none';
+    document.getElementById('foto-remove').style.display='flex';
+    document.getElementById('foto-wrap').classList.add('tem-foto');
   };
-  reader.readAsDataURL(file);
+  r.readAsDataURL(file);
 }
-
-function removerFoto() {
-  fotoBase64 = '';
-  document.getElementById('foto-preview').style.display = 'none';
-  document.getElementById('foto-placeholder').style.display = 'block';
-  document.getElementById('foto-remove').style.display = 'none';
-  document.getElementById('foto-wrap').style.border = '3px dashed #a78bfa';
-  document.getElementById('input-foto').value = '';
+function removerFoto(){
+  fotoBase64='';
+  document.getElementById('foto-preview').style.display='none';
+  document.getElementById('foto-placeholder').style.display='block';
+  document.getElementById('foto-remove').style.display='none';
+  document.getElementById('foto-wrap').classList.remove('tem-foto');
+  document.getElementById('input-foto').value='';
 }
-const E={
-  nome:'',idade:'',serie:'',bimestre:'',disciplina:'',conteudo:'',qtd:10,
-  questoes:[],respostas:[],idx:0,respondida:false
-};
-const LETRAS=['A','B','C','D'];
 
 // ═══════════════════════════════════════════
 // NAVEGAÇÃO
 // ═══════════════════════════════════════════
-function irPara(id) {
+function irPara(id){
   document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
   document.getElementById(id).classList.add('ativa');
   window.scrollTo({top:0,behavior:'smooth'});
-  if (id==='tela-compartilhar') montarShare();
+  if(id==='tela-compartilhar') montarShare();
 }
 
 // ═══════════════════════════════════════════
 // VALIDAÇÃO
 // ═══════════════════════════════════════════
-function validar() {
+function validar(){
   const ids=['nomeAluno','idadeAluno','serie','bimestre','disciplina','conteudo'];
   for(const id of ids){
     const el=document.getElementById(id);
     if(!el.value.trim()){
-      el.focus();el.style.borderColor='#ef4444';el.style.boxShadow='0 0 0 3px rgba(239,68,68,.15)';
-      setTimeout(()=>{el.style.borderColor='';el.style.boxShadow='';},2000);
+      el.focus();
+      el.style.borderColor='var(--vermelho)';
+      el.style.boxShadow='0 0 0 3px rgba(239,68,68,.2),var(--glow-verm)';
+      setTimeout(()=>{el.style.borderColor='';el.style.boxShadow='';},2200);
       alert('Preencha todos os campos!'); return false;
     }
   }
@@ -850,10 +1061,20 @@ function validar() {
 }
 
 // ═══════════════════════════════════════════
-// INICIAR SIMULADO
+// ESTADO
 // ═══════════════════════════════════════════
-async function iniciar() {
-  if (!validar()) return;
+let E={
+  nome:'',idade:'',serie:'',bimestre:'',disciplina:'',conteudo:'',
+  qtd:10,modo:'multipla',nivel:'facil',
+  questoes:[],respostas:[],idx:0,respondida:false
+};
+const LETRAS=['A','B','C','D'];
+
+// ═══════════════════════════════════════════
+// INICIAR
+// ═══════════════════════════════════════════
+async function iniciar(){
+  if(!validar()) return;
   E.nome=document.getElementById('nomeAluno').value.trim();
   E.idade=document.getElementById('idadeAluno').value;
   E.serie=document.getElementById('serie').value;
@@ -861,108 +1082,59 @@ async function iniciar() {
   E.disciplina=document.getElementById('disciplina').value;
   E.conteudo=document.getElementById('conteudo').value.trim();
   E.qtd=parseInt(document.getElementById('qtd').value);
+  E.modo=document.querySelector('input[name=modo]:checked').value;
+  E.nivel=document.querySelector('input[name=nivel]:checked').value;
   E.respostas=[];E.idx=0;
   irPara('tela-loading');
-  try {
+  try{
     E.questoes=await gerarQuestoes();
     document.getElementById('info-sim').textContent=`${E.disciplina} · ${E.serie} · ${E.bimestre}`;
-    document.getElementById('q-disc').textContent=`${E.disciplina} — ${E.serie}`;
-    montarQ(0);
-    irPara('tela-simulado');
-  } catch(err) {
-    console.error(err);
-    alert('Erro ao gerar questões:\n'+err.message+'\n\nVerifique se publicou o app no GitHub Pages (HTTPS é obrigatório para a API funcionar).');
+    montarQ(0); irPara('tela-simulado');
+  } catch(err){
+    alert('❌ Erro: '+err.message);
     irPara('tela-inicio');
   }
 }
 
 // ═══════════════════════════════════════════
-// WORKER URL — cole aqui a URL do seu Worker
+// API
 // ═══════════════════════════════════════════
-// Exemplo: 'https://meu-simulado.seu-usuario.workers.dev'
-const WORKER_URL = 'https://simulado-api.rodrigo-rodrigues0311.workers.dev';
+async function gerarQuestoes(){
+  const nivelDesc = E.nivel==='facil'
+    ? 'FÁCIL (Molezinha): questões simples, diretas, conceitos básicos, vocabulário acessível'
+    : 'DIFÍCIL (Sinistro): questões complexas, raciocínio avançado, pegadinhas, análise crítica, interdisciplinares';
 
-// ═══════════════════════════════════════════
-// INICIAR SIMULADO
-// ═══════════════════════════════════════════
-async function iniciar() {
-  if (!validar()) return;
-  E.nome       = document.getElementById('nomeAluno').value.trim();
-  E.idade      = document.getElementById('idadeAluno').value;
-  E.serie      = document.getElementById('serie').value;
-  E.bimestre   = document.getElementById('bimestre').value;
-  E.disciplina = document.getElementById('disciplina').value;
-  E.conteudo   = document.getElementById('conteudo').value.trim();
-  E.qtd        = parseInt(document.getElementById('qtd').value);
-  E.respostas  = []; E.idx = 0;
-  irPara('tela-loading');
-  try {
-    E.questoes = await gerarQuestoes();
-    document.getElementById('info-sim').textContent  = `${E.disciplina} · ${E.serie} · ${E.bimestre}`;
-    document.getElementById('q-disc').textContent    = `${E.disciplina} — ${E.serie}`;
-    montarQ(0);
-    irPara('tela-simulado');
-  } catch(err) {
-    console.error(err);
-    let msg = err.message || 'Erro desconhecido';
-    if (msg.includes('COLE_AQUI')) {
-      msg = 'O app ainda não foi configurado.\nPublique o Worker e cole a URL no index.html.';
-    }
-    alert('❌ Erro ao gerar questões:\n\n' + msg);
-    irPara('tela-inicio');
-  }
-}
+  const modoDesc = E.modo==='multipla'
+    ? `Crie questões de MÚLTIPLA ESCOLHA com exatamente 4 alternativas (A, B, C, D). Apenas UMA correta.
+Formato JSON:
+{"questoes":[{"pergunta":"texto","alternativas":["A","B","C","D"],"correta":0,"observacao":"explicação"}]}
+"correta" = índice 0-3.`
+    : `Crie questões DISCURSIVAS abertas que o aluno deve responder por escrito.
+Formato JSON:
+{"questoes":[{"pergunta":"texto","resposta_esperada":"resposta completa esperada","palavras_chave":["palavra1","palavra2","palavra3"],"observacao":"explicação da resposta correta"}]}
+"palavras_chave" = termos essenciais que indicam que o aluno entendeu o conteúdo.`;
 
-// ═══════════════════════════════════════════
-// API — chama o Worker (chave fica segura lá)
-// ═══════════════════════════════════════════
-async function gerarQuestoes() {
-  if (WORKER_URL.includes('COLE_AQUI')) {
-    throw new Error('Worker não configurado. Siga o guia de publicação.');
-  }
-
-  const prompt = `Você é um professor experiente do Brasil. Crie exatamente ${E.qtd} questões de múltipla escolha sobre o conteúdo abaixo para um aluno de ${E.serie} com ${E.idade} anos.
+  const prompt=`Você é um professor experiente do Brasil. Crie exatamente ${E.qtd} questões para um aluno de ${E.serie} com ${E.idade} anos.
 
 Disciplina: ${E.disciplina}
 Conteúdo: ${E.conteudo}
 Bimestre: ${E.bimestre}
+Nível: ${nivelDesc}
 
-REGRAS OBRIGATÓRIAS:
-- 4 alternativas por questão (A, B, C, D). Apenas UMA correta.
-- Linguagem acessível para a faixa etária.
-- Questões variadas: conceito, cálculo, interpretação, exemplos práticos.
-- Inclua uma observação/explicação breve da resposta correta.
+${modoDesc}
 
-Responda SOMENTE com JSON válido, sem markdown, sem texto extra:
-{"questoes":[{"pergunta":"texto","alternativas":["A","B","C","D"],"correta":0,"observacao":"explicação"}]}
+IMPORTANTE: Responda SOMENTE com JSON válido, sem markdown, sem texto extra.`;
 
-"correta" = índice 0-3 (0=A, 1=B, 2=C, 3=D).`;
-
-  const res = await fetch(WORKER_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-5',
-      max_tokens: 4000,
-      messages: [{ role: 'user', content: prompt }]
-    })
+  const res=await fetch(WORKER_URL,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:5000,messages:[{role:'user',content:prompt}]})
   });
-
-  const data = await res.json();
-
-  // Mostra resposta completa se der erro
-  if (!res.ok || data.error) {
-    const detalhe = data.error ? JSON.stringify(data.error) : JSON.stringify(data);
-    throw new Error(`Worker retornou erro:\n${detalhe.slice(0,300)}`);
-  }
-
-  if (!data.content || !Array.isArray(data.content)) {
-    throw new Error(`Resposta inesperada do Worker:\n${JSON.stringify(data).slice(0,300)}`);
-  }
-
-  const txt  = data.content.map(i => i.text || '').join('');
-  const match = txt.replace(/```json|```/g, '').trim().match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Resposta inesperada da IA. Tente novamente.');
+  const data=await res.json();
+  if(!res.ok||data.error) throw new Error(JSON.stringify(data.error||data).slice(0,200));
+  if(!data.content||!Array.isArray(data.content)) throw new Error('Resposta inesperada do servidor.');
+  const txt=data.content.map(i=>i.text||'').join('');
+  const match=txt.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
+  if(!match) throw new Error('Formato de resposta inválido. Tente novamente.');
   return JSON.parse(match[0]).questoes;
 }
 
@@ -975,81 +1147,223 @@ function montarQ(idx){
   document.getElementById('btn-prox').style.display='none';
   document.getElementById('btn-fin').style.display='none';
   document.getElementById('obs').classList.remove('on');
-  document.getElementById('q-num').textContent=`Questão ${idx+1}`;
+
+  document.getElementById('q-num').textContent=`QUESTÃO ${idx+1}`;
   document.getElementById('q-prog').textContent=`${idx+1} / ${tot}`;
   document.getElementById('prog-fill').style.width=`${((idx+1)/tot)*100}%`;
+  document.getElementById('q-disc').textContent=`${E.disciplina}`;
+
+  const nivelEl=document.getElementById('q-nivel');
+  nivelEl.textContent=E.nivel==='facil'?'😎 Molezinha':'💀 Sinistro';
+  nivelEl.className='q-nivel '+(E.nivel==='facil'?'facil':'sinistro');
+
   document.getElementById('q-texto').textContent=q.pergunta;
-  const ul=document.getElementById('alts');ul.innerHTML='';
-  q.alternativas.forEach((alt,i)=>{
-    const li=document.createElement('li');
-    li.innerHTML=`<button class="alt" onclick="responder(${i})">
-      <span class="alt-l">${LETRAS[i]}</span><span>${alt}</span></button>`;
-    ul.appendChild(li);
-  });
+
+  // Decide modo
+  if(E.modo==='multipla'){
+    document.getElementById('alts').style.display='block';
+    document.getElementById('disc-wrap').style.display='none';
+    const ul=document.getElementById('alts');ul.innerHTML='';
+    q.alternativas.forEach((alt,i)=>{
+      const li=document.createElement('li');
+      li.innerHTML=`<button class="alt" onclick="responder(${i})">
+        <span class="alt-l">${LETRAS[i]}</span><span>${alt}</span></button>`;
+      ul.appendChild(li);
+    });
+  } else {
+    document.getElementById('alts').style.display='none';
+    document.getElementById('disc-wrap').style.display='block';
+    document.getElementById('disc-input').value='';
+    document.getElementById('disc-counter').textContent='0 / 800';
+    document.getElementById('disc-feedback').className='disc-feedback';
+    document.getElementById('disc-feedback').innerHTML='';
+    document.getElementById('disc-corrigindo').style.display='none';
+    document.getElementById('btn-responder-disc').style.display='flex';
+  }
 }
 
+// ═══════════════════════════════════════════
+// RESPOSTA MÚLTIPLA ESCOLHA
+// ═══════════════════════════════════════════
 function responder(idx){
-  if(E.respondida)return;E.respondida=true;
+  if(E.respondida) return;
+  E.respondida=true;
   const q=E.questoes[E.idx];
-  E.respostas.push({qi:E.idx,r:idx,ok:idx===q.correta});
+  const ok=idx===q.correta;
+  E.respostas.push({qi:E.idx,tipo:'multipla',resposta:idx,ok,pontos:ok?1:0});
   document.querySelectorAll('.alt').forEach((b,i)=>{
     b.disabled=true;
-    if(i===q.correta)b.classList.add('ok');
-    else if(i===idx)b.classList.add('err');
+    if(i===q.correta) b.classList.add('ok');
+    else if(i===idx) b.classList.add('err');
   });
   const obs=document.getElementById('obs');
-  obs.textContent=`${idx===q.correta?'✅':'❌'} ${q.observacao}`;
+  obs.textContent=`${ok?'✅':'❌'} ${q.observacao}`;
   obs.classList.add('on');
-  if(E.idx<E.questoes.length-1)document.getElementById('btn-prox').style.display='flex';
+  mostrarBotaoAvancar();
+}
+
+// ═══════════════════════════════════════════
+// RESPOSTA DISCURSIVA — corrigida pela IA
+// ═══════════════════════════════════════════
+function atualizarContador(){
+  const v=document.getElementById('disc-input').value.length;
+  document.getElementById('disc-counter').textContent=`${v} / 800`;
+}
+
+async function responderDiscursiva(){
+  const resposta=document.getElementById('disc-input').value.trim();
+  if(!resposta){
+    document.getElementById('disc-input').focus();
+    document.getElementById('disc-input').style.borderColor='var(--vermelho)';
+    setTimeout(()=>document.getElementById('disc-input').style.borderColor='',1500);
+    return;
+  }
+  if(E.respondida) return;
+  E.respondida=true;
+
+  document.getElementById('btn-responder-disc').style.display='none';
+  document.getElementById('disc-corrigindo').style.display='block';
+  document.getElementById('disc-input').disabled=true;
+
+  const q=E.questoes[E.idx];
+
+  try{
+    // Corrige a resposta discursiva usando a IA
+    const prompt=`Você é um professor corrigindo uma prova. Avalie a resposta do aluno.
+
+Pergunta: ${q.pergunta}
+Resposta esperada: ${q.resposta_esperada}
+Palavras-chave esperadas: ${(q.palavras_chave||[]).join(', ')}
+Resposta do aluno: ${resposta}
+Série do aluno: ${E.serie}
+
+Avalie se o aluno demonstrou entendimento do conteúdo. A resposta NÃO precisa ser idêntica, mas deve fazer sentido e conter os conceitos corretos.
+
+Responda SOMENTE com JSON:
+{"pontos":0.5,"classificacao":"parcial","feedback":"comentário breve e encorajador para o aluno"}
+
+"pontos" pode ser: 1 (correto), 0.5 (parcialmente correto), 0 (incorreto)
+"classificacao": "correto", "parcial" ou "incorreto"`;
+
+    const res=await fetch(WORKER_URL,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:300,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const txt=data.content.map(i=>i.text||'').join('');
+    const match=txt.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
+    const avaliacao=JSON.parse(match[0]);
+
+    document.getElementById('disc-corrigindo').style.display='none';
+
+    const pontos=avaliacao.pontos||0;
+    const cls=avaliacao.classificacao||'incorreto';
+    E.respostas.push({qi:E.idx,tipo:'discursiva',resposta,ok:pontos>0,pontos,classificacao:cls,feedback:avaliacao.feedback});
+
+    const fb=document.getElementById('disc-feedback');
+    const icone=cls==='correto'?'✅':cls==='parcial'?'⚡':'❌';
+    const titulo=cls==='correto'?'CORRETO!':cls==='parcial'?'PARCIALMENTE CORRETO':'INCORRETO';
+    fb.className=`disc-feedback on ${cls==='correto'?'ok':cls==='parcial'?'parcial':'err'}`;
+    fb.innerHTML=`<div class="disc-feedback-titulo">${icone} ${titulo}</div><p>${avaliacao.feedback}</p>`;
+
+    const obs=document.getElementById('obs');
+    obs.textContent=`💡 Resposta esperada: ${q.resposta_esperada}`;
+    obs.classList.add('on');
+
+  } catch(e){
+    document.getElementById('disc-corrigindo').style.display='none';
+    // Fallback: conta como incorreto
+    E.respostas.push({qi:E.idx,tipo:'discursiva',resposta,ok:false,pontos:0,classificacao:'incorreto',feedback:'Não foi possível corrigir automaticamente.'});
+    const fb=document.getElementById('disc-feedback');
+    fb.className='disc-feedback on err';
+    fb.innerHTML=`<div class="disc-feedback-titulo">⚠️ ERRO NA CORREÇÃO</div><p>Não foi possível corrigir sua resposta. Verifique a conexão.</p>`;
+  }
+  mostrarBotaoAvancar();
+}
+
+function mostrarBotaoAvancar(){
+  if(E.idx<E.questoes.length-1) document.getElementById('btn-prox').style.display='flex';
   else document.getElementById('btn-fin').style.display='flex';
 }
 
 function proxima(){E.idx++;montarQ(E.idx);window.scrollTo({top:0,behavior:'smooth'});}
 
 // ═══════════════════════════════════════════
-// FINALIZAR
+// RESULTADO
 // ═══════════════════════════════════════════
 function finalizar(){
   const tot=E.questoes.length;
-  const ac=E.respostas.filter(r=>r.ok).length;
-  const nota=parseFloat(((ac/tot)*10).toFixed(1));
-  let emoji,cls,msg;
-  if(nota>7){emoji='🎉';cls='nv';msg=`Parabéns, <span class="nome">${E.nome}</span>! Continue estudando assim! 🌟`;}
-  else if(nota>=5){emoji='📖';cls='na';msg=`<span class="nome">${E.nome}</span>, você precisa se esforçar mais! Você consegue! 💪`;}
-  else{emoji='😬';cls='nr';msg=`<span class="nome">${E.nome}</span>, você não estudou... Pare de jogar vídeo game ou ficar no celular e se dedique aos estudos! 📵`;}
+  const pontos=E.respostas.reduce((s,r)=>s+(r.pontos||0),0);
+  const nota=parseFloat(((pontos/tot)*10).toFixed(1));
+  const acertos=E.respostas.filter(r=>r.ok).length;
+
+  let emoji,cls,msg,pct;
+  if(nota>7){
+    emoji='🏆';cls='nota-verde';pct=Math.round(nota*10);
+    msg=`PARABÉNS, <span class="nome">${E.nome}</span>! CONTINUE ESTUDANDO ASSIM! 🌟`;
+  } else if(nota>=5){
+    emoji='📖';cls='nota-amarelo';pct=Math.round(nota*10);
+    msg=`<span class="nome">${E.nome}</span>, VOCÊ PRECISA SE ESFORÇAR MAIS! VOCÊ CONSEGUE! 💪`;
+  } else {
+    emoji='😬';cls='nota-vermelho';pct=Math.round(nota*10);
+    msg=`<span class="nome">${E.nome}</span>, VOCÊ NÃO ESTUDOU... PARE DE JOGAR VÍDEO GAME OU FICAR NO CELULAR E SE DEDIQUE AOS ESTUDOS! 📵`;
+  }
+
   document.getElementById('emoji-r').textContent=emoji;
-  document.getElementById('nota-circle').className=`nota-circle ${cls}`;
+  const ring=document.getElementById('nota-ring');
+  ring.className=`nota-ring ${cls}`;
+  ring.style.setProperty('--pct',`${pct}%`);
   document.getElementById('nota-v').textContent=nota.toFixed(1);
   document.getElementById('msg-a').innerHTML=msg;
-  document.getElementById('ac-info').textContent=`${ac} acerto${ac!==1?'s':''} de ${tot} questões`;
+  document.getElementById('ac-info').textContent=
+    E.modo==='multipla'
+      ? `${acertos} acerto${acertos!==1?'s':''} de ${tot} questões`
+      : `${acertos} corretas · ${E.respostas.filter(r=>r.classificacao==='parcial').length} parciais · ${E.respostas.filter(r=>!r.ok&&r.classificacao!=='parcial').length} incorretas`;
 
-  // Foto do aluno no resultado
-  const fotoRes = document.getElementById('foto-resultado');
-  if (fotoBase64 && fotoRes) {
-    fotoRes.src = fotoBase64;
-    fotoRes.style.display = 'block';
-  } else if (fotoRes) {
-    fotoRes.style.display = 'none';
-  }
+  const fotoRes=document.getElementById('foto-resultado');
+  if(fotoBase64&&fotoRes){fotoRes.src=fotoBase64;fotoRes.style.display='block';}
+  else if(fotoRes) fotoRes.style.display='none';
+
+  const nivelLabel=E.nivel==='facil'?'😎 Molezinha':'💀 Sinistro';
+  const modoLabel=E.modo==='multipla'?'🎯 Múltipla Escolha':'✍️ Discursiva';
   document.getElementById('dets').innerHTML=`
     <div class="det-row"><span class="det-k">Aluno</span><span class="det-v">${E.nome}</span></div>
     <div class="det-row"><span class="det-k">Idade</span><span class="det-v">${E.idade} anos</span></div>
     <div class="det-row"><span class="det-k">Série</span><span class="det-v">${E.serie}</span></div>
     <div class="det-row"><span class="det-k">Bimestre</span><span class="det-v">${E.bimestre}</span></div>
     <div class="det-row"><span class="det-k">Disciplina</span><span class="det-v">${E.disciplina}</span></div>
-    <div class="det-row"><span class="det-k">Conteúdo</span><span class="det-v">${E.conteudo}</span></div>
+    <div class="det-row"><span class="det-k">Modo</span><span class="det-v">${modoLabel}</span></div>
+    <div class="det-row"><span class="det-k">Nível</span><span class="det-v">${nivelLabel}</span></div>
     <div class="det-row"><span class="det-k">Data</span><span class="det-v">${new Date().toLocaleDateString('pt-BR')}</span></div>`;
+
   const g=document.getElementById('gab');g.innerHTML='';
   E.questoes.forEach((q,i)=>{
     const r=E.respostas.find(x=>x.qi===i);
-    const ok=r&&r.ok,lr=r?LETRAS[r.r]:'—',lc=LETRAS[q.correta];
-    g.innerHTML+=`<div class="gab-item ${ok?'ok':'err'}">
-      <div class="gab-n">Questão ${i+1}</div>
-      <div class="gab-p">${q.pergunta}</div>
-      <div class="gab-r ${ok?'ok':'err'}">${ok?'✅':'❌'} ${lr}) ${r?q.alternativas[r.r]:'—'}</div>
-      ${!ok?`<div class="gab-c">✅ Correta: ${lc}) ${q.alternativas[q.correta]}</div>`:''}
-      <div class="gab-obs">💡 ${q.observacao}</div>
-    </div>`;
+    if(!r){return;}
+    let itemCls,icone,respTxt,gabCls;
+    if(E.modo==='multipla'){
+      const ok=r.ok;
+      itemCls=ok?'ok':'err';icone=ok?'✅':'❌';gabCls=ok?'ok':'err';
+      const lr=LETRAS[r.resposta],lc=LETRAS[q.correta];
+      respTxt=`${icone} ${lr}) ${q.alternativas[r.resposta]}`;
+      const corrTxt=!ok?`<div class="gab-c">✅ Correta: ${lc}) ${q.alternativas[q.correta]}</div>`:'';
+      g.innerHTML+=`<div class="gab-item ${itemCls}">
+        <div class="gab-n">QUESTÃO ${i+1}</div>
+        <div class="gab-p">${q.pergunta}</div>
+        <div class="gab-r ${gabCls}">${respTxt}</div>${corrTxt}
+        <div class="gab-obs">💡 ${q.observacao}</div>
+      </div>`;
+    } else {
+      const cls=r.classificacao||'incorreto';
+      const iconeDisc=cls==='correto'?'✅':cls==='parcial'?'⚡':'❌';
+      g.innerHTML+=`<div class="gab-item ${cls==='correto'?'ok':cls==='parcial'?'parcial':'err'}">
+        <div class="gab-n">QUESTÃO ${i+1}</div>
+        <div class="gab-p">${q.pergunta}</div>
+        <div class="gab-r ${cls==='correto'?'ok':cls==='parcial'?'parcial':'err'}">${iconeDisc} Sua resposta: "${r.resposta}"</div>
+        ${r.feedback?`<div class="gab-c">🤖 ${r.feedback}</div>`:''}
+        <div class="gab-obs">💡 Resposta esperada: ${q.resposta_esperada}</div>
+      </div>`;
+    }
   });
   irPara('tela-resultado');
 }
@@ -1057,36 +1371,31 @@ function finalizar(){
 // ═══════════════════════════════════════════
 // COMPARTILHAR
 // ═══════════════════════════════════════════
-const APP_URL=location.href.split('?')[0].split('#')[0];
 let _qrOk=false;
-
 function montarShare(){
   document.getElementById('link-txt').textContent=APP_URL;
-  if(navigator.share)document.getElementById('btn-share-nat').style.display='flex';
+  if(navigator.share) document.getElementById('btn-share-nat').style.display='flex';
   if(!_qrOk){
     const w=document.getElementById('qr-wrap');w.innerHTML='';
     try{
-      new QRCode(w,{text:APP_URL,width:190,height:190,colorDark:'#5b21b6',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
+      new QRCode(w,{text:APP_URL,width:180,height:180,colorDark:'#7c3aed',colorLight:'#0f0a1e',correctLevel:QRCode.CorrectLevel.M});
       _qrOk=true;
-    }catch(e){w.innerHTML='<p style="color:#9ca3af;font-size:.83rem;font-weight:600;padding:16px 0">📲 Disponível após publicar no GitHub Pages</p>';}
+    }catch(e){w.innerHTML='<p style="color:var(--cinza);font-size:.83rem;font-weight:600;padding:16px 0">QR Code disponível após publicar</p>';}
   }
 }
-
 function copiarLink(){
   navigator.clipboard.writeText(APP_URL).then(()=>{
     const b=document.getElementById('btn-copy');
-    b.textContent='✅ Copiado!';b.classList.add('ok');
-    setTimeout(()=>{b.textContent='📋 Copiar';b.classList.remove('ok');},2500);
-  }).catch(()=>prompt('Copie o link:',APP_URL));
+    b.textContent='✓ OK';b.classList.add('ok');
+    setTimeout(()=>{b.textContent='COPIAR';b.classList.remove('ok');},2500);
+  }).catch(()=>prompt('Copie:',APP_URL));
 }
-
 function abrirWpp(){
-  const txt=encodeURIComponent(`📚 *Simulado — Estude. Pratique. Evolua.*\n\n🤖 Simulados com IA para qualquer matéria!\n✅ Gratuito, instala no celular como app!\n\n🔗 ${APP_URL}`);
+  const txt=encodeURIComponent(`🎮 *SIMULADO — Estude. Pratique. Evolua.*\n\n🤖 Simulados com IA! Múltipla escolha ou discursiva, fácil ou difícil!\n✅ Gratuito, instala como app!\n\n🔗 ${APP_URL}`);
   window.open(`https://wa.me/?text=${txt}`,'_blank');
 }
-
 function shareNativo(){
-  navigator.share&&navigator.share({title:'Simulado — Estude. Pratique. Evolua.',text:'Simulados com IA! Grátis.',url:APP_URL});
+  navigator.share&&navigator.share({title:'Simulado',text:'Simulados com IA! Grátis.',url:APP_URL});
 }
 </script>
 </body>
