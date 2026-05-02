@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simulado-v8';
+const CACHE_NAME = 'simulado-v10';
 const ASSETS = ['./','./index.html','./manifest.json','./logo.png','./icon-192.png','./icon-512.png'];
 
 self.addEventListener('install', e => {

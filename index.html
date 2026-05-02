@@ -583,7 +583,19 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .ios-passo span:first-child{font-size:1.35rem}
 .ios-fechar{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:var(--rs);background:transparent;color:var(--cinza);font-family:'Orbitron',monospace;font-weight:800;font-size:.82rem;cursor:pointer;margin-top:14px;letter-spacing:.5px}
 
-@media print{
+/* ── MAPA DE QUESTÕES ── */
+.mapa-dot{
+  width:32px;height:32px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',monospace;font-size:.68rem;font-weight:800;
+  cursor:pointer;border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06);color:var(--cinza);
+  transition:all .2s;
+}
+.mapa-dot:hover{border-color:var(--roxo2);background:rgba(124,58,237,.15);color:#fff}
+.mapa-dot.atual{background:var(--amarelo);border-color:var(--amarelo);color:#000;box-shadow:0 0 12px rgba(245,158,11,.5)}
+.mapa-dot.respondida{background:rgba(16,185,129,.2);border-color:var(--verde);color:var(--verde)}
+.mapa-dot.pulada{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--vermelho)}
   body{background:white!important}
   .btn,.no-print,#splash,#banner,#banner-ios,#overlay,#fab-install,#fab-share,body::before,body::after{display:none!important}
   .tela{display:none!important}
@@ -858,8 +870,25 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 
     <div class="obs" id="obs"></div>
   </div>
-  <button class="btn btn-roxo" id="btn-prox" onclick="proxima()" style="display:none">PRÓXIMA ▶</button>
-  <button class="btn btn-verde" id="btn-fin" onclick="finalizar()" style="display:none">✓ VER RESULTADO</button>
+
+  <!-- Navegação livre -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:0">
+    <button class="btn btn-ghost" id="btn-ant" onclick="anterior()" style="display:none">◀ ANTERIOR</button>
+    <button class="btn btn-ghost" id="btn-pular" onclick="pular()" style="display:none">PULAR ⏭</button>
+  </div>
+  <button class="btn btn-roxo" id="btn-prox" onclick="proxima()" style="display:none;margin-top:10px">PRÓXIMA ▶</button>
+  <button class="btn btn-verde" id="btn-fin" onclick="confirmarFinalizar()" style="display:none;margin-top:10px">✓ FINALIZAR</button>
+
+  <!-- Mini mapa de questões -->
+  <div class="card" style="margin-top:14px;padding:14px">
+    <div style="font-family:'Orbitron',monospace;font-size:.7rem;font-weight:800;color:var(--cinza);letter-spacing:.5px;margin-bottom:10px">MAPA DE QUESTÕES</div>
+    <div id="mapa-questoes" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">
+      <span style="font-size:.7rem;font-weight:700;color:var(--cinza);display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:var(--verde);display:inline-block"></span>Respondida</span>
+      <span style="font-size:.7rem;font-weight:700;color:var(--cinza);display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:var(--amarelo);display:inline-block"></span>Atual</span>
+      <span style="font-size:.7rem;font-weight:700;color:var(--cinza);display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);display:inline-block"></span>Pendente</span>
+    </div>
+  </div>
   <div style="height:28px"></div>
 </div>
 
@@ -1066,7 +1095,7 @@ function validar(){
 let E={
   nome:'',idade:'',serie:'',bimestre:'',disciplina:'',conteudo:'',
   qtd:10,modo:'multipla',nivel:'facil',
-  questoes:[],respostas:[],idx:0,respondida:false
+  questoes:[],respostas:[],puladas:new Set(),idx:0,respondida:false
 };
 const LETRAS=['A','B','C','D'];
 
@@ -1084,7 +1113,7 @@ async function iniciar(){
   E.qtd=parseInt(document.getElementById('qtd').value);
   E.modo=document.querySelector('input[name=modo]:checked').value;
   E.nivel=document.querySelector('input[name=nivel]:checked').value;
-  E.respostas=[];E.idx=0;
+  E.respostas=[];E.puladas=new Set();E.idx=0;
   irPara('tela-loading');
   try{
     E.questoes=await gerarQuestoes();
@@ -1143,9 +1172,8 @@ IMPORTANTE: Responda SOMENTE com JSON válido, sem markdown, sem texto extra.`;
 // ═══════════════════════════════════════════
 function montarQ(idx){
   const q=E.questoes[idx],tot=E.questoes.length;
-  E.respondida=false;
-  document.getElementById('btn-prox').style.display='none';
-  document.getElementById('btn-fin').style.display='none';
+  const respostaAnterior=E.respostas.find(r=>r.qi===idx);
+  E.respondida=!!respostaAnterior;
   document.getElementById('obs').classList.remove('on');
 
   document.getElementById('q-num').textContent=`QUESTÃO ${idx+1}`;
@@ -1156,30 +1184,58 @@ function montarQ(idx){
   const nivelEl=document.getElementById('q-nivel');
   nivelEl.textContent=E.nivel==='facil'?'😎 Molezinha':'💀 Sinistro';
   nivelEl.className='q-nivel '+(E.nivel==='facil'?'facil':'sinistro');
-
   document.getElementById('q-texto').textContent=q.pergunta;
 
-  // Decide modo
   if(E.modo==='multipla'){
     document.getElementById('alts').style.display='block';
     document.getElementById('disc-wrap').style.display='none';
     const ul=document.getElementById('alts');ul.innerHTML='';
     q.alternativas.forEach((alt,i)=>{
       const li=document.createElement('li');
-      li.innerHTML=`<button class="alt" onclick="responder(${i})">
-        <span class="alt-l">${LETRAS[i]}</span><span>${alt}</span></button>`;
+      li.innerHTML=`<button class="alt" onclick="responder(${i})"><span class="alt-l">${LETRAS[i]}</span><span>${alt}</span></button>`;
       ul.appendChild(li);
     });
+    if(respostaAnterior){
+      document.querySelectorAll('.alt').forEach((b,i)=>{
+        b.disabled=true;
+        if(i===q.correta) b.classList.add('ok');
+        else if(i===respostaAnterior.resposta) b.classList.add('err');
+      });
+      const obs=document.getElementById('obs');
+      obs.textContent=`${respostaAnterior.ok?'✅':'❌'} ${q.observacao}`;
+      obs.classList.add('on');
+    }
   } else {
     document.getElementById('alts').style.display='none';
     document.getElementById('disc-wrap').style.display='block';
-    document.getElementById('disc-input').value='';
-    document.getElementById('disc-counter').textContent='0 / 800';
-    document.getElementById('disc-feedback').className='disc-feedback';
-    document.getElementById('disc-feedback').innerHTML='';
+    const textarea=document.getElementById('disc-input');
     document.getElementById('disc-corrigindo').style.display='none';
-    document.getElementById('btn-responder-disc').style.display='flex';
+    textarea.style.borderColor='';textarea.style.boxShadow='';
+    if(respostaAnterior){
+      textarea.value=respostaAnterior.resposta||'';
+      textarea.disabled=true;
+      document.getElementById('disc-counter').textContent=`${(respostaAnterior.resposta||'').length} / 800`;
+      document.getElementById('btn-responder-disc').style.display='none';
+      const cls=respostaAnterior.classificacao||'incorreto';
+      const icone=cls==='correto'?'✅':cls==='parcial'?'⚡':'❌';
+      const titulo=cls==='correto'?'CORRETO!':cls==='parcial'?'PARCIALMENTE CORRETO':'INCORRETO';
+      const fb=document.getElementById('disc-feedback');
+      fb.className=`disc-feedback on ${cls==='correto'?'ok':cls==='parcial'?'parcial':'err'}`;
+      fb.innerHTML=`<div class="disc-feedback-titulo">${icone} ${titulo}</div><p>${respostaAnterior.feedback||''}</p>`;
+      const obs=document.getElementById('obs');
+      obs.textContent=`💡 Resposta esperada: ${q.resposta_esperada}`;
+      obs.classList.add('on');
+    } else {
+      textarea.value='';textarea.disabled=false;
+      document.getElementById('disc-counter').textContent='0 / 800';
+      document.getElementById('disc-feedback').className='disc-feedback';
+      document.getElementById('disc-feedback').innerHTML='';
+      document.getElementById('btn-responder-disc').style.display='flex';
+      document.getElementById('btn-responder-disc').textContent='✓ ENVIAR RESPOSTA';
+      setTimeout(()=>textarea.focus(),300);
+    }
   }
+  mostrarBotoesNav();
 }
 
 // ═══════════════════════════════════════════
@@ -1199,7 +1255,7 @@ function responder(idx){
   const obs=document.getElementById('obs');
   obs.textContent=`${ok?'✅':'❌'} ${q.observacao}`;
   obs.classList.add('on');
-  mostrarBotaoAvancar();
+  mostrarBotoesNav();
 }
 
 // ═══════════════════════════════════════════
@@ -1278,15 +1334,81 @@ Responda SOMENTE com JSON:
     fb.className='disc-feedback on err';
     fb.innerHTML=`<div class="disc-feedback-titulo">⚠️ ERRO NA CORREÇÃO</div><p>Não foi possível corrigir sua resposta. Verifique a conexão.</p>`;
   }
-  mostrarBotaoAvancar();
+  mostrarBotoesNav();
 }
 
-function mostrarBotaoAvancar(){
-  if(E.idx<E.questoes.length-1) document.getElementById('btn-prox').style.display='flex';
-  else document.getElementById('btn-fin').style.display='flex';
+function mostrarBotoesNav(){
+  const tot = E.questoes.length;
+  const respondida = E.respostas.some(r=>r.qi===E.idx);
+
+  // Botão anterior
+  document.getElementById('btn-ant').style.display = E.idx > 0 ? 'flex' : 'none';
+
+  // Botão pular — só se não respondeu ainda
+  document.getElementById('btn-pular').style.display = (!respondida && E.idx < tot-1) ? 'flex' : 'none';
+
+  // Botão próxima — só se já respondeu
+  document.getElementById('btn-prox').style.display = (respondida && E.idx < tot-1) ? 'flex' : 'none';
+
+  // Botão finalizar — aparece sempre quando está na última OU quando todas foram respondidas/puladas
+  const totalInteragidas = new Set(E.respostas.map(r=>r.qi)).size + E.puladas.size;
+  const podeFinalizarQualquer = totalInteragidas === tot;
+  const naUltimaRespondida = E.idx === tot-1 && respondida;
+  document.getElementById('btn-fin').style.display =
+    (naUltimaRespondida || podeFinalizarQualquer) ? 'flex' : 'none';
+
+  atualizarMapa();
 }
 
-function proxima(){E.idx++;montarQ(E.idx);window.scrollTo({top:0,behavior:'smooth'});}
+function atualizarMapa(){
+  const wrap = document.getElementById('mapa-questoes');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  E.questoes.forEach((_,i)=>{
+    const dot=document.createElement('div');
+    dot.className='mapa-dot';
+    dot.textContent=i+1;
+    dot.onclick=()=>irParaQuestao(i);
+    if(i===E.idx) dot.classList.add('atual');
+    else if(E.respostas.some(r=>r.qi===i)) dot.classList.add('respondida');
+    else if(E.puladas.has(i)) dot.classList.add('pulada');
+    wrap.appendChild(dot);
+  });
+}
+
+function irParaQuestao(idx){
+  E.idx=idx;
+  montarQ(idx);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function proxima(){
+  if(E.idx < E.questoes.length-1){ E.idx++; montarQ(E.idx); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+function anterior(){
+  if(E.idx > 0){ E.idx--; montarQ(E.idx); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+function pular(){
+  E.puladas.add(E.idx);
+  if(E.idx < E.questoes.length-1){ E.idx++; montarQ(E.idx); window.scrollTo({top:0,behavior:'smooth'}); }
+  else { mostrarBotoesNav(); } // na última, só atualiza o mapa
+}
+
+function confirmarFinalizar(){
+  const tot = E.questoes.length;
+  const respondidas = new Set(E.respostas.map(r=>r.qi)).size;
+  const pendentes = tot - respondidas;
+
+  if(pendentes > 0){
+    const msg = pendentes===1
+      ? `Você tem 1 questão sem resposta.\nEla será zerada se finalizar agora.\n\nDeseja finalizar assim mesmo?`
+      : `Você tem ${pendentes} questões sem resposta.\nElas serão zeradas se finalizar agora.\n\nDeseja finalizar assim mesmo?`;
+    if(!confirm(msg)) return;
+  }
+  finalizar();
+}
 
 // ═══════════════════════════════════════════
 // RESULTADO
