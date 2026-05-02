@@ -602,8 +602,9 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .mapa-dot.pulada{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--vermelho)}
 
 /* ══ SISTEMA DE ACESSO ══ */
-#tela-acesso{position:fixed;inset:0;z-index:9000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
-#tela-acesso.hide{display:none}
+#tela-acesso{position:fixed;inset:0;z-index:9000;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+#tela-acesso.hide{display:none!important}
+#tela-acesso-inner{display:flex;flex-direction:column;align-items:center;padding:48px 20px 60px;min-height:100%}
 .acesso-logo{width:80px;height:80px;border-radius:20px;object-fit:contain;background:rgba(124,58,237,.15);border:2px solid rgba(124,58,237,.35);box-shadow:var(--glow-roxo);margin-bottom:14px;display:block}
 .acesso-titulo{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--roxo3),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;margin-bottom:4px;text-align:center}
 .acesso-sub{font-size:.78rem;font-weight:700;color:var(--cinza);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;text-align:center}
@@ -668,7 +669,26 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 
 <!-- ══════════ TELA DE ACESSO ══════════ -->
 <div id="tela-acesso">
-  <img src="logo.png" class="acesso-logo" alt="Simulado" onerror="this.style.display='none'">
+  <div id="tela-acesso-inner">
+
+  <!-- Logo + cadeado admin -->
+  <div style="position:relative;display:inline-block;margin-bottom:14px">
+    <img src="logo.png" class="acesso-logo" alt="Simulado"
+      style="display:block;margin:0"
+      onerror="this.style.display='none'">
+    <button onclick="abrirAdmin()" title="Administrador"
+      style="position:absolute;top:-6px;right:-14px;
+        width:30px;height:30px;border-radius:50%;
+        background:rgba(15,10,30,.85);
+        border:1.5px solid rgba(124,58,237,.35);
+        color:rgba(124,58,237,.5);font-size:.9rem;
+        cursor:pointer;display:flex;align-items:center;
+        justify-content:center;padding:0;
+        transition:all .25s">
+      🔒
+    </button>
+  </div>
+
   <div class="acesso-titulo">SIMULADO</div>
   <div class="acesso-sub">Acesso Exclusivo</div>
 
@@ -711,14 +731,9 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
       🔓 DESBLOQUEAR ACESSO
     </button>
 
-    <!-- ADMIN OCULTO -->
-    <div style="text-align:center;margin-top:16px">
-      <button onclick="abrirAdmin()" style="background:none;border:none;color:rgba(255,255,255,.08);font-size:.6rem;cursor:pointer;font-family:'Orbitron',monospace;letter-spacing:1px">
-        ··· admin ···
-      </button>
-    </div>
-  </div>
-</div>
+  </div><!-- fecha acesso-card -->
+  </div><!-- fecha tela-acesso-inner -->
+</div><!-- fecha tela-acesso -->
 
 <!-- ══════════ PAINEL ADMIN ══════════ -->
 <div id="tela-admin">
@@ -1273,6 +1288,17 @@ function verificarCodigo(){
   }, 1200);
 }
 
+// ── Toque 5x no logo para abrir admin ──
+let _tapCount = 0, _tapTimer = null;
+function tapLogo(){
+  _tapCount++;
+  clearTimeout(_tapTimer);
+  if(_tapCount >= 5){ _tapCount=0; abrirAdmin(); return; }
+  _tapTimer = setTimeout(()=>{ _tapCount=0; }, 2000);
+  const logo=document.getElementById('logo-tap');
+  if(logo){ logo.style.transform='scale(1.12)'; setTimeout(()=>logo.style.transform='scale(1)',200); }
+}
+
 // ══════════════════════════════════════════
 // PAINEL ADMIN
 // ══════════════════════════════════════════
@@ -1431,7 +1457,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulado-v14') await caches.delete(key);
+      if(key !== 'simulado-v18') await caches.delete(key);
     }
   }
 })();
@@ -1446,9 +1472,8 @@ window.addEventListener('load', () => {
     s.classList.add('hide');
     setTimeout(() => {
       s.style.display='none';
-      // Verifica acesso após splash
       if(!estaLiberado()){
-        document.getElementById('tela-acesso').style.display='flex';
+        document.getElementById('tela-acesso').style.display='block';
       } else {
         document.getElementById('tela-acesso').classList.add('hide');
       }
