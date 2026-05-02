@@ -824,6 +824,10 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
       </div>
 
       <button class="btn btn-ghost" onclick="logoutAdmin()" style="font-size:.82rem">↩ SAIR DO ADMIN</button>
+      <button onclick="revogarMeuAcesso()"
+        style="width:100%;margin-top:8px;padding:12px;border:1px solid rgba(239,68,68,.3);border-radius:var(--rs);background:rgba(239,68,68,.08);color:var(--vermelho);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:800;cursor:pointer;letter-spacing:.5px">
+        🔓 VER TELA DE BLOQUEIO
+      </button>
     </div>
     <div style="height:40px"></div>
   </div>
@@ -878,7 +882,20 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 <!-- ══════════ TELA INÍCIO ══════════ -->
 <div id="tela-inicio" class="tela ativa">
   <div class="game-header">
-    <img src="logo.png" class="game-logo" alt="Simulado" onerror="this.style.display='none'">
+    <div style="position:relative;display:inline-block">
+      <img src="logo.png" class="game-logo" alt="Simulado" onerror="this.style.display='none'">
+      <button onclick="abrirAdmin()"
+        title="Admin"
+        style="position:absolute;top:-4px;right:-4px;
+          width:26px;height:26px;border-radius:50%;
+          background:rgba(15,10,30,.9);
+          border:1.5px solid rgba(124,58,237,.4);
+          color:rgba(124,58,237,.6);font-size:.78rem;
+          cursor:pointer;display:flex;align-items:center;
+          justify-content:center;padding:0;z-index:10">
+        🔒
+      </button>
+    </div>
     <div class="game-title">SIMULADO</div>
     <div class="game-sub">Powered by AI · Level Up!</div>
   </div>
@@ -1172,6 +1189,17 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ═══════════════════════════════════════════
+// ██████████████████████████████████████████
+//   CONFIGURAÇÕES — EDITE APENAS AQUI
+// ██████████████████████████████████████████
+const CONFIG = {
+  pix_valor:  'R$ 5,00',                        // Valor cobrado
+  pix_chave:  'rodrigo.rodrigues0311@gmail.com', // Sua chave Pix
+  wpp:        '5511999999999',                   // Seu WhatsApp com DDI+DDD (55 + DDD + número)
+  app_nome:   'Simulado',                        // Nome do app
+};
+// ██████████████████████████████████████████
+
 const WORKER_URL = 'https://simulado-api.rodrigo-rodrigues0311.workers.dev';
 const APP_URL = location.href.split('?')[0].split('#')[0];
 
@@ -1180,6 +1208,9 @@ const APP_URL = location.href.split('?')[0].split('#')[0];
 // ═══════════════════════════════════════════
 // ⚠️ TROQUE a senha do admin abaixo!
 const ADMIN_SENHA = 'simulado@admin2025';
+
+// ⚠️ CÓDIGO FIXO DO ADMINISTRADOR — nunca expira, não precisa gerar
+const CODIGO_ADMIN = 'ADMI-N999';
 
 // Carrega config salva ou usa padrão
 function getConfig(){
@@ -1200,14 +1231,10 @@ function estaLiberado(){
   return localStorage.getItem('sim_acesso') === 'ok';
 }
 
-// ── Inicializa tela de acesso ──
+// ── Inicializa tela de acesso com dados do CONFIG ──
 function iniciarSistemaAcesso(){
-  const cfg = getConfig();
-  // Atualiza UI com config salva
-  const val = cfg.valor || 'R$ 5,00';
-  const pix = cfg.pix || 'rodrigo.rodrigues0311@gmail.com';
-  document.getElementById('pix-valor-display').textContent = val;
-  document.getElementById('pix-chave-display').textContent = pix;
+  document.getElementById('pix-valor-display').textContent = CONFIG.pix_valor;
+  document.getElementById('pix-chave-display').textContent = CONFIG.pix_chave;
 }
 
 // ── Copiar chave Pix ──
@@ -1223,15 +1250,11 @@ function copiarPix(){
 
 // ── Abrir WhatsApp com mensagem ──
 function abrirWppAcesso(){
-  const cfg = getConfig();
-  const wpp = cfg.wpp || '11999999999';
-  const val = cfg.valor || 'R$ 5,00';
-  const pix = cfg.pix || 'rodrigo.rodrigues0311@gmail.com';
   const msg = encodeURIComponent(
-    `Olá! Gostaria de adquirir acesso ao *Simulado App* 📚\n\n`+
-    `Valor: *${val}*\nChave Pix: *${pix}*\n\nEstou enviando o comprovante! 👇`
+    `Olá! Gostaria de adquirir acesso ao *${CONFIG.app_nome} App* 📚\n\n`+
+    `Valor: *${CONFIG.pix_valor}*\nChave Pix: *${CONFIG.pix_chave}*\n\nEstou enviando o comprovante! 👇`
   );
-  window.open(`https://wa.me/55${wpp}?text=${msg}`, '_blank');
+  window.open(`https://wa.me/${CONFIG.wpp}?text=${msg}`, '_blank');
 }
 
 // ── Formatar código XXXX-XXXX ──
@@ -1249,6 +1272,12 @@ function verificarCodigo(){
 
   if(codigo.length < 9){
     erroEl.textContent='Digite o código completo (XXXX-XXXX)';
+    return;
+  }
+
+  // ── Código fixo do administrador — nunca expira ──
+  if(codigo === CODIGO_ADMIN){
+    liberarAcesso(codigo);
     return;
   }
 
@@ -1270,17 +1299,17 @@ function verificarCodigo(){
     return;
   }
 
-  // Código válido — registra uso
+  // Registra uso
   entry.usos = (entry.usos||0) + 1;
   entry.ultimoUso = new Date().toLocaleDateString('pt-BR');
   codigos[codigo] = entry;
   salvarCodigos(codigos);
+  liberarAcesso(codigo);
+}
 
-  // Libera acesso neste dispositivo
+function liberarAcesso(codigo){
   localStorage.setItem('sim_acesso','ok');
   localStorage.setItem('sim_codigo_usado', codigo);
-
-  // Anima e libera
   document.getElementById('codigo-erro').style.color='var(--verde)';
   document.getElementById('codigo-erro').textContent='✅ ACESSO LIBERADO!';
   setTimeout(()=>{
@@ -1307,10 +1336,18 @@ let codigoNovoAtual = '';
 
 function abrirAdmin(){
   document.getElementById('tela-admin').classList.add('ativa');
-  document.getElementById('admin-painel').style.display='none';
-  document.getElementById('admin-login').style.display='block';
-  document.getElementById('admin-senha').value='';
-  document.getElementById('admin-login-erro').textContent='';
+  // Se já logado, vai direto pro painel
+  if(adminLogado){
+    document.getElementById('admin-login').style.display='none';
+    document.getElementById('admin-painel').style.display='block';
+    carregarConfigAdmin();
+    renderizarCodigos();
+  } else {
+    document.getElementById('admin-painel').style.display='none';
+    document.getElementById('admin-login').style.display='block';
+    document.getElementById('admin-senha').value='';
+    document.getElementById('admin-login-erro').textContent='';
+  }
 }
 
 function fecharAdmin(){
@@ -1336,24 +1373,31 @@ function logoutAdmin(){
   fecharAdmin();
 }
 
+function revogarMeuAcesso(){
+  if(!confirm('Isso vai revogar o acesso deste dispositivo.\nVocê precisará digitar o código novamente.\n\nContinuar?')) return;
+  localStorage.removeItem('sim_acesso');
+  localStorage.removeItem('sim_codigo_usado');
+  fecharAdmin();
+  document.getElementById('tela-acesso').classList.remove('hide');
+  document.getElementById('tela-acesso').style.display='block';
+}
+
 function carregarConfigAdmin(){
-  const cfg = getConfig();
-  if(cfg.valor) document.getElementById('admin-valor').value = cfg.valor;
-  if(cfg.pix)   document.getElementById('admin-pix').value   = cfg.pix;
-  if(cfg.wpp)   document.getElementById('admin-wpp').value   = cfg.wpp;
+  // Mostra valores atuais do CONFIG (que vêm do código)
+  document.getElementById('admin-valor').value = CONFIG.pix_valor;
+  document.getElementById('admin-pix').value   = CONFIG.pix_chave;
+  document.getElementById('admin-wpp').value   = CONFIG.wpp;
 }
 
 function salvarConfig(){
-  const cfg = {
-    valor: document.getElementById('admin-valor').value,
-    pix:   document.getElementById('admin-pix').value.trim(),
-    wpp:   document.getElementById('admin-wpp').value.trim().replace(/\D/g,''),
-  };
-  salvarConfigLocal(cfg);
-  // Atualiza tela de acesso
-  document.getElementById('pix-valor-display').textContent = cfg.valor;
-  document.getElementById('pix-chave-display').textContent = cfg.pix;
-  alert('✅ Configurações salvas!');
+  // Atualiza CONFIG em memória para esta sessão
+  CONFIG.pix_valor = document.getElementById('admin-valor').value;
+  CONFIG.pix_chave = document.getElementById('admin-pix').value.trim();
+  CONFIG.wpp       = document.getElementById('admin-wpp').value.trim().replace(/\D/g,'');
+  // Atualiza tela de acesso imediatamente
+  document.getElementById('pix-valor-display').textContent = CONFIG.pix_valor;
+  document.getElementById('pix-chave-display').textContent = CONFIG.pix_chave;
+  alert('✅ Configurações atualizadas!\n\n⚠️ Para que os alunos vejam permanentemente,\nedite o arquivo index.html e troque os valores\nno bloco CONFIG no início do JavaScript.');
 }
 
 function gerarCodigo(){
@@ -1389,12 +1433,10 @@ function copiarCodigoNovo(){
 }
 
 function enviarCodigoWpp(){
-  const cfg = getConfig();
-  const wpp = cfg.wpp||'11999999999';
   const codigos = getCodigos();
   const entry = codigos[codigoNovoAtual];
   const msg = encodeURIComponent(
-    `✅ Olá ${entry?.nome||''}! Seu acesso ao *Simulado App* foi liberado!\n\n`+
+    `✅ Olá ${entry?.nome||''}! Seu acesso ao *${CONFIG.app_nome} App* foi liberado!\n\n`+
     `🔑 Seu código de acesso:\n*${codigoNovoAtual}*\n\n`+
     `📱 Acesse o app e insira o código:\n${APP_URL}\n\n`+
     `⚠️ Não compartilhe este código com ninguém!`
@@ -1457,7 +1499,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulado-v18') await caches.delete(key);
+      if(key !== 'simulado-v20') await caches.delete(key);
     }
   }
 })();
