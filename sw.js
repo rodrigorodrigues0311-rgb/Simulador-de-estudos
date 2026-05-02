@@ -1,5 +1,5 @@
 // Cache versão — muda aqui para forçar atualização em todos os dispositivos
-const CACHE_NAME = 'simulado-v6';
+const CACHE_NAME = 'simulado-v7';
 const ASSETS = ['./','./index.html','./manifest.json','./logo.png','./icon-192.png','./icon-512.png'];
 
 self.addEventListener('install', e => {

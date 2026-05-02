@@ -443,6 +443,27 @@ textarea{resize:vertical;min-height:84px}
 
   <div class="card">
     <div class="sec"><div class="ic">👤</div>Dados do Aluno</div>
+
+    <!-- Foto do aluno -->
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+      <div style="position:relative;flex-shrink:0">
+        <div id="foto-wrap" onclick="document.getElementById('input-foto').click()"
+          style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#ede9fe,#ddd6fe);border:3px dashed #a78bfa;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:all .2s">
+          <img id="foto-preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%">
+          <div id="foto-placeholder" style="text-align:center">
+            <div style="font-size:1.8rem">📷</div>
+            <div style="font-size:.65rem;font-weight:700;color:#7c3aed;margin-top:2px">Adicionar<br>foto</div>
+          </div>
+        </div>
+        <div id="foto-remove" onclick="removerFoto()" style="display:none;position:absolute;top:-4px;right:-4px;width:22px;height:22px;background:#ef4444;border-radius:50%;color:white;font-size:.75rem;font-weight:800;display:none;align-items:center;justify-content:center;cursor:pointer;border:2px solid white">✕</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:.82rem;font-weight:700;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Foto do Aluno</div>
+        <div style="font-size:.85rem;font-weight:600;color:#9ca3af;line-height:1.4">Toque na foto para adicionar uma imagem (opcional)</div>
+      </div>
+    </div>
+    <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="carregarFoto(event)">
+
     <div class="campo"><label>Nome completo</label><input type="text" id="nomeAluno" placeholder="Ex: Maria Clara Souza" maxlength="60"></div>
     <div class="campo"><label>Idade</label><input type="number" id="idadeAluno" placeholder="Ex: 13" min="5" max="18"></div>
   </div>
@@ -575,7 +596,11 @@ textarea{resize:vertical;min-height:84px}
   <div class="card">
     <div class="res-topo">
       <span class="emoji-b" id="emoji-r"></span>
-      <div class="nota-circle" id="nota-circle"><span class="v" id="nota-v"></span><span class="l">NOTA</span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px">
+        <img id="foto-resultado" src="" alt="Foto do aluno"
+          style="display:none;width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid #7c3aed;box-shadow:0 4px 14px rgba(91,33,182,.25)">
+        <div class="nota-circle" id="nota-circle"><span class="v" id="nota-v"></span><span class="l">NOTA</span></div>
+      </div>
       <p class="msg-a" id="msg-a"></p>
       <p class="ac-info" id="ac-info"></p>
     </div>
@@ -617,30 +642,6 @@ textarea{resize:vertical;min-height:84px}
   <div class="card">
     <div class="sec"><div class="ic">📷</div>QR Code</div>
     <div class="qr-wrap"><div id="qr-wrap"></div><p class="qr-label">Aponte a câmera para abrir</p></div>
-  </div>
-
-  <div class="card">
-    <div class="sec"><div class="ic">🐙</div>Publicar no GitHub Pages</div>
-    <div class="pb" style="background:#fdf4ff">
-      <div class="pt" style="color:#6b21a8">☁️ Passo 1 — Cloudflare Worker (proxy seguro)</div>
-      <div class="pp" style="color:#581c87"><div class="pn" style="background:#9333ea">1</div><span>Acesse <strong>workers.cloudflare.com</strong> → crie conta grátis</span></div>
-      <div class="pp" style="color:#581c87"><div class="pn" style="background:#9333ea">2</div><span>Clique em <strong>Create Worker</strong> → cole o conteúdo do arquivo <strong>worker.js</strong></span></div>
-      <div class="pp" style="color:#581c87"><div class="pn" style="background:#9333ea">3</div><span><strong>Settings → Variables → Add:</strong> Nome: <code>ANTHROPIC_API_KEY</code> · Valor: sua chave · marque Encrypt</span></div>
-      <div class="pp" style="color:#581c87"><div class="pn" style="background:#9333ea">4</div><span>Clique <strong>Save and Deploy</strong> — copie a URL (ex: simulado.user.workers.dev)</span></div>
-    </div>
-    <div class="pb" style="background:#f0fdf4;margin-top:4px">
-      <div class="pt" style="color:#166534">🚀 Passo 2 — GitHub Pages</div>
-      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">1</div><span>No <strong>index.html</strong>, linha com <code>WORKER_URL</code>, cole a URL do Worker</span></div>
-      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">2</div><span>Suba os 4 arquivos: <strong>index.html · logo.png · manifest.json · sw.js</strong> no GitHub</span></div>
-      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">3</div><span><strong>Settings → Pages → Branch: main → Save</strong></span></div>
-      <div class="pp" style="color:#14532d"><div class="pn" style="background:#16a34a">4</div><span>Link: <strong>seuusuario.github.io/simulado</strong> — compartilhe com todos! 🎉</span></div>
-    </div>
-    <div class="badges">
-      <div class="badge"><span class="badge-i">🆓</span><span class="badge-t">100% Grátis</span></div>
-      <div class="badge"><span class="badge-i">🔒</span><span class="badge-t">Chave Segura</span></div>
-      <div class="badge"><span class="badge-i">👥</span><span class="badge-t">Multiusuário</span></div>
-      <div class="badge"><span class="badge-i">📱</span><span class="badge-t">Instala como App</span></div>
-    </div>
   </div>
 
   <button class="btn btn-p" onclick="irPara('tela-inicio')">← Voltar</button>
@@ -784,8 +785,38 @@ async function instalarPWA() {
 }
 
 // ═══════════════════════════════════════════
-// ESTADO
+// FOTO DO ALUNO
 // ═══════════════════════════════════════════
+let fotoBase64 = '';
+
+function carregarFoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    fotoBase64 = e.target.result;
+    // Mostra preview
+    const preview = document.getElementById('foto-preview');
+    const placeholder = document.getElementById('foto-placeholder');
+    const removeBtn = document.getElementById('foto-remove');
+    preview.src = fotoBase64;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    removeBtn.style.display = 'flex';
+    // Borda colorida
+    document.getElementById('foto-wrap').style.border = '3px solid #7c3aed';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removerFoto() {
+  fotoBase64 = '';
+  document.getElementById('foto-preview').style.display = 'none';
+  document.getElementById('foto-placeholder').style.display = 'block';
+  document.getElementById('foto-remove').style.display = 'none';
+  document.getElementById('foto-wrap').style.border = '3px dashed #a78bfa';
+  document.getElementById('input-foto').value = '';
+}
 const E={
   nome:'',idade:'',serie:'',bimestre:'',disciplina:'',conteudo:'',qtd:10,
   questoes:[],respostas:[],idx:0,respondida:false
@@ -991,6 +1022,15 @@ function finalizar(){
   document.getElementById('nota-v').textContent=nota.toFixed(1);
   document.getElementById('msg-a').innerHTML=msg;
   document.getElementById('ac-info').textContent=`${ac} acerto${ac!==1?'s':''} de ${tot} questões`;
+
+  // Foto do aluno no resultado
+  const fotoRes = document.getElementById('foto-resultado');
+  if (fotoBase64 && fotoRes) {
+    fotoRes.src = fotoBase64;
+    fotoRes.style.display = 'block';
+  } else if (fotoRes) {
+    fotoRes.style.display = 'none';
+  }
   document.getElementById('dets').innerHTML=`
     <div class="det-row"><span class="det-k">Aluno</span><span class="det-v">${E.nome}</span></div>
     <div class="det-row"><span class="det-k">Idade</span><span class="det-v">${E.idade} anos</span></div>
