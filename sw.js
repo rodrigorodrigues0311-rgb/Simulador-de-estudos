@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simulado-v31';
+const CACHE_NAME = 'simulado-v33';
 const ASSETS = [
   './',
   './index.html',
