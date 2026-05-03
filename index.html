@@ -788,6 +788,28 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
         <button class="btn btn-cyan" onclick="salvarConfig()" style="font-size:.85rem">💾 SALVAR CONFIGURAÇÕES</button>
       </div>
 
+      <!-- INSTRUÇÃO IMPORTANTE -->
+      <div class="card" id="card-instrucao-github" style="background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.3)">
+        <div class="sec" style="color:var(--cyan)"><div class="ic">⚡</div>AUTOMÁTICO VIA GITHUB</div>
+        <div style="font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:12px">
+          Configure o Token do GitHub para que os códigos sejam<br>
+          <strong style="color:var(--cyan)">ativados automaticamente</strong> ao gerar — sem editar nada!
+        </div>
+        <div class="campo">
+          <label>GitHub Token (ghp_...)</label>
+          <input class="admin-input" id="admin-github-token" type="password"
+            placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+            value="">
+        </div>
+        <button class="btn btn-cyan" onclick="salvarToken()" style="font-size:.82rem">💾 SALVAR TOKEN</button>
+        <div style="font-size:.72rem;color:var(--cinza);margin-top:8px;line-height:1.6">
+          📋 Para criar um token:<br>
+          github.com → Settings → Developer settings<br>
+          → Personal access tokens → Tokens (classic)<br>
+          → Generate new token → marque <strong>repo</strong> → Generate
+        </div>
+      </div>
+
       <!-- GERAR CÓDIGO -->
       <div class="card">
         <div class="sec"><div class="ic">⚡</div>GERAR CÓDIGO</div>
@@ -804,6 +826,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
           </select>
         </div>
         <button class="btn btn-roxo" onclick="gerarCodigo()" style="font-size:.85rem">✦ GERAR CÓDIGO</button>
+        <div id="github-status" style="font-size:.78rem;font-weight:800;text-align:center;min-height:20px;margin-top:8px;font-family:'Orbitron',monospace;letter-spacing:.5px"></div>
         <div id="codigo-novo-wrap" style="display:none;margin-top:12px">
           <div style="font-family:'Orbitron',monospace;font-size:.72rem;color:var(--cinza);margin-bottom:6px;letter-spacing:.5px">CÓDIGO GERADO:</div>
           <div style="background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.4);border-radius:var(--rs);padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -1194,9 +1217,16 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 // ██████████████████████████████████████████
 const CONFIG = {
   pix_valor:  'R$ 5,00',                        // Valor cobrado
-  pix_chave:  '87e182c6-c83b-4bfa-95a9-0c9999736510', // Sua chave Pix
-  wpp:        '5521964302855',                   // Seu WhatsApp com DDI+DDD (55 + DDD + número)
+  pix_chave:  'rodrigo.rodrigues0311@gmail.com', // Sua chave Pix
+  wpp:        '5511999999999',                   // Seu WhatsApp com DDI+DDD
   app_nome:   'Simulado',                        // Nome do app
+
+  // ── GitHub API — para atualizar códigos automaticamente ──
+  // Veja como obter o token abaixo no painel admin
+  github_token: '',                              // Cole seu token aqui
+  github_usuario: 'rodrigorodrigues0311-rgb',    // Seu usuário do GitHub
+  github_repo:    'Simulador-de-estudos',        // Nome do repositório
+  github_arquivo: 'index.html',                  // Nome do arquivo
 };
 // ██████████████████████████████████████████
 
@@ -1209,22 +1239,28 @@ const APP_URL = location.href.split('?')[0].split('#')[0];
 // ⚠️ TROQUE a senha do admin abaixo!
 const ADMIN_SENHA = 'simulado@admin2025';
 
-// ⚠️ CÓDIGO FIXO DO ADMINISTRADOR — nunca expira, não precisa gerar
+// ⚠️ CÓDIGO FIXO DO ADMINISTRADOR — nunca expira
 const CODIGO_ADMIN = 'ADMI-N999';
 
-// Carrega config salva ou usa padrão
-function getConfig(){
-  try{ return JSON.parse(localStorage.getItem('sim_config'))||{}; }
-  catch(e){ return {}; }
-}
-function salvarConfigLocal(c){ localStorage.setItem('sim_config', JSON.stringify(c)); }
+// ═══════════════════════════════════════════
+// CÓDIGOS VÁLIDOS — EDITE AQUI NO GITHUB
+// Adicione novos códigos nesta lista.
+// Formato: 'XXXX-XXXX'
+// Para revogar um código, remova-o da lista.
+// ═══════════════════════════════════════════
+const CODIGOS_VALIDOS = [
+  // Exemplos — substitua pelos seus códigos reais:
+  // 'JRK8-2BTM',
+  // '3E2N-3PQS',
+];
+// ═══════════════════════════════════════════
 
-// Códigos: { XXXX-XXXX: { nome, usos, usosMax, criado, ativo } }
-function getCodigos(){
-  try{ return JSON.parse(localStorage.getItem('sim_codigos'))||{}; }
+// Contador de usos fica no localStorage (só para controle local)
+function getUsos(){
+  try{ return JSON.parse(localStorage.getItem('sim_usos'))||{}; }
   catch(e){ return {}; }
 }
-function salvarCodigos(c){ localStorage.setItem('sim_codigos', JSON.stringify(c)); }
+function salvarUsos(u){ localStorage.setItem('sim_usos', JSON.stringify(u)); }
 
 // Verifica se este dispositivo já está liberado
 function estaLiberado(){
@@ -1271,47 +1307,33 @@ function verificarCodigo(){
   const erroEl = document.getElementById('codigo-erro');
 
   if(codigo.length < 9){
-    erroEl.textContent='Digite o código completo (XXXX-XXXX)';
+    erroEl.textContent = 'Digite o código completo (XXXX-XXXX)';
     return;
   }
 
-  // ── Código fixo do administrador — nunca expira ──
+  // Código fixo do administrador
   if(codigo === CODIGO_ADMIN){
     liberarAcesso(codigo);
     return;
   }
 
-  const codigos = getCodigos();
-  const entry = codigos[codigo];
-
-  if(!entry){
-    erroEl.textContent='❌ CÓDIGO INVÁLIDO';
-    document.getElementById('codigo-acesso').style.borderColor='var(--vermelho)';
-    setTimeout(()=>document.getElementById('codigo-acesso').style.borderColor='',2000);
-    return;
-  }
-  if(!entry.ativo){
-    erroEl.textContent='❌ CÓDIGO REVOGADO';
-    return;
-  }
-  if(entry.usos >= entry.usosMax){
-    erroEl.textContent='❌ CÓDIGO JÁ UTILIZADO';
+  // Verifica na lista do GitHub
+  if(CODIGOS_VALIDOS.includes(codigo)){
+    liberarAcesso(codigo);
     return;
   }
 
-  // Registra uso
-  entry.usos = (entry.usos||0) + 1;
-  entry.ultimoUso = new Date().toLocaleDateString('pt-BR');
-  codigos[codigo] = entry;
-  salvarCodigos(codigos);
-  liberarAcesso(codigo);
+  // Inválido
+  erroEl.textContent = '❌ CÓDIGO INVÁLIDO';
+  document.getElementById('codigo-acesso').style.borderColor = 'var(--vermelho)';
+  setTimeout(()=>document.getElementById('codigo-acesso').style.borderColor='', 2000);
 }
 
 function liberarAcesso(codigo){
   localStorage.setItem('sim_acesso','ok');
   localStorage.setItem('sim_codigo_usado', codigo);
-  document.getElementById('codigo-erro').style.color='var(--verde)';
-  document.getElementById('codigo-erro').textContent='✅ ACESSO LIBERADO!';
+  document.getElementById('codigo-erro').style.color = 'var(--verde)';
+  document.getElementById('codigo-erro').textContent = '✅ ACESSO LIBERADO!';
   setTimeout(()=>{
     document.getElementById('tela-acesso').classList.add('hide');
   }, 1200);
@@ -1333,6 +1355,7 @@ function tapLogo(){
 // ══════════════════════════════════════════
 let adminLogado = false;
 let codigoNovoAtual = '';
+let nomeAlunoAtual = '';
 
 function abrirAdmin(){
   document.getElementById('tela-admin').classList.add('ativa');
@@ -1382,11 +1405,32 @@ function revogarMeuAcesso(){
   document.getElementById('tela-acesso').style.display='block';
 }
 
+function salvarToken(){
+  const token = document.getElementById('admin-github-token').value.trim();
+  CONFIG.github_token = token;
+  localStorage.setItem('sim_gh_token', token);
+  if(token){
+    alert('✅ Token salvo!\n\nAgora ao gerar um código, o GitHub\nsera atualizado automaticamente.');
+    document.getElementById('card-instrucao-github').style.borderColor='rgba(16,185,129,.4)';
+    document.getElementById('card-instrucao-github').style.background='rgba(16,185,129,.08)';
+  } else {
+    alert('Token removido. Códigos precisarão ser adicionados manualmente.');
+  }
+}
+
 function carregarConfigAdmin(){
-  // Mostra valores atuais do CONFIG (que vêm do código)
   document.getElementById('admin-valor').value = CONFIG.pix_valor;
   document.getElementById('admin-pix').value   = CONFIG.pix_chave;
   document.getElementById('admin-wpp').value   = CONFIG.wpp;
+
+  // Carrega token salvo
+  const tokenSalvo = localStorage.getItem('sim_gh_token') || CONFIG.github_token;
+  if(tokenSalvo){
+    CONFIG.github_token = tokenSalvo;
+    document.getElementById('admin-github-token').value = tokenSalvo;
+    document.getElementById('card-instrucao-github').style.borderColor='rgba(16,185,129,.4)';
+    document.getElementById('card-instrucao-github').style.background='rgba(16,185,129,.08)';
+  }
 }
 
 function salvarConfig(){
@@ -1401,42 +1445,94 @@ function salvarConfig(){
 }
 
 function gerarCodigo(){
-  // Gera código aleatório XXXX-XXXX
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const parte = ()=>[...Array(4)].map(()=>chars[Math.floor(Math.random()*chars.length)]).join('');
   const codigo = parte()+'-'+parte();
+  const nome = document.getElementById('admin-nome-aluno').value.trim();
 
-  const nome  = document.getElementById('admin-nome-aluno').value.trim();
-  const usos  = parseInt(document.getElementById('admin-usos').value);
-
-  const codigos = getCodigos();
-  codigos[codigo] = {
-    nome:    nome||'Não informado',
-    usos:    0,
-    usosMax: usos,
-    criado:  new Date().toLocaleDateString('pt-BR')+' '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
-    ativo:   true
-  };
-  salvarCodigos(codigos);
   codigoNovoAtual = codigo;
+  nomeAlunoAtual  = nome || 'Aluno';
 
   document.getElementById('codigo-novo-val').textContent = codigo;
-  document.getElementById('codigo-novo-wrap').style.display='block';
-  document.getElementById('admin-nome-aluno').value='';
-  renderizarCodigos();
+  document.getElementById('codigo-novo-wrap').style.display = 'block';
+  document.getElementById('admin-nome-aluno').value = '';
+
+  // Tenta atualizar GitHub automaticamente
+  if(CONFIG.github_token){
+    adicionarCodigoGitHub(codigo, nome);
+  } else {
+    renderizarCodigos();
+  }
+}
+
+// ── Atualiza o index.html no GitHub automaticamente ──
+async function adicionarCodigoGitHub(codigo, nome){
+  const statusEl = document.getElementById('github-status');
+  if(statusEl){ statusEl.textContent='⏳ Atualizando GitHub...'; statusEl.style.color='var(--amarelo)'; }
+
+  try{
+    const base = `https://api.github.com/repos/${CONFIG.github_usuario}/${CONFIG.github_repo}/contents/${CONFIG.github_arquivo}`;
+    const headers = {
+      'Authorization': `token ${CONFIG.github_token}`,
+      'Accept': 'application/vnd.github.v3+json'
+    };
+
+    // 1. Busca arquivo atual
+    const res = await fetch(base, {headers});
+    if(!res.ok) throw new Error('Erro ao buscar arquivo: '+res.status);
+    const fileData = await res.json();
+    const conteudoAtual = atob(fileData.content.replace(/\n/g,''));
+
+    // 2. Adiciona o novo código na lista
+    const marcador = "const CODIGOS_VALIDOS = [";
+    const idx = conteudoAtual.indexOf(marcador);
+    if(idx === -1) throw new Error('Marcador CODIGOS_VALIDOS não encontrado');
+
+    const posInsert = idx + marcador.length;
+    const comentario = nome ? ` // ${nome}` : '';
+    const novoConteudo =
+      conteudoAtual.slice(0, posInsert) +
+      `\n  '${codigo}',${comentario}` +
+      conteudoAtual.slice(posInsert);
+
+    // 3. Salva no GitHub
+    const saveRes = await fetch(base, {
+      method: 'PUT',
+      headers: {...headers, 'Content-Type':'application/json'},
+      body: JSON.stringify({
+        message: `Código adicionado: ${codigo} (${nome||'sem nome'})`,
+        content: btoa(unescape(encodeURIComponent(novoConteudo))),
+        sha: fileData.sha
+      })
+    });
+
+    if(!saveRes.ok){
+      const err = await saveRes.json();
+      throw new Error(err.message||'Erro ao salvar');
+    }
+
+    if(statusEl){ statusEl.textContent='✅ GitHub atualizado! Código ativo em ~1 min'; statusEl.style.color='var(--verde)'; }
+
+    // Adiciona localmente também para exibir na lista
+    if(!CODIGOS_VALIDOS.includes(codigo)) CODIGOS_VALIDOS.push(codigo);
+    renderizarCodigos();
+
+  } catch(err){
+    console.error(err);
+    if(statusEl){ statusEl.textContent='⚠️ Erro: '+err.message; statusEl.style.color='var(--vermelho)'; }
+    renderizarCodigos();
+  }
 }
 
 function copiarCodigoNovo(){
-  navigator.clipboard.writeText(codigoNovoAtual).then(()=>{
-    alert('Código copiado: '+codigoNovoAtual);
-  }).catch(()=>prompt('Copie o código:', codigoNovoAtual));
+  navigator.clipboard.writeText(codigoNovoAtual)
+    .then(()=>{ alert('✅ Código copiado!\n\n'+codigoNovoAtual+'\n\n⚠️ Lembre de adicionar este código\nno index.html → CODIGOS_VALIDOS'); })
+    .catch(()=>prompt('Copie o código:', codigoNovoAtual));
 }
 
 function enviarCodigoWpp(){
-  const codigos = getCodigos();
-  const entry = codigos[codigoNovoAtual];
   const msg = encodeURIComponent(
-    `✅ Olá ${entry?.nome||''}! Seu acesso ao *${CONFIG.app_nome} App* foi liberado!\n\n`+
+    `✅ Olá ${nomeAlunoAtual}! Seu acesso ao *${CONFIG.app_nome} App* foi liberado!\n\n`+
     `🔑 Seu código de acesso:\n*${codigoNovoAtual}*\n\n`+
     `📱 Acesse o app e insira o código:\n${APP_URL}\n\n`+
     `⚠️ Não compartilhe este código com ninguém!`
@@ -1444,50 +1540,32 @@ function enviarCodigoWpp(){
   window.open(`https://wa.me/?text=${msg}`,'_blank');
 }
 
-function revogarCodigo(codigo){
-  if(!confirm(`Revogar o código ${codigo}?`)) return;
-  const codigos = getCodigos();
-  if(codigos[codigo]) codigos[codigo].ativo = false;
-  salvarCodigos(codigos);
-  renderizarCodigos();
-}
-
 function renderizarCodigos(){
-  const codigos = getCodigos();
   const lista = document.getElementById('lista-codigos');
-  const entries = Object.entries(codigos).reverse();
-  if(entries.length===0){
-    lista.innerHTML='<div style="text-align:center;color:var(--cinza);font-size:.82rem;font-weight:600;padding:20px 0">Nenhum código gerado ainda</div>';
+  const todos = [...CODIGOS_VALIDOS];
+  if(codigoNovoAtual && !todos.includes(codigoNovoAtual)) todos.unshift(codigoNovoAtual);
+
+  if(todos.length === 0){
+    lista.innerHTML = '<div style="text-align:center;color:var(--cinza);font-size:.82rem;font-weight:600;padding:20px 0">Nenhum código gerado ainda</div>';
     return;
   }
-  lista.innerHTML = entries.map(([cod, entry])=>{
-    const badge = !entry.ativo
-      ? `<span class="badge badge-rev">REVOGADO</span>`
-      : entry.usos >= entry.usosMax
-        ? `<span class="badge badge-ok">USADO</span>`
-        : `<span class="badge badge-novo">ATIVO</span>`;
-    const revogarBtn = entry.ativo && entry.usos < entry.usosMax
-      ? `<button onclick="revogarCodigo('${cod}')" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--vermelho);border-radius:6px;padding:5px 8px;font-family:'Orbitron',monospace;font-size:.65rem;font-weight:800;cursor:pointer;letter-spacing:.5px">✕</button>`
-      : '';
-    return `<div class="codigo-item ${entry.usos>=entry.usosMax?'usado':''} ${!entry.ativo?'revogado':''}">
+  lista.innerHTML = todos.map(cod => {
+    const isNovo = cod === codigoNovoAtual && !CODIGOS_VALIDOS.includes(cod);
+    const badge = isNovo
+      ? `<span class="badge" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--amarelo)">⚠️ ADICIONAR</span>`
+      : `<span class="badge badge-novo">ATIVO</span>`;
+    return `<div class="codigo-item">
       <div style="flex:1;min-width:0">
         <div class="codigo-val">${cod}</div>
-        <div class="codigo-info">${entry.nome} · ${entry.usos}/${entry.usosMax===999?'∞':entry.usosMax} usos · ${entry.criado}</div>
+        ${isNovo?`<div class="codigo-info" style="color:var(--amarelo)">Adicione no index.html → CODIGOS_VALIDOS</div>`:''}
       </div>
-      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">${badge}${revogarBtn}</div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">${badge}</div>
     </div>`;
   }).join('');
 }
 
 function limparUsados(){
-  if(!confirm('Remover todos os códigos usados e revogados?')) return;
-  const codigos = getCodigos();
-  const limpos = {};
-  Object.entries(codigos).forEach(([cod,entry])=>{
-    if(entry.ativo && entry.usos < entry.usosMax) limpos[cod] = entry;
-  });
-  salvarCodigos(limpos);
-  renderizarCodigos();
+  alert('Os códigos ficam no arquivo index.html.\nPara remover um código, edite o arquivo no GitHub\ne apague-o da lista CODIGOS_VALIDOS.');
 }
 
 // ══════════════════════════════════════════
@@ -1499,7 +1577,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulado-v20') await caches.delete(key);
+      if(key !== 'simulado-v22') await caches.delete(key);
     }
   }
 })();
