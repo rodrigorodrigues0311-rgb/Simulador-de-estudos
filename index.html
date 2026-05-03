@@ -1227,6 +1227,7 @@ const CONFIG = {
   github_usuario: 'rodrigorodrigues0311-rgb',    // Seu usuário do GitHub
   github_repo:    'Simulador-de-estudos',        // Nome do repositório
   github_arquivo: 'index.html',                  // Nome do arquivo
+  github_branch:  'principal',                   // Nome do branch (main ou principal)
 };
 // ██████████████████████████████████████████
 
@@ -1471,7 +1472,8 @@ async function adicionarCodigoGitHub(codigo, nome){
   if(statusEl){ statusEl.textContent='⏳ Atualizando GitHub...'; statusEl.style.color='var(--amarelo)'; }
 
   try{
-    const base = `https://api.github.com/repos/${CONFIG.github_usuario}/${CONFIG.github_repo}/contents/${CONFIG.github_arquivo}`;
+    const branch = CONFIG.github_branch || 'main';
+    const base = `https://api.github.com/repos/${CONFIG.github_usuario}/${CONFIG.github_repo}/contents/${CONFIG.github_arquivo}?ref=${branch}`;
     const headers = {
       'Authorization': `token ${CONFIG.github_token}`,
       'Accept': 'application/vnd.github.v3+json'
@@ -1496,15 +1498,19 @@ async function adicionarCodigoGitHub(codigo, nome){
       conteudoAtual.slice(posInsert);
 
     // 3. Salva no GitHub
-    const saveRes = await fetch(base, {
-      method: 'PUT',
-      headers: {...headers, 'Content-Type':'application/json'},
-      body: JSON.stringify({
-        message: `Código adicionado: ${codigo} (${nome||'sem nome'})`,
-        content: btoa(unescape(encodeURIComponent(novoConteudo))),
-        sha: fileData.sha
-      })
-    });
+    const saveRes = await fetch(
+      `https://api.github.com/repos/${CONFIG.github_usuario}/${CONFIG.github_repo}/contents/${CONFIG.github_arquivo}`,
+      {
+        method: 'PUT',
+        headers: {...headers, 'Content-Type':'application/json'},
+        body: JSON.stringify({
+          message: `Código adicionado: ${codigo} (${nome||'sem nome'})`,
+          content: btoa(unescape(encodeURIComponent(novoConteudo))),
+          sha: fileData.sha,
+          branch: branch
+        })
+      }
+    );
 
     if(!saveRes.ok){
       const err = await saveRes.json();
@@ -1577,7 +1583,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulado-v22') await caches.delete(key);
+      if(key !== 'simulado-v23') await caches.delete(key);
     }
   }
 })();
