@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Simulado">
 <link rel="manifest" href="manifest.json?v=11">
-<link rel="apple-touch-icon" sizes="192x192" href="ícone-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="ícone-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <title>Simulado — Estude. Pratique. Evolua.</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -792,21 +792,19 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
       <div class="card" id="card-instrucao-github" style="background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.3)">
         <div class="sec" style="color:var(--cyan)"><div class="ic">⚡</div>AUTOMÁTICO VIA GITHUB</div>
         <div style="font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:12px">
-          Configure o Token do GitHub para que os códigos sejam<br>
-          <strong style="color:var(--cyan)">ativados automaticamente</strong> ao gerar — sem editar nada!
+          Configure a senha admin do Worker para que os códigos sejam
+          <strong style="color:var(--cyan)">gerados e validados automaticamente</strong> — sem editar nenhum arquivo!
         </div>
         <div class="campo">
-          <label>GitHub Token (ghp_...)</label>
+          <label>Senha Admin do Worker</label>
           <input class="admin-input" id="admin-github-token" type="password"
-            placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+            placeholder="simulado@admin2025"
             value="">
         </div>
-        <button class="btn btn-cyan" onclick="salvarToken()" style="font-size:.82rem">💾 SALVAR TOKEN</button>
+        <button class="btn btn-cyan" onclick="salvarToken()" style="font-size:.82rem">💾 SALVAR SENHA</button>
         <div style="font-size:.72rem;color:var(--cinza);margin-top:8px;line-height:1.6">
-          📋 Para criar um token:<br>
-          github.com → Settings → Developer settings<br>
-          → Personal access tokens → Tokens (classic)<br>
-          → Generate new token → marque <strong>repo</strong> → Generate
+          ⚙️ Configure <strong>ADMIN_TOKEN</strong> nas variáveis do seu Cloudflare Worker.<br>
+          Use a mesma senha aqui e lá.
         </div>
       </div>
 
@@ -878,7 +876,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 <div id="banner">
   <div class="banner-handle"></div>
   <div class="banner-row">
-    <img src="ícone-192.png" class="banner-icon" alt="Simulado" onerror="this.style.display='none'">
+    <img src="icon-192.png" class="banner-icon" alt="Simulado" onerror="this.style.display='none'">
     <div>
       <div class="banner-title">⬇ INSTALAR SIMULADO</div>
       <div class="banner-desc">Adicione à tela inicial — abre como app, sem navegador!</div>
@@ -1051,7 +1049,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
   <!-- CARD INSTALAR -->
   <div id="card-instalar" class="install-card">
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-      <img src="ícone-192.png" style="width:52px;height:52px;border-radius:13px;border:1px solid rgba(124,58,237,.4);box-shadow:var(--glow-roxo)" alt="Simulado" onerror="this.style.display='none'">
+      <img src="icon-192.png" style="width:52px;height:52px;border-radius:13px;border:1px solid rgba(124,58,237,.4);box-shadow:var(--glow-roxo)" alt="Simulado" onerror="this.style.display='none'">
       <div>
         <div style="font-family:'Orbitron',monospace;font-size:.9rem;font-weight:800;color:#fff;letter-spacing:.5px">📲 INSTALAR APP</div>
         <div style="font-size:.82rem;font-weight:600;color:var(--cinza);margin-top:2px">Abre direto como app, sem navegador!</div>
@@ -1227,7 +1225,7 @@ const CONFIG = {
   github_usuario: 'rodrigorodrigues0311-rgb',    // Seu usuário do GitHub
   github_repo:    'Simulador-de-estudos',        // Nome do repositório
   github_arquivo: 'index.html',                  // Nome do arquivo
-  github_branch:  'principal',                   // Nome do branch (main ou principal)
+  github_branch:  'main',                   // Nome do branch (main ou principal)
 };
 // ██████████████████████████████████████████
 
@@ -1303,7 +1301,7 @@ function formatarCodigo(input){
 }
 
 // ── Verificar código ──
-function verificarCodigo(){
+async function verificarCodigo(){
   const codigo = document.getElementById('codigo-acesso').value.trim().toUpperCase();
   const erroEl = document.getElementById('codigo-erro');
 
@@ -1312,22 +1310,33 @@ function verificarCodigo(){
     return;
   }
 
-  // Código fixo do administrador
-  if(codigo === CODIGO_ADMIN){
-    liberarAcesso(codigo);
-    return;
-  }
+  erroEl.style.color = 'var(--amarelo)';
+  erroEl.textContent = '⏳ Verificando...';
+  document.getElementById('codigo-acesso').disabled = true;
 
-  // Verifica na lista do GitHub
-  if(CODIGOS_VALIDOS.includes(codigo)){
-    liberarAcesso(codigo);
-    return;
-  }
+  try{
+    const res = await fetch(`${WORKER_URL}/codigos/verificar?codigo=${encodeURIComponent(codigo)}`);
+    const data = await res.json();
+    document.getElementById('codigo-acesso').disabled = false;
 
-  // Inválido
-  erroEl.textContent = '❌ CÓDIGO INVÁLIDO';
-  document.getElementById('codigo-acesso').style.borderColor = 'var(--vermelho)';
-  setTimeout(()=>document.getElementById('codigo-acesso').style.borderColor='', 2000);
+    if(data.valido){
+      liberarAcesso(codigo);
+    } else {
+      erroEl.style.color = 'var(--vermelho)';
+      erroEl.textContent = '❌ ' + (data.erro || 'CÓDIGO INVÁLIDO');
+      document.getElementById('codigo-acesso').style.borderColor = 'var(--vermelho)';
+      setTimeout(()=>document.getElementById('codigo-acesso').style.borderColor='', 2000);
+    }
+  } catch(e){
+    document.getElementById('codigo-acesso').disabled = false;
+    // Fallback — verifica localmente
+    if(codigo === CODIGO_ADMIN || CODIGOS_VALIDOS.includes(codigo)){
+      liberarAcesso(codigo);
+    } else {
+      erroEl.style.color = 'var(--vermelho)';
+      erroEl.textContent = '❌ CÓDIGO INVÁLIDO';
+    }
+  }
 }
 
 function liberarAcesso(codigo){
@@ -1408,14 +1417,11 @@ function revogarMeuAcesso(){
 
 function salvarToken(){
   const token = document.getElementById('admin-github-token').value.trim();
-  CONFIG.github_token = token;
   localStorage.setItem('sim_gh_token', token);
   if(token){
-    alert('✅ Token salvo!\n\nAgora ao gerar um código, o GitHub\nsera atualizado automaticamente.');
-    document.getElementById('card-instrucao-github').style.borderColor='rgba(16,185,129,.4)';
-    document.getElementById('card-instrucao-github').style.background='rgba(16,185,129,.08)';
+    alert('✅ Senha admin salva!\n\nAgora os códigos serão gerenciados automaticamente pelo Worker.');
   } else {
-    alert('Token removido. Códigos precisarão ser adicionados manualmente.');
+    alert('Senha removida.');
   }
 }
 
@@ -1423,15 +1429,8 @@ function carregarConfigAdmin(){
   document.getElementById('admin-valor').value = CONFIG.pix_valor;
   document.getElementById('admin-pix').value   = CONFIG.pix_chave;
   document.getElementById('admin-wpp').value   = CONFIG.wpp;
-
-  // Carrega token salvo
-  const tokenSalvo = localStorage.getItem('sim_gh_token') || CONFIG.github_token;
-  if(tokenSalvo){
-    CONFIG.github_token = tokenSalvo;
-    document.getElementById('admin-github-token').value = tokenSalvo;
-    document.getElementById('card-instrucao-github').style.borderColor='rgba(16,185,129,.4)';
-    document.getElementById('card-instrucao-github').style.background='rgba(16,185,129,.08)';
-  }
+  const token = localStorage.getItem('sim_gh_token') || '';
+  if(token) document.getElementById('admin-github-token').value = token;
 }
 
 function salvarConfig(){
@@ -1446,22 +1445,52 @@ function salvarConfig(){
 }
 
 function gerarCodigo(){
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const parte = ()=>[...Array(4)].map(()=>chars[Math.floor(Math.random()*chars.length)]).join('');
-  const codigo = parte()+'-'+parte();
   const nome = document.getElementById('admin-nome-aluno').value.trim();
-
-  codigoNovoAtual = codigo;
-  nomeAlunoAtual  = nome || 'Aluno';
-
-  document.getElementById('codigo-novo-val').textContent = codigo;
+  nomeAlunoAtual = nome || 'Aluno';
+  document.getElementById('codigo-novo-val').textContent = '⏳';
   document.getElementById('codigo-novo-wrap').style.display = 'block';
   document.getElementById('admin-nome-aluno').value = '';
+  adicionarCodigoWorker(nome);
+}
 
-  // Tenta atualizar GitHub automaticamente
-  if(CONFIG.github_token){
-    adicionarCodigoGitHub(codigo, nome);
-  } else {
+// ── Gera código via Worker (KV Storage) ──
+async function adicionarCodigoWorker(nome){
+  const statusEl = document.getElementById('github-status');
+  const set = (msg, cor) => { if(statusEl){ statusEl.textContent=msg; statusEl.style.color=cor; } };
+
+  set('⏳ Gerando código...', 'var(--amarelo)');
+
+  try{
+    const tokenAdmin = localStorage.getItem('sim_gh_token') || '';
+    const res = await fetch(WORKER_URL + '/codigos/gerar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Token': tokenAdmin
+      },
+      body: JSON.stringify({ nome })
+    });
+    const data = await res.json();
+
+    if(!res.ok || data.erro){
+      throw new Error(data.erro || 'Erro '+res.status);
+    }
+
+    codigoNovoAtual = data.codigo;
+    document.getElementById('codigo-novo-val').textContent = data.codigo;
+    set('✅ Código gerado e salvo!', 'var(--verde)');
+
+    // Adiciona na lista local
+    if(!CODIGOS_VALIDOS.includes(data.codigo)) CODIGOS_VALIDOS.push(data.codigo);
+    renderizarCodigos();
+
+  } catch(err){
+    set('⚠️ ' + err.message, 'var(--vermelho)');
+    // Gera código local como fallback
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const parte = ()=>[...Array(4)].map(()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+    codigoNovoAtual = parte()+'-'+parte();
+    document.getElementById('codigo-novo-val').textContent = codigoNovoAtual;
     renderizarCodigos();
   }
 }
@@ -1557,32 +1586,68 @@ function enviarCodigoWpp(){
   window.open(`https://wa.me/?text=${msg}`,'_blank');
 }
 
-function renderizarCodigos(){
+async function renderizarCodigos(){
   const lista = document.getElementById('lista-codigos');
-  const todos = [...CODIGOS_VALIDOS];
-  if(codigoNovoAtual && !todos.includes(codigoNovoAtual)) todos.unshift(codigoNovoAtual);
+  lista.innerHTML = '<div style="text-align:center;color:var(--cinza);font-size:.82rem;padding:16px">⏳ Carregando...</div>';
 
-  if(todos.length === 0){
-    lista.innerHTML = '<div style="text-align:center;color:var(--cinza);font-size:.82rem;font-weight:600;padding:20px 0">Nenhum código gerado ainda</div>';
-    return;
+  try{
+    const token = localStorage.getItem('sim_gh_token') || '';
+    const res = await fetch(WORKER_URL + '/codigos/listar', {
+      headers: { 'X-Admin-Token': token }
+    });
+    const data = await res.json();
+
+    if(data.erro){
+      lista.innerHTML = `<div style="text-align:center;color:var(--vermelho);font-size:.82rem;padding:16px">⚠️ ${data.erro}</div>`;
+      return;
+    }
+
+    const codigos = data.codigos || [];
+    // Adiciona código novo local se ainda não salvo
+    if(codigoNovoAtual && !codigos.find(c=>c.codigo===codigoNovoAtual)){
+      codigos.unshift({ codigo: codigoNovoAtual, nome: nomeAlunoAtual, usos:0, ativo:true, criado:'agora' });
+    }
+
+    if(codigos.length === 0){
+      lista.innerHTML = '<div style="text-align:center;color:var(--cinza);font-size:.82rem;font-weight:600;padding:20px 0">Nenhum código ainda</div>';
+      return;
+    }
+
+    lista.innerHTML = codigos.map(c => {
+      const badge = !c.ativo
+        ? `<span class="badge badge-rev">REVOGADO</span>`
+        : `<span class="badge badge-novo">ATIVO</span>`;
+      const btnRev = c.ativo
+        ? `<button onclick="revogarCodigo('${c.codigo}')" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--vermelho);border-radius:6px;padding:5px 8px;font-family:'Orbitron',monospace;font-size:.65rem;font-weight:800;cursor:pointer">✕</button>`
+        : '';
+      return `<div class="codigo-item ${!c.ativo?'revogado':''}">
+        <div style="flex:1;min-width:0">
+          <div class="codigo-val">${c.codigo}</div>
+          <div class="codigo-info">${c.nome} · ${c.usos||0} usos · ${c.criado||''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">${badge}${btnRev}</div>
+      </div>`;
+    }).join('');
+  } catch(e){
+    lista.innerHTML = '<div style="text-align:center;color:var(--vermelho);font-size:.82rem;padding:16px">⚠️ Erro ao carregar. Verifique conexão.</div>';
   }
-  lista.innerHTML = todos.map(cod => {
-    const isNovo = cod === codigoNovoAtual && !CODIGOS_VALIDOS.includes(cod);
-    const badge = isNovo
-      ? `<span class="badge" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--amarelo)">⚠️ ADICIONAR</span>`
-      : `<span class="badge badge-novo">ATIVO</span>`;
-    return `<div class="codigo-item">
-      <div style="flex:1;min-width:0">
-        <div class="codigo-val">${cod}</div>
-        ${isNovo?`<div class="codigo-info" style="color:var(--amarelo)">Adicione no index.html → CODIGOS_VALIDOS</div>`:''}
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">${badge}</div>
-    </div>`;
-  }).join('');
+}
+
+async function revogarCodigo(codigo){
+  if(!confirm(`Revogar o código ${codigo}?`)) return;
+  try{
+    const token = localStorage.getItem('sim_gh_token') || '';
+    await fetch(WORKER_URL + '/codigos/revogar', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Admin-Token':token},
+      body: JSON.stringify({ codigo })
+    });
+    renderizarCodigos();
+  } catch(e){ alert('Erro ao revogar: '+e.message); }
 }
 
 function limparUsados(){
-  alert('Os códigos ficam no arquivo index.html.\nPara remover um código, edite o arquivo no GitHub\ne apague-o da lista CODIGOS_VALIDOS.');
+  alert('Para remover um código, use o botão ✕ ao lado de cada código na lista.');
 }
 
 // ══════════════════════════════════════════
@@ -1594,7 +1659,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulado-v24') await caches.delete(key);
+      if(key !== 'simulado-v26') await caches.delete(key);
     }
   }
 })();
