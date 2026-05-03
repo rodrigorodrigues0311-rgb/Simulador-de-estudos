@@ -80,6 +80,7 @@ body::after{
   background:var(--bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   transition:opacity .7s ease;
+  overflow:hidden;
 }
 #splash.hide{opacity:0;pointer-events:none}
 .splash-logo-wrap{
@@ -138,7 +139,7 @@ body::after{
 @keyframes dotPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.4);opacity:1}}
 
 /* ── TELAS ── */
-.tela{display:none;position:relative;z-index:1;max-width:520px;margin:0 auto;padding:16px 16px 40px;animation:slideUp .35s ease}
+.tela{display:none;position:relative;z-index:1;max-width:520px;margin:0 auto;padding:16px 16px 56px;animation:slideUp .35s ease}
 .tela.ativa{display:block}
 @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
@@ -626,7 +627,93 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .codigo-erro{font-size:.78rem;font-weight:800;color:var(--vermelho);text-align:center;min-height:18px;margin-bottom:8px;font-family:'Orbitron',monospace;letter-spacing:.5px}
 .wpp-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;font-family:'Orbitron',monospace;font-size:.8rem;font-weight:800;cursor:pointer;letter-spacing:.5px;margin-top:8px;box-shadow:0 0 16px rgba(34,197,94,.3)}
 
-/* ══ PAINEL ADMIN ══ */
+/* ══ LIMA STORE ══ */
+#lima-splash{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0;
+  animation:floatUp .8s .8s ease forwards;opacity:0;
+}
+.lima-logo-anim{
+  position:relative;width:72px;height:72px;
+}
+/* Letra L voando e pousando */
+.lima-L{
+  position:absolute;
+  font-family:'Orbitron',monospace;font-size:2.8rem;font-weight:900;
+  background:linear-gradient(135deg,#a3e635,#65a30d);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  top:0;left:50%;transform:translateX(-50%);
+  filter:drop-shadow(0 0 12px rgba(163,230,53,.6));
+  animation:lVoltar 1.2s .5s cubic-bezier(.34,1.56,.64,1) forwards;
+  opacity:0;
+}
+@keyframes lVoltar{
+  0%  {opacity:0;transform:translateX(-200%) translateY(-60px) rotate(-45deg) scale(.3)}
+  60% {opacity:1;transform:translateX(-50%) translateY(4px) rotate(3deg) scale(1.15)}
+  80% {transform:translateX(-50%) translateY(-2px) rotate(-1deg) scale(.98)}
+  100%{opacity:1;transform:translateX(-50%) translateY(0) rotate(0deg) scale(1)}
+}
+.lima-bag{
+  position:absolute;top:8px;right:0;
+  width:36px;height:36px;
+  background:linear-gradient(135deg,#1a1a1a,#2d2d2d);
+  border-radius:8px;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+  animation:bagEntra .6s 1.5s ease forwards;opacity:0;
+}
+.lima-bag::before{
+  content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  width:14px;height:10px;border-radius:6px 6px 0 0;
+  border:3px solid #a3e635;border-bottom:none;
+}
+@keyframes bagEntra{
+  from{opacity:0;transform:scale(0) rotate(20deg)}
+  to{opacity:1;transform:scale(1) rotate(0deg)}
+}
+.lima-nome{
+  font-family:'Orbitron',monospace;font-size:.85rem;font-weight:900;
+  color:white;letter-spacing:3px;margin-top:6px;
+  animation:floatUp .5s 1.8s ease forwards;opacity:0;
+}
+.lima-store-txt{
+  font-size:.55rem;font-weight:700;color:#a3e635;
+  letter-spacing:4px;text-transform:uppercase;margin-top:1px;
+  animation:floatUp .5s 2s ease forwards;opacity:0;
+}
+.lima-sep{
+  display:flex;align-items:center;gap:4px;margin-top:1px;
+}
+.lima-line{width:20px;height:1px;background:#a3e635;opacity:.7}
+
+/* Rodapé fixo Lima Store */
+#lima-footer{
+  position:fixed;bottom:0;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:5px 0 6px;
+  background:rgba(10,8,20,.85);
+  backdrop-filter:blur(8px);
+  border-top:1px solid rgba(163,230,53,.15);
+}
+#lima-footer img{
+  width:18px;height:18px;border-radius:4px;object-fit:contain;
+}
+#lima-footer span{
+  font-family:'Orbitron',monospace;font-size:.55rem;font-weight:800;
+  color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;
+}
+#lima-footer .lima-l-small{
+  font-family:'Orbitron',monospace;font-size:.7rem;font-weight:900;
+  background:linear-gradient(135deg,#a3e635,#65a30d);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:lPulse 3s ease-in-out infinite;
+}
+@keyframes lPulse{
+  0%,100%{filter:drop-shadow(0 0 3px rgba(163,230,53,.3))}
+  50%{filter:drop-shadow(0 0 8px rgba(163,230,53,.8))}
+}
+@media print{#lima-footer{display:none!important}}
 #tela-admin{position:fixed;inset:0;z-index:9500;background:var(--bg);overflow-y:auto;padding:20px;display:none}
 #tela-admin.ativa{display:block;animation:slideUp .3s ease}
 .admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)}
@@ -868,6 +955,28 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
     <div class="splash-dot"></div>
     <div class="splash-dot"></div>
   </div>
+
+  <!-- Lima Store animado no splash -->
+  <div id="lima-splash">
+    <div class="lima-logo-anim">
+      <div class="lima-L">L</div>
+      <div class="lima-bag"></div>
+    </div>
+    <div class="lima-nome">LIMA</div>
+    <div class="lima-sep">
+      <div class="lima-line"></div>
+      <div class="lima-store-txt">STORE</div>
+      <div class="lima-line"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Rodapé fixo Lima Store -->
+<div id="lima-footer" class="no-print">
+  <span class="lima-l-small">L</span>
+  <span>Desenvolvido por</span>
+  <img src="lima-store.png" alt="Lima Store" onerror="this.style.display='none'">
+  <span style="color:rgba(163,230,53,.7);font-size:.6rem;font-weight:900;letter-spacing:1px">LIMA STORE</span>
 </div>
 
 <!-- ══════════ OVERLAY + BANNERS ══════════ -->
@@ -1659,7 +1768,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulado-v26') await caches.delete(key);
+      if(key !== 'simulado-v27') await caches.delete(key);
     }
   }
 })();
