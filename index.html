@@ -1469,26 +1469,41 @@ function gerarCodigo(){
 // ── Atualiza o index.html no GitHub automaticamente ──
 async function adicionarCodigoGitHub(codigo, nome){
   const statusEl = document.getElementById('github-status');
-  if(statusEl){ statusEl.textContent='⏳ Atualizando GitHub...'; statusEl.style.color='var(--amarelo)'; }
+  const setStatus = (msg, cor) => { if(statusEl){ statusEl.textContent=msg; statusEl.style.color=cor; } };
+
+  setStatus('⏳ Conectando ao GitHub...', 'var(--amarelo)');
 
   try{
-    const branch = CONFIG.github_branch || 'main';
-    const base = `https://api.github.com/repos/${CONFIG.github_usuario}/${CONFIG.github_repo}/contents/${CONFIG.github_arquivo}?ref=${branch}`;
     const headers = {
       'Authorization': `token ${CONFIG.github_token}`,
       'Accept': 'application/vnd.github.v3+json'
     };
+    const repoBase = `https://api.github.com/repos/${CONFIG.github_usuario}/${CONFIG.github_repo}`;
 
-    // 1. Busca arquivo atual
-    const res = await fetch(base, {headers});
-    if(!res.ok) throw new Error('Erro ao buscar arquivo: '+res.status);
-    const fileData = await res.json();
-    const conteudoAtual = atob(fileData.content.replace(/\n/g,''));
+    // 1. Descobre o branch padrão automaticamente
+    setStatus('⏳ Verificando repositório...', 'var(--amarelo)');
+    const repoRes = await fetch(repoBase, {headers});
+    if(!repoRes.ok) throw new Error(`Repositório não encontrado (${repoRes.status}). Verifique usuário e nome do repo.`);
+    const repoData = await repoRes.json();
+    const branch = repoData.default_branch;
 
-    // 2. Adiciona o novo código na lista
-    const marcador = "const CODIGOS_VALIDOS = [";
+    // 2. Lista arquivos para encontrar o index.html (independente de maiúsculas)
+    setStatus('⏳ Localizando arquivo...', 'var(--amarelo)');
+    const treeRes = await fetch(`${repoBase}/git/trees/${branch}`, {headers});
+    const treeData = await treeRes.json();
+    const arquivo = treeData.tree?.find(f => f.path.toLowerCase() === 'index.html')?.path || 'index.html';
+
+    // 3. Busca conteúdo do arquivo
+    setStatus('⏳ Lendo arquivo...', 'var(--amarelo)');
+    const fileRes = await fetch(`${repoBase}/contents/${arquivo}?ref=${branch}`, {headers});
+    if(!fileRes.ok) throw new Error(`Arquivo "${arquivo}" não encontrado (${fileRes.status})`);
+    const fileData = await fileRes.json();
+    const conteudoAtual = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
+
+    // 4. Adiciona o novo código na lista
+    const marcador = 'const CODIGOS_VALIDOS = [';
     const idx = conteudoAtual.indexOf(marcador);
-    if(idx === -1) throw new Error('Marcador CODIGOS_VALIDOS não encontrado');
+    if(idx === -1) throw new Error('Marcador CODIGOS_VALIDOS não encontrado no arquivo');
 
     const posInsert = idx + marcador.length;
     const comentario = nome ? ` // ${nome}` : '';
@@ -1497,35 +1512,31 @@ async function adicionarCodigoGitHub(codigo, nome){
       `\n  '${codigo}',${comentario}` +
       conteudoAtual.slice(posInsert);
 
-    // 3. Salva no GitHub
-    const saveRes = await fetch(
-      `https://api.github.com/repos/${CONFIG.github_usuario}/${CONFIG.github_repo}/contents/${CONFIG.github_arquivo}`,
-      {
-        method: 'PUT',
-        headers: {...headers, 'Content-Type':'application/json'},
-        body: JSON.stringify({
-          message: `Código adicionado: ${codigo} (${nome||'sem nome'})`,
-          content: btoa(unescape(encodeURIComponent(novoConteudo))),
-          sha: fileData.sha,
-          branch: branch
-        })
-      }
-    );
+    // 5. Salva no GitHub
+    setStatus('⏳ Salvando no GitHub...', 'var(--amarelo)');
+    const saveRes = await fetch(`${repoBase}/contents/${arquivo}`, {
+      method: 'PUT',
+      headers: {...headers, 'Content-Type':'application/json'},
+      body: JSON.stringify({
+        message: `Código: ${codigo} (${nome||'sem nome'})`,
+        content: btoa(unescape(encodeURIComponent(novoConteudo))),
+        sha: fileData.sha,
+        branch: branch
+      })
+    });
 
     if(!saveRes.ok){
       const err = await saveRes.json();
-      throw new Error(err.message||'Erro ao salvar');
+      throw new Error(err.message || `Erro ao salvar (${saveRes.status})`);
     }
 
-    if(statusEl){ statusEl.textContent='✅ GitHub atualizado! Código ativo em ~1 min'; statusEl.style.color='var(--verde)'; }
-
-    // Adiciona localmente também para exibir na lista
+    setStatus('✅ GitHub atualizado! Ativo em ~1 min', 'var(--verde)');
     if(!CODIGOS_VALIDOS.includes(codigo)) CODIGOS_VALIDOS.push(codigo);
     renderizarCodigos();
 
   } catch(err){
     console.error(err);
-    if(statusEl){ statusEl.textContent='⚠️ Erro: '+err.message; statusEl.style.color='var(--vermelho)'; }
+    setStatus('⚠️ ' + err.message, 'var(--vermelho)');
     renderizarCodigos();
   }
 }
@@ -1583,7 +1594,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulado-v23') await caches.delete(key);
+      if(key !== 'simulado-v24') await caches.delete(key);
     }
   }
 })();
