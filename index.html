@@ -862,10 +862,10 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
     <!-- PIX -->
     <div class="pix-box">
       <div class="pix-label">Valor de acesso</div>
-      <div class="pix-valor" id="pix-valor-display">R$ 5,00</div>
+      <div class="pix-valor" id="pix-valor-display">R$ 2,99</div>
       <div class="pix-label" style="margin-top:4px">pagamento único · acesso vitalício</div>
       <div class="pix-chave-wrap">
-        <span class="pix-chave-txt" id="pix-chave-display">rodrigo.rodrigues0311@gmail.com</span>
+        <span class="pix-chave-txt" id="pix-chave-display">87e182c6-c83b-4bfa-95a9-0c9999736510</span>
         <button class="pix-copy" onclick="copiarPix()">COPIAR</button>
       </div>
       <div class="pix-instrucao">
@@ -934,7 +934,8 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
           <label>Valor cobrado</label>
           <select id="admin-valor" class="admin-input">
             <option value="R$ 2,00">R$ 2,00</option>
-            <option value="R$ 5,00" selected>R$ 5,00</option>
+            <option value="R$ 2,99" selected>R$ 2,99</option>
+            <option value="R$ 5,00">R$ 5,00</option>
             <option value="R$ 10,00">R$ 10,00</option>
             <option value="R$ 15,00">R$ 15,00</option>
             <option value="R$ 20,00">R$ 20,00</option>
@@ -944,7 +945,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
           <label>Chave Pix</label>
           <input class="admin-input" id="admin-pix" type="text"
             placeholder="CPF, e-mail, telefone ou chave aleatória"
-            value="rodrigo.rodrigues0311@gmail.com">
+            value="87e182c6-c83b-4bfa-95a9-0c9999736510">
         </div>
         <div class="campo">
           <label>Seu WhatsApp (com DDD)</label>
@@ -1116,9 +1117,32 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
     <div class="campo"><label>Idade</label><input type="number" id="idadeAluno" placeholder="Ex: 13" min="5" max="18"></div>
   </div>
 
-  <!-- INFOS ESCOLARES -->
+  <!-- NÍVEL DE ENSINO -->
   <div class="card">
-    <div class="sec"><div class="ic">🏫</div>Missão</div>
+    <div class="sec"><div class="ic">🎓</div>Nível de Ensino</div>
+    <div class="selector-grid">
+      <label class="selector-item">
+        <input type="radio" name="nivelEnsino" value="medio" checked onchange="alternarNivelEnsino('medio')">
+        <div class="selector-label">
+          <span class="selector-emoji">🏫</span>
+          <span class="selector-nome">Nível Médio</span>
+          <span class="selector-desc">Fundamental e Médio</span>
+        </div>
+      </label>
+      <label class="selector-item">
+        <input type="radio" name="nivelEnsino" value="superior" onchange="alternarNivelEnsino('superior')">
+        <div class="selector-label">
+          <span class="selector-emoji">🎓</span>
+          <span class="selector-nome">Nível Superior</span>
+          <span class="selector-desc">Graduação universitária</span>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- INFOS NÍVEL MÉDIO -->
+  <div class="card" id="card-medio">
+    <div class="sec"><div class="ic">🏫</div>Missão — Nível Médio</div>
     <div class="campo">
       <label>Ano / Série</label>
       <select id="serie">
@@ -1152,6 +1176,92 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
       </select>
     </div>
     <div class="campo"><label>Conteúdo / Tema</label><textarea id="conteudo" placeholder="Ex: Frações — operações e simplificação." rows="3"></textarea></div>
+  </div>
+
+  <!-- INFOS NÍVEL SUPERIOR -->
+  <div class="card" id="card-superior" style="display:none">
+    <div class="sec"><div class="ic">🎓</div>Missão — Nível Superior</div>
+    <div class="campo">
+      <label>Graduação</label>
+      <select id="graduacao" onchange="atualizarDisciplinasSuperior()">
+        <option value="">— Selecione —</option>
+        <optgroup label="Exatas e Tecnologia">
+          <option>Administração</option>
+          <option>Análise e Desenvolvimento de Sistemas</option>
+          <option>Arquitetura e Urbanismo</option>
+          <option>Ciência da Computação</option>
+          <option>Ciências Contábeis</option>
+          <option>Economia</option>
+          <option>Engenharia Civil</option>
+          <option>Engenharia de Produção</option>
+          <option>Engenharia Elétrica</option>
+          <option>Engenharia Mecânica</option>
+          <option>Engenharia de Software</option>
+          <option>Matemática</option>
+          <option>Física</option>
+          <option>Química</option>
+          <option>Sistemas de Informação</option>
+          <option>Estatística</option>
+        </optgroup>
+        <optgroup label="Saúde e Biológicas">
+          <option>Biomedicina</option>
+          <option>Educação Física</option>
+          <option>Enfermagem</option>
+          <option>Farmácia</option>
+          <option>Fisioterapia</option>
+          <option>Medicina</option>
+          <option>Medicina Veterinária</option>
+          <option>Nutrição</option>
+          <option>Odontologia</option>
+          <option>Psicologia</option>
+        </optgroup>
+        <optgroup label="Humanas e Sociais">
+          <option>Direito</option>
+          <option>Filosofia</option>
+          <option>Geografia</option>
+          <option>História</option>
+          <option>Jornalismo</option>
+          <option>Letras</option>
+          <option>Pedagogia</option>
+          <option>Publicidade e Propaganda</option>
+          <option>Relações Internacionais</option>
+          <option>Serviço Social</option>
+          <option>Sociologia</option>
+          <option>Turismo</option>
+        </optgroup>
+        <optgroup label="Artes e Design">
+          <option>Artes Visuais</option>
+          <option>Design Gráfico</option>
+          <option>Design de Interiores</option>
+          <option>Moda</option>
+          <option>Música</option>
+        </optgroup>
+        <optgroup label="Agrárias">
+          <option>Agronomia</option>
+          <option>Engenharia Ambiental</option>
+          <option>Engenharia Florestal</option>
+          <option>Medicina Veterinária</option>
+          <option>Zootecnia</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Período</label>
+      <select id="periodo">
+        <option value="">— Selecione —</option>
+        <option>1º Período</option><option>2º Período</option><option>3º Período</option>
+        <option>4º Período</option><option>5º Período</option><option>6º Período</option>
+        <option>7º Período</option><option>8º Período</option><option>9º Período</option>
+        <option>10º Período</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Disciplina</label>
+      <select id="disciplinaSuperior">
+        <option value="">— Selecione a Graduação primeiro —</option>
+      </select>
+    </div>
+    <div class="campo"><label>Conteúdo / Tema</label><textarea id="conteudoSuperior" placeholder="Ex: Direito Constitucional — Princípios Fundamentais" rows="3"></textarea></div>
   </div>
 
   <!-- MODO DE QUESTÃO -->
@@ -1385,9 +1495,9 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 //   CONFIGURAÇÕES — EDITE APENAS AQUI
 // ██████████████████████████████████████████
 const CONFIG = {
-  pix_valor:  'R$ 1,99',                        // Valor cobrado
-  pix_chave:  '87e182c6-c83b-4bfa-95a9-0c9999736510', // Sua chave Pix
-  wpp:        '5521964302855',                   // Seu WhatsApp com DDI+DDD
+  pix_valor:  'R$ 2,99',                                       // Valor cobrado
+  pix_chave:  '87e182c6-c83b-4bfa-95a9-0c9999736510',          // Sua chave Pix
+  wpp:        '5521964302855',                                  // Seu WhatsApp com DDI+DDD
   app_nome:   'Simulado',                        // Nome do app
 
   // ── GitHub API — para atualizar códigos automaticamente ──
@@ -1830,7 +1940,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulado-v33') await caches.delete(key);
+      if(key !== 'simulador-de-estudos-v35') await caches.delete(key);
     }
   }
 })();
@@ -1858,7 +1968,7 @@ window.addEventListener('load', () => {
 // SERVICE WORKER
 // ═══════════════════════════════════════════
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(reg => {
+  navigator.serviceWorker.register('/Simulador-de-estudos/sw.js', {scope: '/Simulador-de-estudos/'}).then(reg => {
     setInterval(() => reg.update(), 60000);
     reg.addEventListener('updatefound', () => {
       const novo = reg.installing;
@@ -1954,10 +2064,98 @@ function irPara(id){
 // ═══════════════════════════════════════════
 // VALIDAÇÃO
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// NÍVEL DE ENSINO — alternância
+// ═══════════════════════════════════════════
+function alternarNivelEnsino(nivel){
+  const medio    = document.getElementById('card-medio');
+  const superior = document.getElementById('card-superior');
+  if(nivel === 'superior'){
+    medio.style.display    = 'none';
+    superior.style.display = 'block';
+    if(!document.getElementById('graduacao').value)
+      document.getElementById('disciplinaSuperior').innerHTML =
+        '<option value="">— Selecione a Graduação primeiro —</option>';
+  } else {
+    medio.style.display    = 'block';
+    superior.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════
+// GRADES CURRICULARES POR GRADUAÇÃO
+// ═══════════════════════════════════════════
+const GRADES = {
+  'Administração': ['Introdução à Administração','Matemática Financeira','Contabilidade Geral','Economia','Direito Empresarial','Gestão de Pessoas','Marketing','Finanças Corporativas','Empreendedorismo','Logística e Supply Chain','Gestão de Projetos','Comportamento Organizacional','Estatística Aplicada','Planejamento Estratégico','Gestão da Qualidade','Negociação','Comércio Exterior','Ética e Responsabilidade Social'],
+  'Análise e Desenvolvimento de Sistemas': ['Algoritmos e Programação','Estrutura de Dados','Banco de Dados','Engenharia de Software','Redes de Computadores','Programação Web','Sistemas Operacionais','Desenvolvimento Mobile','Segurança da Informação','Inteligência Artificial','Cloud Computing','UX/UI Design','Testes de Software','DevOps','Arquitetura de Sistemas'],
+  'Arquitetura e Urbanismo': ['História da Arquitetura','Projeto Arquitetônico','Estruturas','Conforto Ambiental','Urbanismo','Paisagismo','Materiais de Construção','Instalações Prediais','Representação Gráfica','Topografia','Legislação Urbanística','Patrimônio Histórico','Sustentabilidade na Arquitetura','Teoria e Crítica da Arquitetura'],
+  'Ciência da Computação': ['Cálculo I','Cálculo II','Álgebra Linear','Algoritmos','Estruturas de Dados','Sistemas Operacionais','Redes de Computadores','Banco de Dados','Compiladores','Inteligência Artificial','Machine Learning','Computação Gráfica','Teoria da Computação','Criptografia','Programação Funcional'],
+  'Ciências Contábeis': ['Contabilidade Básica','Contabilidade de Custos','Análise das Demonstrações Financeiras','Auditoria Contábil','Contabilidade Tributária','Contabilidade Pública','Direito Tributário','Finanças Públicas','Perícia Contábil','Controladoria','IFRS e Normas Internacionais','Ética Profissional Contábil'],
+  'Direito': ['Introdução ao Direito','Direito Constitucional','Direito Civil','Direito Penal','Direito Processual Civil','Direito Processual Penal','Direito Administrativo','Direito Trabalhista','Direito Tributário','Direito Empresarial','Direito Internacional','Filosofia do Direito','Criminologia','Direito do Consumidor','Prática Jurídica'],
+  'Economia': ['Microeconomia','Macroeconomia','Econometria','Economia Brasileira','Economia Internacional','Finanças Públicas','Estatística Econômica','Teoria Econômica','Economia do Trabalho','Desenvolvimento Econômico','Política Econômica','Matemática para Economia'],
+  'Educação Física': ['Anatomia','Fisiologia do Exercício','Cinesiologia','Biomecânica','Treinamento Desportivo','Pedagogia do Esporte','Nutrição Esportiva','Primeiros Socorros','Saúde Coletiva','Recreação e Lazer','Avaliação Física','Gestão do Esporte'],
+  'Enfermagem': ['Anatomia Humana','Fisiologia','Farmacologia','Microbiologia','Semiologia e Semiotécnica','Saúde do Adulto','Saúde da Criança','Saúde da Mulher','Saúde Mental','UTI e Cuidados Intensivos','Saúde Coletiva','Ética em Enfermagem','Gestão em Saúde'],
+  'Engenharia Civil': ['Cálculo I','Cálculo II','Física','Resistência dos Materiais','Estruturas de Concreto','Estruturas Metálicas','Geotecnia','Hidráulica','Saneamento Ambiental','Topografia','Gerenciamento de Obras','Orçamento e Planejamento','Instalações Hidrossanitárias','Patologia das Construções'],
+  'Engenharia de Produção': ['Cálculo','Física','Gestão da Qualidade','Pesquisa Operacional','Logística','Planejamento e Controle da Produção','Ergonomia','Engenharia Econômica','Processos de Fabricação','Gestão de Projetos','Estatística','Lean Manufacturing','Supply Chain'],
+  'Engenharia Elétrica': ['Cálculo I','Cálculo II','Física','Circuitos Elétricos','Eletrônica Analógica','Eletrônica Digital','Máquinas Elétricas','Sistemas de Controle','Eletromagnetismo','Instalações Elétricas','Geração e Transmissão de Energia','Processamento de Sinais'],
+  'Engenharia Mecânica': ['Cálculo','Física','Resistência dos Materiais','Termodinâmica','Mecânica dos Fluidos','Fabricação Mecânica','Máquinas Térmicas','Dinâmica','Vibrações Mecânicas','Automação Industrial','CAD/CAM','Projetos Mecânicos'],
+  'Engenharia de Software': ['Algoritmos','Engenharia de Requisitos','Padrões de Projeto','Arquitetura de Software','Testes de Software','Metodologias Ágeis','DevOps','Banco de Dados','Segurança de Software','Gerência de Projetos de Software','Qualidade de Software'],
+  'Farmácia': ['Química Orgânica','Bioquímica','Microbiologia','Farmacologia','Farmacotécnica','Análises Clínicas','Toxicologia','Legislação Farmacêutica','Atenção Farmacêutica','Cosmetologia','Controle de Qualidade','Biotecnologia Farmacêutica'],
+  'Filosofia': ['Filosofia Antiga','Filosofia Medieval','Filosofia Moderna','Filosofia Contemporânea','Lógica','Ética','Epistemologia','Metafísica','Filosofia Política','Estética','Filosofia da Linguagem','Filosofia da Ciência'],
+  'Fisioterapia': ['Anatomia','Fisiologia','Cinesiologia','Biomecânica','Fisioterapia Ortopédica','Fisioterapia Neurológica','Fisioterapia Cardiorrespiratória','Fisioterapia Pediátrica','Fisioterapia Geriátrica','Pilates e Recursos Terapêuticos','Ética e Legislação'],
+  'Geografia': ['Cartografia','Geomorfologia','Climatologia','Hidrografia','Biogeografia','Geografia Humana','Geografia Urbana','Geografia Rural','Geopolítica','Geoprocessamento','Planejamento Ambiental','Ensino de Geografia'],
+  'História': ['História Antiga','História Medieval','História Moderna','História Contemporânea','História do Brasil','História da América','Teoria da História','Historiografia','Arqueologia','Patrimônio Cultural','Ensino de História'],
+  'Jornalismo': ['Introdução ao Jornalismo','Técnica de Reportagem','Fotojornalismo','Radiojornalismo','Telejornalismo','Jornalismo Digital','Ética Jornalística','Edição e Diagramação','Assessoria de Imprensa','Jornalismo Investigativo','Comunicação Empresarial'],
+  'Letras': ['Linguística','Literatura Brasileira','Literatura Portuguesa','Literatura Comparada','Teoria Literária','Gramática','Semântica','Fonética e Fonologia','Literatura Estrangeira','Análise do Discurso','Língua Estrangeira','Estágio e Ensino de Língua'],
+  'Matemática': ['Cálculo I','Cálculo II','Álgebra Linear','Geometria Analítica','Equações Diferenciais','Álgebra Abstrata','Análise Real','Topologia','Probabilidade e Estatística','Matemática Discreta','Didática da Matemática'],
+  'Medicina': ['Anatomia Humana','Histologia','Fisiologia','Bioquímica','Farmacologia','Patologia','Semiologia Médica','Clínica Médica','Cirurgia','Pediatria','Ginecologia e Obstetrícia','Psiquiatria','Medicina de Família','Epidemiologia','Saúde Coletiva'],
+  'Medicina Veterinária': ['Anatomia Animal','Fisiologia Animal','Microbiologia','Parasitologia','Farmacologia Veterinária','Clínica de Pequenos Animais','Clínica de Grandes Animais','Medicina Veterinária Preventiva','Zootecnia','Inspeção de Produtos de Origem Animal','Cirurgia Veterinária'],
+  'Música': ['Teoria Musical','Harmonia','Contraponto','História da Música','Percepção Musical','Instrumento','Canto','Composição','Regência','Música de Câmara','Musicologia','Educação Musical'],
+  'Nutrição': ['Bioquímica dos Alimentos','Anatomia e Fisiologia','Microbiologia dos Alimentos','Dietética','Nutrição Clínica','Nutrição Esportiva','Saúde Coletiva','Avaliação Nutricional','Tecnologia dos Alimentos','Epidemiologia Nutricional','Administração em Nutrição'],
+  'Odontologia': ['Anatomia','Fisiologia','Bioquímica','Microbiologia','Patologia Oral','Dentística','Periodontia','Endodontia','Ortodontia','Prótese Dentária','Cirurgia Oral','Odontopediatria','Saúde Coletiva em Saúde Bucal'],
+  'Pedagogia': ['Fundamentos da Educação','Psicologia da Educação','Didática','Currículo','Educação Infantil','Alfabetização e Letramento','Educação Especial','Gestão Escolar','Avaliação Educacional','Política Educacional','Estágio Supervisionado'],
+  'Psicologia': ['Psicologia do Desenvolvimento','Psicologia Social','Psicopatologia','Neuropsicologia','Psicologia Clínica','Psicanálise','TCC — Terapia Cognitivo-Comportamental','Avaliação Psicológica','Psicologia Organizacional','Ética em Psicologia','Pesquisa em Psicologia'],
+  'Publicidade e Propaganda': ['Fundamentos da Comunicação','Criação Publicitária','Planejamento de Mídia','Marketing Digital','Pesquisa de Mercado','Gestão de Marcas (Branding)','Redação Publicitária','Fotografia e Vídeo','Redes Sociais','Ética na Publicidade','Produção Gráfica'],
+  'Relações Internacionais': ['Teoria das Relações Internacionais','Direito Internacional','Política Comparada','Economia Política Internacional','História das Relações Internacionais','Geopolítica','Organizações Internacionais','Diplomacia','Segurança Internacional','Integração Regional'],
+  'Serviço Social': ['Fundamentos do Serviço Social','Política Social','Questão Social','Direitos Humanos','Serviço Social e Saúde','Serviço Social e Assistência','Legislação Social','Pesquisa Social','Ética Profissional','Estágio Supervisionado'],
+  'Sistemas de Informação': ['Algoritmos','Banco de Dados','Redes de Computadores','Sistemas Operacionais','Engenharia de Software','Gestão de TI','Segurança da Informação','Business Intelligence','ERP e Sistemas Corporativos','Governança de TI','Análise de Sistemas'],
+  'Sociologia': ['Introdução à Sociologia','Teoria Sociológica Clássica','Teoria Sociológica Contemporânea','Sociologia Urbana','Sociologia Rural','Sociologia do Trabalho','Pesquisa Social','Metodologia em Ciências Sociais','Movimentos Sociais','Sociologia Política'],
+  'Turismo': ['Fundamentos do Turismo','Hotelaria','Agenciamento e Operações','Marketing Turístico','Patrimônio e Cultura','Ecoturismo','Turismo de Eventos','Gastronomia e Alimentos','Gestão de Destinos','Sustentabilidade no Turismo'],
+  'Artes Visuais': ['História da Arte','Desenho','Pintura','Escultura','Gravura','Fotografia Artística','Arte Contemporânea','Estética','Teoria da Arte','Curadoria','Produção Cultural'],
+  'Design Gráfico': ['Fundamentos do Design','Tipografia','Teoria das Cores','Identidade Visual','Design Editorial','Diagramação','Fotografia','UX/UI Design','Infografia','Design para Mídias Digitais','Branding'],
+  'Design de Interiores': ['Fundamentos do Design de Interiores','Ergonomia','Iluminação','Materiais e Acabamentos','Projeto de Interiores','Paisagismo','História do Design','Mobiliário','Representação Gráfica','Sustentabilidade no Design'],
+  'Moda': ['História da Moda','Design de Moda','Modelagem','Tecidos e Materiais','Produção de Moda','Marketing de Moda','Moda e Cultura','Ilustração de Moda','Tendências','Sustentabilidade na Moda'],
+  'Agronomia': ['Química do Solo','Botânica','Entomologia','Fitopatologia','Irrigação e Drenagem','Genética e Melhoramento','Mecanização Agrícola','Manejo de Culturas','Agroecologia','Extensão Rural','Topografia Rural'],
+  'Engenharia Ambiental': ['Ecologia','Química Ambiental','Saneamento Ambiental','Gestão de Resíduos','Impacto Ambiental','Legislação Ambiental','Recursos Hídricos','Energia Renovável','Geoprocessamento','Tratamento de Efluentes'],
+  'Engenharia Florestal': ['Dendrologia','Silvicultura','Inventário Florestal','Manejo Florestal','Tecnologia da Madeira','Hidrologia Florestal','Proteção Florestal','Geoprocessamento','Legislação Florestal','Recuperação de Áreas Degradadas'],
+  'Zootecnia': ['Anatomia Animal','Fisiologia Animal','Nutrição Animal','Genética e Melhoramento','Bovinocultura','Suinocultura','Avicultura','Forragicultura','Reprodução Animal','Gestão Rural','Bem-Estar Animal'],
+  'Biomedicina': ['Bioquímica','Microbiologia','Imunologia','Hematologia','Parasitologia','Biologia Molecular','Genética','Análises Clínicas','Patologia Clínica','Banco de Sangue','Biossegurança'],
+  'Estatística': ['Estatística Básica','Probabilidade','Inferência Estatística','Regressão','Análise Multivariada','Séries Temporais','Estatística Computacional','Amostragem','Controle de Qualidade','Bioestatística','Econometria'],
+  'Física': ['Mecânica Clássica','Eletromagnetismo','Termodinâmica','Física Quântica','Física Nuclear','Óptica','Física da Matéria Condensada','Mecânica Estatística','Relatividade','Física Experimental'],
+  'Química': ['Química Geral','Química Orgânica','Química Inorgânica','Físico-Química','Química Analítica','Bioquímica','Química Ambiental','Síntese Orgânica','Espectroscopia','Química Industrial'],
+};
+
+function atualizarDisciplinasSuperior(){
+  const grad = document.getElementById('graduacao').value;
+  const sel  = document.getElementById('disciplinaSuperior');
+  if(!grad || !GRADES[grad]){
+    sel.innerHTML = '<option value="">— Selecione a Graduação primeiro —</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">— Selecione a Disciplina —</option>' +
+    GRADES[grad].map(d => `<option>${d}</option>`).join('');
+}
+
 function validar(){
-  const ids=['nomeAluno','idadeAluno','serie','bimestre','disciplina','conteudo'];
+  const nivel = document.querySelector('input[name=nivelEnsino]:checked').value;
+  let ids;
+  if(nivel === 'medio'){
+    ids = ['nomeAluno','idadeAluno','serie','bimestre','disciplina','conteudo'];
+  } else {
+    ids = ['nomeAluno','idadeAluno','graduacao','periodo','disciplinaSuperior','conteudoSuperior'];
+  }
   for(const id of ids){
-    const el=document.getElementById(id);
+    const el = document.getElementById(id);
     if(!el.value.trim()){
       el.focus();
       el.style.borderColor='var(--vermelho)';
@@ -1973,7 +2171,9 @@ function validar(){
 // ESTADO
 // ═══════════════════════════════════════════
 let E={
-  nome:'',idade:'',serie:'',bimestre:'',disciplina:'',conteudo:'',
+  nome:'',idade:'',nivelEnsino:'medio',
+  serie:'',bimestre:'',disciplina:'',conteudo:'',
+  graduacao:'',periodo:'',
   qtd:10,modo:'multipla',nivel:'facil',
   questoes:[],respostas:[],puladas:new Set(),idx:0,respondida:false
 };
@@ -1984,20 +2184,35 @@ const LETRAS=['A','B','C','D'];
 // ═══════════════════════════════════════════
 async function iniciar(){
   if(!validar()) return;
-  E.nome=document.getElementById('nomeAluno').value.trim();
-  E.idade=document.getElementById('idadeAluno').value;
-  E.serie=document.getElementById('serie').value;
-  E.bimestre=document.getElementById('bimestre').value;
-  E.disciplina=document.getElementById('disciplina').value;
-  E.conteudo=document.getElementById('conteudo').value.trim();
-  E.qtd=parseInt(document.getElementById('qtd').value);
-  E.modo=document.querySelector('input[name=modo]:checked').value;
-  E.nivel=document.querySelector('input[name=nivel]:checked').value;
+  E.nome    = document.getElementById('nomeAluno').value.trim();
+  E.idade   = document.getElementById('idadeAluno').value;
+  E.nivelEnsino = document.querySelector('input[name=nivelEnsino]:checked').value;
+  E.modo    = document.querySelector('input[name=modo]:checked').value;
+  E.nivel   = document.querySelector('input[name=nivel]:checked').value;
+  E.qtd     = parseInt(document.getElementById('qtd').value);
   E.respostas=[];E.puladas=new Set();E.idx=0;
+
+  if(E.nivelEnsino === 'medio'){
+    E.serie      = document.getElementById('serie').value;
+    E.bimestre   = document.getElementById('bimestre').value;
+    E.disciplina = document.getElementById('disciplina').value;
+    E.conteudo   = document.getElementById('conteudo').value.trim();
+    E.graduacao  = ''; E.periodo = '';
+    document.getElementById('info-sim').textContent =
+      `${E.disciplina} · ${E.serie} · ${E.bimestre}`;
+  } else {
+    E.graduacao  = document.getElementById('graduacao').value;
+    E.periodo    = document.getElementById('periodo').value;
+    E.disciplina = document.getElementById('disciplinaSuperior').value;
+    E.conteudo   = document.getElementById('conteudoSuperior').value.trim();
+    E.serie = ''; E.bimestre = '';
+    document.getElementById('info-sim').textContent =
+      `${E.disciplina} · ${E.graduacao} · ${E.periodo}`;
+  }
+
   irPara('tela-loading');
   try{
-    E.questoes=await gerarQuestoes();
-    document.getElementById('info-sim').textContent=`${E.disciplina} · ${E.serie} · ${E.bimestre}`;
+    E.questoes = await gerarQuestoes();
     montarQ(0); irPara('tela-simulado');
   } catch(err){
     alert('❌ Erro: '+err.message);
@@ -2023,7 +2238,9 @@ Formato JSON:
 {"questoes":[{"pergunta":"texto","resposta_esperada":"resposta completa esperada","palavras_chave":["palavra1","palavra2","palavra3"],"observacao":"explicação da resposta correta"}]}
 "palavras_chave" = termos essenciais que indicam que o aluno entendeu o conteúdo.`;
 
-  const prompt=`Você é um professor experiente do Brasil. Crie exatamente ${E.qtd} questões para um aluno de ${E.serie} com ${E.idade} anos.
+  let prompt;
+  if(E.nivelEnsino === 'medio'){
+    prompt = `Você é um professor experiente do Brasil. Crie exatamente ${E.qtd} questões para um aluno de ${E.serie} com ${E.idade} anos.
 
 Disciplina: ${E.disciplina}
 Conteúdo: ${E.conteudo}
@@ -2033,6 +2250,21 @@ Nível: ${nivelDesc}
 ${modoDesc}
 
 IMPORTANTE: Responda SOMENTE com JSON válido, sem markdown, sem texto extra.`;
+  } else {
+    prompt = `Você é um professor universitário experiente do Brasil. Crie exatamente ${E.qtd} questões de nível superior para um estudante universitário.
+
+Curso/Graduação: ${E.graduacao}
+Período: ${E.periodo}
+Disciplina: ${E.disciplina}
+Conteúdo/Tema: ${E.conteudo}
+Dificuldade: ${nivelDesc}
+
+As questões devem ser adequadas ao nível de ensino superior, com linguagem acadêmica e profundidade adequada ao período informado.
+
+${modoDesc}
+
+IMPORTANTE: Responda SOMENTE com JSON válido, sem markdown, sem texto extra.`;
+  }
 
   const res=await fetch(WORKER_URL,{
     method:'POST',headers:{'Content-Type':'application/json'},
@@ -2165,13 +2397,17 @@ async function responderDiscursiva(){
 
   try{
     // Corrige a resposta discursiva usando a IA
+    const contexto = E.nivelEnsino === 'superior'
+      ? `Curso: ${E.graduacao}, Período: ${E.periodo}`
+      : `Série: ${E.serie}`;
+
     const prompt=`Você é um professor corrigindo uma prova. Avalie a resposta do aluno.
 
 Pergunta: ${q.pergunta}
 Resposta esperada: ${q.resposta_esperada}
 Palavras-chave esperadas: ${(q.palavras_chave||[]).join(', ')}
 Resposta do aluno: ${resposta}
-Série do aluno: ${E.serie}
+${contexto}
 
 Avalie se o aluno demonstrou entendimento do conteúdo. A resposta NÃO precisa ser idêntica, mas deve fazer sentido e conter os conceitos corretos.
 
@@ -2349,14 +2585,27 @@ function finalizar(){
 
     const nivelLabel=E.nivel==='facil'?'😎 Molezinha':'💀 Sinistro';
     const modoLabel=E.modo==='multipla'?'🎯 Múltipla Escolha':'✍️ Discursiva';
+    const ensinoLabel=E.nivelEnsino==='superior'?'🎓 Nível Superior':'🏫 Nível Médio';
+
+    let detsMissao = '';
+    if(E.nivelEnsino === 'superior'){
+      detsMissao = `
+        <div class="det-row"><span class="det-k">Graduação</span><span class="det-v">${E.graduacao}</span></div>
+        <div class="det-row"><span class="det-k">Período</span><span class="det-v">${E.periodo}</span></div>`;
+    } else {
+      detsMissao = `
+        <div class="det-row"><span class="det-k">Série</span><span class="det-v">${E.serie}</span></div>
+        <div class="det-row"><span class="det-k">Bimestre</span><span class="det-v">${E.bimestre}</span></div>`;
+    }
+
     document.getElementById('dets').innerHTML=`
       <div class="det-row"><span class="det-k">Aluno</span><span class="det-v">${E.nome}</span></div>
       <div class="det-row"><span class="det-k">Idade</span><span class="det-v">${E.idade} anos</span></div>
-      <div class="det-row"><span class="det-k">Série</span><span class="det-v">${E.serie}</span></div>
-      <div class="det-row"><span class="det-k">Bimestre</span><span class="det-v">${E.bimestre}</span></div>
+      <div class="det-row"><span class="det-k">Nível</span><span class="det-v">${ensinoLabel}</span></div>
+      ${detsMissao}
       <div class="det-row"><span class="det-k">Disciplina</span><span class="det-v">${E.disciplina}</span></div>
       <div class="det-row"><span class="det-k">Modo</span><span class="det-v">${modoLabel}</span></div>
-      <div class="det-row"><span class="det-k">Nível</span><span class="det-v">${nivelLabel}</span></div>
+      <div class="det-row"><span class="det-k">Dificuldade</span><span class="det-v">${nivelLabel}</span></div>
       <div class="det-row"><span class="det-k">Nota Final</span><span class="det-v" style="color:${nota>7?'#10b981':nota>=5?'#f59e0b':'#ef4444'};font-size:1.1rem">${nota.toFixed(1)} / 10</span></div>
       <div class="det-row"><span class="det-k">Data</span><span class="det-v">${new Date().toLocaleDateString('pt-BR')}</span></div>`;
 

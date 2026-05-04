@@ -1,11 +1,11 @@
-const CACHE_NAME = 'simulado-v33';
+const CACHE_NAME = 'simulador-de-estudos-v35';
 const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './logo.png',
-  './icon-192.png',
-  './icon-512.png'
+  '/Simulador-de-estudos/',
+  '/Simulador-de-estudos/index.html',
+  '/Simulador-de-estudos/manifest.json',
+  '/Simulador-de-estudos/logo.png',
+  '/Simulador-de-estudos/icon-192.png',
+  '/Simulador-de-estudos/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
@@ -29,7 +29,7 @@ self.addEventListener('fetch', e => {
         const c = res.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(e.request, c));
         return res;
-      }).catch(() => caches.match('./index.html'))
+      }).catch(() => caches.match('/Simulador-de-estudos/index.html'))
     );
     return;
   }
