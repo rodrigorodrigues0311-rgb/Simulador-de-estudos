@@ -367,15 +367,18 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .selector-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
 .selector-item{
   position:relative;cursor:pointer;
+  display:flex; /* faz o filho crescer igual */
 }
 .selector-item input[type=radio]{position:absolute;opacity:0;width:0;height:0}
 .selector-label{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:16px 8px;border-radius:12px;
+  width:100%;
+  min-height:160px; /* altura mínima igual para todos */
+  padding:16px 10px;border-radius:12px;
   border:2px solid rgba(255,255,255,.1);
   background:rgba(255,255,255,.04);
   transition:all .2s;text-align:center;cursor:pointer;
-  gap:6px;
+  gap:8px;box-sizing:border-box;
 }
 .selector-label:hover{border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.08)}
 .selector-item input:checked + .selector-label{
@@ -383,9 +386,13 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
   background:rgba(124,58,237,.15);
   box-shadow:var(--glow-roxo);
 }
-.selector-emoji{font-size:2rem}
-.selector-nome{font-family:'Orbitron',monospace;font-size:.75rem;font-weight:800;color:var(--branco);letter-spacing:.5px}
-.selector-desc{font-size:.72rem;font-weight:600;color:var(--cinza);line-height:1.3}
+.selector-emoji{font-size:2.2rem;flex-shrink:0}
+.selector-nome{
+  font-family:'Orbitron',monospace;font-size:.75rem;font-weight:800;
+  color:var(--branco);letter-spacing:.5px;
+  line-height:1.3;
+}
+.selector-desc{font-size:.72rem;font-weight:600;color:var(--cinza);line-height:1.35;}
 
 /* Dificuldade especial */
 .selector-item.facil input:checked + .selector-label{
@@ -1348,7 +1355,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
         <input type="radio" name="modo" value="multipla" checked>
         <div class="selector-label">
           <span class="selector-emoji">🎯</span>
-          <span class="selector-nome">Múltipla<br>Escolha</span>
+          <span class="selector-nome">Múltipla Escolha</span>
           <span class="selector-desc">4 opções, escolha a certa</span>
         </div>
       </label>
@@ -2016,7 +2023,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulador-de-estudos-v41') await caches.delete(key);
+      if(key !== 'simulador-de-estudos-v42') await caches.delete(key);
     }
   }
 })();
