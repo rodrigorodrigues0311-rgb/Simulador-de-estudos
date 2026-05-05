@@ -668,6 +668,18 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 }
 #fab-share:active{transform:scale(.9)}
 
+/* ── BOTÃO MUDO ── */
+#btn-mudo{
+  position:fixed;bottom:22px;left:16px;z-index:900;
+  background:rgba(15,10,30,.85);backdrop-filter:blur(8px);
+  color:#fff;border:1.5px solid rgba(192,132,252,.4);
+  border-radius:50%;width:50px;height:50px;font-size:1.4rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s,border-color .2s;
+}
+#btn-mudo:active{transform:scale(.88);}
+#btn-mudo.mudo{border-color:rgba(239,68,68,.6);}
+
 /* ── BANNERS ── */
 #overlay{display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
 #overlay.on{display:block}
@@ -1134,6 +1146,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 </div>
 
 <button id="fab-install" onclick="clicarInstalar()">⬇ INSTALAR</button>
+<button id="btn-mudo" onclick="toggleMudo()" title="Som ativado — clique para mudo">🔊</button>
 
 <!-- ══════════ TELA INÍCIO ══════════ -->
 <div id="tela-inicio" class="tela ativa">
@@ -2003,7 +2016,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulador-de-estudos-v39') await caches.delete(key);
+      if(key !== 'simulador-de-estudos-v40') await caches.delete(key);
     }
   }
 })();
@@ -2129,8 +2142,10 @@ function removerFoto(){
 // ═══════════════════════════════════════════
 // NAVEGAÇÃO
 // ═══════════════════════════════════════════
-// 🎮 SISTEMA DE SOM ARCADE
+// 🎮 SISTEMA DE SOM — MARIO BROS + MUDO
 // ═══════════════════════════════════════════
+let _sfxMudo = localStorage.getItem('sfx_mudo') === '1';
+
 const SFX = (() => {
   let ctx = null;
   const get = () => {
@@ -2139,109 +2154,162 @@ const SFX = (() => {
     return ctx;
   };
 
-  // Toca um tom com envelope
-  const tone = (freq, type, attack, decay, vol=0.18) => {
+  // Toca nota simples com envelope
+  const tone = (freq, type, attack, decay, vol=0.15, t=0) => {
+    if (_sfxMudo) return;
     const c = get();
+    const st = c.currentTime + t;
     const o = c.createOscillator();
     const g = c.createGain();
     o.connect(g); g.connect(c.destination);
     o.type = type;
-    o.frequency.setValueAtTime(freq, c.currentTime);
-    g.gain.setValueAtTime(0, c.currentTime);
-    g.gain.linearRampToValueAtTime(vol, c.currentTime + attack);
-    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + attack + decay);
-    o.start(c.currentTime);
-    o.stop(c.currentTime + attack + decay);
+    o.frequency.setValueAtTime(freq, st);
+    g.gain.setValueAtTime(0, st);
+    g.gain.linearRampToValueAtTime(vol, st + attack);
+    g.gain.exponentialRampToValueAtTime(0.001, st + attack + decay);
+    o.start(st);
+    o.stop(st + attack + decay + 0.01);
   };
 
   // Sweep de frequência
-  const sweep = (f1, f2, dur, type='square', vol=0.12) => {
+  const sweep = (f1, f2, dur, type='square', vol=0.12, t=0) => {
+    if (_sfxMudo) return;
     const c = get();
+    const st = c.currentTime + t;
     const o = c.createOscillator();
     const g = c.createGain();
     o.connect(g); g.connect(c.destination);
     o.type = type;
-    o.frequency.setValueAtTime(f1, c.currentTime);
-    o.frequency.exponentialRampToValueAtTime(f2, c.currentTime + dur);
-    g.gain.setValueAtTime(vol, c.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
-    o.start(c.currentTime);
-    o.stop(c.currentTime + dur + 0.05);
+    o.frequency.setValueAtTime(f1, st);
+    o.frequency.exponentialRampToValueAtTime(f2, st + dur);
+    g.gain.setValueAtTime(vol, st);
+    g.gain.exponentialRampToValueAtTime(0.001, st + dur);
+    o.start(st);
+    o.stop(st + dur + 0.05);
   };
 
-  // Sons específicos
   return {
-    // Clique padrão — bip curto arcade
-    btn: () => {
-      sweep(440, 880, 0.06, 'square', 0.10);
-    },
-    // Botão principal (iniciar, confirmar)
-    primary: () => {
-      sweep(300, 600, 0.05, 'square', 0.12);
-      setTimeout(() => tone(900, 'square', 0.01, 0.12, 0.08), 60);
-    },
-    // Acerto — som de vitória ascendente
+    // 🪙 MOEDA DO MARIO — acerto (B5 → E6 clássico)
     acerto: () => {
-      sweep(523, 1046, 0.07, 'square', 0.14);
-      setTimeout(() => sweep(784, 1568, 0.08, 'square', 0.12), 80);
-      setTimeout(() => tone(1047, 'sine', 0.01, 0.18, 0.10), 170);
+      if (_sfxMudo) return;
+      const c = get();
+      // Nota 1: B5 (988 Hz) curta
+      tone(988, 'square', 0.001, 0.08, 0.20, 0);
+      // Nota 2: E6 (1319 Hz) mais longa — o "pling" da moeda
+      tone(1319, 'square', 0.001, 0.30, 0.18, 0.08);
     },
-    // Erro — som de falha descendente
+
+    // 💀 MORTE DO MARIO — erro (sequência descendente clássica)
     erro: () => {
-      sweep(300, 80, 0.15, 'sawtooth', 0.14);
-      setTimeout(() => tone(100, 'square', 0.01, 0.12, 0.08), 100);
+      if (_sfxMudo) return;
+      // B4 rápido, depois queda dramática
+      tone(494,  'square', 0.001, 0.10, 0.18, 0.00);
+      tone(466,  'square', 0.001, 0.10, 0.18, 0.11);
+      tone(440,  'square', 0.001, 0.10, 0.18, 0.22);
+      tone(415,  'square', 0.001, 0.12, 0.18, 0.33);
+      tone(392,  'square', 0.001, 0.14, 0.18, 0.45);
+      tone(370,  'square', 0.001, 0.16, 0.18, 0.58);
+      tone(349,  'square', 0.001, 0.18, 0.18, 0.72);
+      tone(330,  'square', 0.001, 0.28, 0.16, 0.88);
     },
-    // Parcial — bip médio neutro
+
+    // ⚡ Parcial — dois bips simples
     parcial: () => {
-      tone(440, 'square', 0.01, 0.10, 0.10);
-      setTimeout(() => tone(550, 'square', 0.01, 0.10, 0.08), 100);
+      tone(659, 'square', 0.001, 0.08, 0.12, 0.00);
+      tone(784, 'square', 0.001, 0.10, 0.10, 0.10);
     },
-    // Pular — whoosh rápido
+
+    // 🎮 Clique padrão — bip curto
+    btn: () => {
+      sweep(440, 660, 0.05, 'square', 0.08);
+    },
+
+    // ▶ Botão principal
+    primary: () => {
+      tone(523, 'square', 0.001, 0.06, 0.12, 0.00);
+      tone(659, 'square', 0.001, 0.08, 0.10, 0.07);
+    },
+
+    // ⏭ Pular questão — whoosh
     pular: () => {
-      sweep(600, 200, 0.12, 'sine', 0.08);
+      sweep(800, 300, 0.10, 'sine', 0.08);
     },
-    // Resultado bom (nota > 7) — fanfarra
-    vitoria: () => {
-      const seq = [[523,0],[659,80],[784,160],[1047,240],[784,320],[1047,400]];
-      seq.forEach(([f,t]) => setTimeout(() => tone(f,'square',0.01,0.12,0.12), t));
-    },
-    // Resultado médio (nota 5-7)
-    medio: () => {
-      sweep(440, 660, 0.15, 'square', 0.10);
-      setTimeout(() => tone(550, 'sine', 0.01, 0.20, 0.08), 160);
-    },
-    // Resultado ruim (nota < 5) — derrota
-    derrota: () => {
-      const seq = [[400,0],[350,80],[300,160],[200,280]];
-      seq.forEach(([f,t]) => setTimeout(() => tone(f,'sawtooth',0.01,0.14,0.12), t));
-    },
-    // Navegar entre questões
+
+    // ◀▶ Navegar
     nav: () => {
-      tone(660, 'square', 0.005, 0.06, 0.07);
+      tone(660, 'square', 0.001, 0.05, 0.07);
     },
-    // Copiar / ação secundária
+
+    // 📋 Copiar
     copy: () => {
-      tone(800, 'sine', 0.005, 0.10, 0.08);
-      setTimeout(() => tone(1000, 'sine', 0.005, 0.08, 0.06), 80);
+      tone(880,  'sine', 0.001, 0.08, 0.08, 0.00);
+      tone(1100, 'sine', 0.001, 0.08, 0.06, 0.09);
+    },
+
+    // 🏆 Vitória (nota > 7) — tema curto do Mario
+    vitoria: () => {
+      if (_sfxMudo) return;
+      // Sequência inspirada no jingle de vitória do Mario
+      const n = [
+        [523,0.00],[523,0.10],[523,0.20],[415,0.30],
+        [523,0.40],[659,0.50],[784,0.65]
+      ];
+      n.forEach(([f,t]) => tone(f, 'square', 0.001, 0.12, 0.15, t));
+      // Acorde final
+      setTimeout(() => {
+        tone(1047, 'square', 0.001, 0.40, 0.12, 0);
+        tone(784,  'square', 0.001, 0.40, 0.10, 0);
+      }, 900);
+    },
+
+    // 📖 Resultado médio
+    medio: () => {
+      sweep(440, 600, 0.15, 'square', 0.10);
+      tone(550, 'sine', 0.001, 0.20, 0.08, 0.16);
+    },
+
+    // 😬 Derrota (nota < 5) — game over
+    derrota: () => {
+      if (_sfxMudo) return;
+      // Game over inspirado no Mario
+      tone(523, 'square', 0.001, 0.18, 0.16, 0.00);
+      tone(494, 'square', 0.001, 0.18, 0.15, 0.20);
+      tone(370, 'square', 0.001, 0.40, 0.18, 0.40);
+      tone(330, 'square', 0.001, 0.50, 0.16, 0.82);
     },
   };
 })();
 
-// Adiciona som a todos os botões automaticamente via delegação
+// ── Botão de mudo ──────────────────────────
+function toggleMudo(){
+  _sfxMudo = !_sfxMudo;
+  localStorage.setItem('sfx_mudo', _sfxMudo ? '1' : '0');
+  atualizarBtnMudo();
+}
+function atualizarBtnMudo(){
+  const btn = document.getElementById('btn-mudo');
+  if (!btn) return;
+  btn.textContent = _sfxMudo ? '🔇' : '🔊';
+  btn.title = _sfxMudo ? 'Som desativado — clique para ativar' : 'Som ativado — clique para mudo';
+  btn.classList.toggle('mudo', _sfxMudo);
+}
+document.addEventListener('DOMContentLoaded', atualizarBtnMudo);
+
+// Delegação de cliques para sons dos botões
 document.addEventListener('click', e => {
   const btn = e.target.closest('button, .alt, .selector-item, .dot, .pix-copy');
   if (!btn) return;
+  if (btn.id === 'btn-mudo') return; // toggleMudo cuida disso
 
-  // Sons específicos por contexto (evita duplo som nas funções)
-  if (btn.classList.contains('alt')) return; // responder() toca o som
-  if (btn.classList.contains('dot')) { SFX.nav(); return; }
-  if (btn.classList.contains('pix-copy')) { SFX.copy(); return; }
-  if (btn.classList.contains('selector-item')) { SFX.nav(); return; }
+  if (btn.classList.contains('alt'))           return; // responder() toca
+  if (btn.classList.contains('dot'))           { SFX.nav();  return; }
+  if (btn.classList.contains('pix-copy'))      { SFX.copy(); return; }
+  if (btn.classList.contains('selector-item')) { SFX.nav();  return; }
 
-  // Botões principais
-  const isPrimary = btn.classList.contains('btn-roxo') || btn.classList.contains('btn-cyan') || btn.classList.contains('btn-verde');
-  if (isPrimary) SFX.primary();
-  else SFX.btn();
+  const isPrimary = btn.classList.contains('btn-roxo') ||
+                    btn.classList.contains('btn-cyan')  ||
+                    btn.classList.contains('btn-verde');
+  if (isPrimary) SFX.primary(); else SFX.btn();
 });
 
 // ═══════════════════════════════════════════
