@@ -2003,7 +2003,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulador-de-estudos-v38') await caches.delete(key);
+      if(key !== 'simulador-de-estudos-v39') await caches.delete(key);
     }
   }
 })();
@@ -2128,6 +2128,122 @@ function removerFoto(){
 
 // ═══════════════════════════════════════════
 // NAVEGAÇÃO
+// ═══════════════════════════════════════════
+// 🎮 SISTEMA DE SOM ARCADE
+// ═══════════════════════════════════════════
+const SFX = (() => {
+  let ctx = null;
+  const get = () => {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  };
+
+  // Toca um tom com envelope
+  const tone = (freq, type, attack, decay, vol=0.18) => {
+    const c = get();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type = type;
+    o.frequency.setValueAtTime(freq, c.currentTime);
+    g.gain.setValueAtTime(0, c.currentTime);
+    g.gain.linearRampToValueAtTime(vol, c.currentTime + attack);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + attack + decay);
+    o.start(c.currentTime);
+    o.stop(c.currentTime + attack + decay);
+  };
+
+  // Sweep de frequência
+  const sweep = (f1, f2, dur, type='square', vol=0.12) => {
+    const c = get();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type = type;
+    o.frequency.setValueAtTime(f1, c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(f2, c.currentTime + dur);
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.start(c.currentTime);
+    o.stop(c.currentTime + dur + 0.05);
+  };
+
+  // Sons específicos
+  return {
+    // Clique padrão — bip curto arcade
+    btn: () => {
+      sweep(440, 880, 0.06, 'square', 0.10);
+    },
+    // Botão principal (iniciar, confirmar)
+    primary: () => {
+      sweep(300, 600, 0.05, 'square', 0.12);
+      setTimeout(() => tone(900, 'square', 0.01, 0.12, 0.08), 60);
+    },
+    // Acerto — som de vitória ascendente
+    acerto: () => {
+      sweep(523, 1046, 0.07, 'square', 0.14);
+      setTimeout(() => sweep(784, 1568, 0.08, 'square', 0.12), 80);
+      setTimeout(() => tone(1047, 'sine', 0.01, 0.18, 0.10), 170);
+    },
+    // Erro — som de falha descendente
+    erro: () => {
+      sweep(300, 80, 0.15, 'sawtooth', 0.14);
+      setTimeout(() => tone(100, 'square', 0.01, 0.12, 0.08), 100);
+    },
+    // Parcial — bip médio neutro
+    parcial: () => {
+      tone(440, 'square', 0.01, 0.10, 0.10);
+      setTimeout(() => tone(550, 'square', 0.01, 0.10, 0.08), 100);
+    },
+    // Pular — whoosh rápido
+    pular: () => {
+      sweep(600, 200, 0.12, 'sine', 0.08);
+    },
+    // Resultado bom (nota > 7) — fanfarra
+    vitoria: () => {
+      const seq = [[523,0],[659,80],[784,160],[1047,240],[784,320],[1047,400]];
+      seq.forEach(([f,t]) => setTimeout(() => tone(f,'square',0.01,0.12,0.12), t));
+    },
+    // Resultado médio (nota 5-7)
+    medio: () => {
+      sweep(440, 660, 0.15, 'square', 0.10);
+      setTimeout(() => tone(550, 'sine', 0.01, 0.20, 0.08), 160);
+    },
+    // Resultado ruim (nota < 5) — derrota
+    derrota: () => {
+      const seq = [[400,0],[350,80],[300,160],[200,280]];
+      seq.forEach(([f,t]) => setTimeout(() => tone(f,'sawtooth',0.01,0.14,0.12), t));
+    },
+    // Navegar entre questões
+    nav: () => {
+      tone(660, 'square', 0.005, 0.06, 0.07);
+    },
+    // Copiar / ação secundária
+    copy: () => {
+      tone(800, 'sine', 0.005, 0.10, 0.08);
+      setTimeout(() => tone(1000, 'sine', 0.005, 0.08, 0.06), 80);
+    },
+  };
+})();
+
+// Adiciona som a todos os botões automaticamente via delegação
+document.addEventListener('click', e => {
+  const btn = e.target.closest('button, .alt, .selector-item, .dot, .pix-copy');
+  if (!btn) return;
+
+  // Sons específicos por contexto (evita duplo som nas funções)
+  if (btn.classList.contains('alt')) return; // responder() toca o som
+  if (btn.classList.contains('dot')) { SFX.nav(); return; }
+  if (btn.classList.contains('pix-copy')) { SFX.copy(); return; }
+  if (btn.classList.contains('selector-item')) { SFX.nav(); return; }
+
+  // Botões principais
+  const isPrimary = btn.classList.contains('btn-roxo') || btn.classList.contains('btn-cyan') || btn.classList.contains('btn-verde');
+  if (isPrimary) SFX.primary();
+  else SFX.btn();
+});
+
 // ═══════════════════════════════════════════
 function irPara(id){
   document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
@@ -2434,6 +2550,10 @@ function responder(idx){
   const q=E.questoes[E.idx];
   const ok=idx===q.correta;
   E.respostas.push({qi:E.idx,tipo:'multipla',resposta:idx,ok,pontos:ok?1:0});
+
+  // 🎮 Som de acerto ou erro
+  if(ok) SFX.acerto(); else SFX.erro();
+
   document.querySelectorAll('.alt').forEach((b,i)=>{
     b.disabled=true;
     if(i===q.correta) b.classList.add('ok');
@@ -2507,6 +2627,11 @@ Responda SOMENTE com JSON:
     const cls=avaliacao.classificacao||'incorreto';
     E.respostas.push({qi:E.idx,tipo:'discursiva',resposta,ok:pontos>0,pontos,classificacao:cls,feedback:avaliacao.feedback});
 
+    // 🎮 Som baseado na correção da IA
+    if(cls==='correto') SFX.acerto();
+    else if(cls==='parcial') SFX.parcial();
+    else SFX.erro();
+
     const fb=document.getElementById('disc-feedback');
     const icone=cls==='correto'?'✅':cls==='parcial'?'⚡':'❌';
     const titulo=cls==='correto'?'CORRETO!':cls==='parcial'?'PARCIALMENTE CORRETO':'INCORRETO';
@@ -2578,13 +2703,15 @@ function proxima(){
 }
 
 function anterior(){
+  SFX.nav();
   if(E.idx > 0){ E.idx--; montarQ(E.idx); window.scrollTo({top:0,behavior:'smooth'}); }
 }
 
 function pular(){
+  SFX.pular();
   E.puladas.add(E.idx);
   if(E.idx < E.questoes.length-1){ E.idx++; montarQ(E.idx); window.scrollTo({top:0,behavior:'smooth'}); }
-  else { mostrarBotoesNav(); } // na última, só atualiza o mapa
+  else { mostrarBotoesNav(); }
 }
 
 function confirmarFinalizar(){
@@ -2635,6 +2762,13 @@ function finalizar(){
 
   // Vai para tela antes de renderizar para garantir que os elementos existem
   irPara('tela-resultado');
+
+  // 🎮 Som do resultado após transição
+  setTimeout(()=>{
+    if(nota>7) SFX.vitoria();
+    else if(nota>=5) SFX.medio();
+    else SFX.derrota();
+  }, 400);
 
   // Renderiza após pequeno delay para garantir que a tela está visível
   setTimeout(()=>{
