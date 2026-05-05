@@ -237,7 +237,7 @@ body::after{
 /* Texto CARREGANDO */
 .lima-splash-loading{
   font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;
-  color:rgba(163,230,53,.6);letter-spacing:3px;text-transform:uppercase;
+  color:rgba(192,132,252,.8);letter-spacing:3px;text-transform:uppercase;
   margin-top:10px;
   animation:floatUp .4s 1.8s ease forwards;opacity:0;
 }
@@ -271,6 +271,13 @@ body::after{
   letter-spacing:2px;
 }
 .game-sub{font-size:.82rem;font-weight:700;color:var(--cinza);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.app-versao{
+  font-family:'Orbitron',monospace;font-size:.58rem;font-weight:700;
+  color:rgba(192,132,252,.45);letter-spacing:3px;text-transform:uppercase;
+  margin-top:6px;
+  border:1px solid rgba(192,132,252,.15);
+  border-radius:20px;padding:3px 12px;display:inline-block;
+}
 
 /* ── CARD GAME ── */
 .card{
@@ -847,7 +854,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
   padding:4px 0 5px;
   background:rgba(8,6,18,.9);
   backdrop-filter:blur(10px);
-  border-top:1px solid rgba(163,230,53,.12);
+  border-top:1px solid rgba(192,132,252,.15);
 }
 #lima-footer .ft-img{
   width:14px;height:14px;border-radius:3px;object-fit:contain;opacity:.7;
@@ -858,11 +865,11 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 }
 #lima-footer .ft-nome{
   font-family:'Orbitron',monospace;font-size:.52rem;font-weight:900;
-  color:rgba(163,230,53,.7);letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(192,132,252,.8);letter-spacing:1.5px;text-transform:uppercase;
 }
 #lima-footer .ft-l{
   font-family:'Orbitron',monospace;font-size:.65rem;font-weight:900;
-  background:linear-gradient(135deg,#a3e635,#84cc16);
+  background:linear-gradient(135deg,#e879f9,#a855f7);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   background-clip:text;
   animation:lGlow 2.5s ease-in-out infinite;
@@ -936,6 +943,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 
   <div class="acesso-titulo">SIMULADO</div>
   <div class="acesso-sub">Acesso Exclusivo</div>
+  <div class="app-versao">v 1.0</div>
 
   <div class="acesso-card">
     <!-- PIX -->
@@ -1174,6 +1182,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
     </div>
     <div class="game-title">SIMULADO</div>
     <div class="game-sub">Powered by AI · Level Up!</div>
+    <div class="app-versao">v 1.0</div>
   </div>
 
   <!-- DADOS DO ALUNO -->
@@ -1181,14 +1190,29 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
     <div class="sec"><div class="ic">👤</div>Player</div>
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
       <div style="position:relative;flex-shrink:0">
-        <div id="foto-wrap" class="foto-ring" onclick="document.getElementById('input-foto').click()">
+      <div style="position:relative;flex-shrink:0">
+        <div id="foto-wrap" class="foto-ring" onclick="clicarFoto()">
           <img id="foto-preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%">
           <div id="foto-placeholder" style="text-align:center">
             <div style="font-size:1.6rem">📷</div>
             <div style="font-size:.6rem;font-weight:800;color:var(--roxo3);margin-top:2px;font-family:'Orbitron',monospace;letter-spacing:.5px">FOTO</div>
           </div>
         </div>
-        <button id="foto-remove" onclick="removerFoto()" style="display:none;position:absolute;top:-4px;right:-4px;width:22px;height:22px;background:var(--vermelho);border-radius:50%;color:#fff;font-size:.7rem;font-weight:800;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg);outline:none">✕</button>
+        <!-- Menu alterar/excluir — aparece ao clicar na foto -->
+        <div id="foto-menu" style="display:none;position:absolute;top:50%;left:calc(100% + 10px);transform:translateY(-50%);
+          background:rgba(15,10,30,.97);border:1px solid rgba(192,132,252,.25);border-radius:12px;
+          overflow:hidden;z-index:100;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.5)">
+          <button onclick="alterarFoto()" style="display:flex;align-items:center;gap:8px;width:100%;padding:11px 14px;
+            background:none;border:none;color:#fff;font-family:'Orbitron',monospace;font-size:.68rem;
+            font-weight:800;cursor:pointer;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,.06)">
+            📷 ALTERAR
+          </button>
+          <button onclick="removerFoto()" style="display:flex;align-items:center;gap:8px;width:100%;padding:11px 14px;
+            background:none;border:none;color:var(--vermelho);font-family:'Orbitron',monospace;font-size:.68rem;
+            font-weight:800;cursor:pointer;letter-spacing:.5px">
+            🗑 EXCLUIR
+          </button>
+        </div>
       </div>
       <div style="flex:1">
         <div style="font-size:.7rem;font-weight:800;color:var(--cinza);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px;font-family:'Orbitron',monospace">Avatar do Aluno</div>
@@ -1406,7 +1430,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
       </select>
     </div>
     <div style="padding:10px 12px;border-radius:10px;font-size:.82rem;font-weight:700;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:var(--verde)">
-      ✅ Gratuito — sem cadastro necessário!
+      💎 Apenas R$ 2,99 — acesso vitalício!
     </div>
   </div>
 
@@ -2023,7 +2047,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulador-de-estudos-v42') await caches.delete(key);
+      if(key !== 'simulador-de-estudos-v43') await caches.delete(key);
     }
   }
 })();
@@ -2123,28 +2147,71 @@ async function clicarInstalar(){
 // ═══════════════════════════════════════════
 // FOTO DO ALUNO
 // ═══════════════════════════════════════════
-let fotoBase64='';
+let fotoBase64 = localStorage.getItem('aluno_foto') || '';
+
+// Carrega foto salva ao iniciar
+(function iniciarFoto(){
+  if(fotoBase64) aplicarFoto(fotoBase64);
+})();
+
+function aplicarFoto(base64){
+  const prev = document.getElementById('foto-preview');
+  if(!prev) return;
+  prev.src = base64;
+  prev.style.display = 'block';
+  document.getElementById('foto-placeholder').style.display = 'none';
+  document.getElementById('foto-wrap').classList.add('tem-foto');
+}
+
 function carregarFoto(e){
-  const file=e.target.files[0]; if(!file) return;
-  const r=new FileReader();
-  r.onload=(ev)=>{
-    fotoBase64=ev.target.result;
-    const prev=document.getElementById('foto-preview');
-    prev.src=fotoBase64; prev.style.display='block';
-    document.getElementById('foto-placeholder').style.display='none';
-    document.getElementById('foto-remove').style.display='flex';
-    document.getElementById('foto-wrap').classList.add('tem-foto');
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = (ev) => {
+    fotoBase64 = ev.target.result;
+    localStorage.setItem('aluno_foto', fotoBase64); // salva no device
+    aplicarFoto(fotoBase64);
+    fecharMenuFoto();
   };
   r.readAsDataURL(file);
 }
-function removerFoto(){
-  fotoBase64='';
-  document.getElementById('foto-preview').style.display='none';
-  document.getElementById('foto-placeholder').style.display='block';
-  document.getElementById('foto-remove').style.display='none';
-  document.getElementById('foto-wrap').classList.remove('tem-foto');
-  document.getElementById('input-foto').value='';
+
+function clicarFoto(){
+  if(fotoBase64){
+    // Tem foto — mostra menu alterar/excluir
+    const menu = document.getElementById('foto-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  } else {
+    // Sem foto — abre seletor direto
+    document.getElementById('input-foto').click();
+  }
 }
+
+function alterarFoto(){
+  document.getElementById('input-foto').click();
+}
+
+function removerFoto(){
+  fotoBase64 = '';
+  localStorage.removeItem('aluno_foto');
+  const prev = document.getElementById('foto-preview');
+  prev.src = ''; prev.style.display = 'none';
+  document.getElementById('foto-placeholder').style.display = 'block';
+  document.getElementById('foto-wrap').classList.remove('tem-foto');
+  document.getElementById('input-foto').value = '';
+  fecharMenuFoto();
+}
+
+function fecharMenuFoto(){
+  const menu = document.getElementById('foto-menu');
+  if(menu) menu.style.display = 'none';
+}
+
+// Fecha menu ao clicar fora
+document.addEventListener('click', e => {
+  if(!e.target.closest('#foto-wrap') && !e.target.closest('#foto-menu')){
+    fecharMenuFoto();
+  }
+});
 
 // ═══════════════════════════════════════════
 // NAVEGAÇÃO
@@ -2961,11 +3028,11 @@ function copiarLink(){
   }).catch(()=>prompt('Copie:',APP_URL));
 }
 function abrirWpp(){
-  const txt=encodeURIComponent(`🎮 *SIMULADO — Estude. Pratique. Evolua.*\n\n🤖 Simulados com IA! Múltipla escolha ou discursiva, fácil ou difícil!\n✅ Gratuito, instala como app!\n\n🔗 ${APP_URL}`);
+  const txt=encodeURIComponent(`🎮 *SIMULADO — Estude. Pratique. Evolua.*\n\n🤖 Simulados com IA! Múltipla escolha ou discursiva, fácil ou difícil!\n💎 Por apenas *R$ 2,99* — acesso vitalício, vale muito a pena!\n\n🔗 ${APP_URL}`);
   window.open(`https://wa.me/?text=${txt}`,'_blank');
 }
 function shareNativo(){
-  navigator.share&&navigator.share({title:'Simulado',text:'Simulados com IA! Grátis.',url:APP_URL});
+  navigator.share&&navigator.share({title:'Simulado',text:'Simulados com IA por apenas R$ 2,99 — acesso vitalício!',url:APP_URL});
 }
 </script>
 </body>
