@@ -480,7 +480,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .alts li{margin-bottom:10px}
 .alt{
   display:flex;align-items:flex-start;gap:12px;width:100%;
-  padding:13px 15px;
+  padding:15px;
   border:1px solid rgba(255,255,255,.1);
   border-radius:var(--rs);
   background:rgba(255,255,255,.04);
@@ -633,7 +633,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 }
 .link-url{flex:1;font-size:.78rem;font-weight:700;color:var(--roxo3);word-break:break-all;font-family:monospace}
 .copy-btn{
-  background:var(--roxo2);color:#fff;border:none;border-radius:8px;
+  background:var(--roxo2);color:#fff;border:none;border-radius:var(--rs);
   padding:8px 13px;font-family:'Orbitron',monospace;font-weight:800;font-size:.75rem;
   cursor:pointer;flex-shrink:0;transition:background .2s;letter-spacing:.5px;
 }
@@ -699,15 +699,15 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .banner-title{font-family:'Orbitron',monospace;font-size:1rem;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:.5px}
 .banner-desc{font-size:.82rem;font-weight:600;color:var(--cinza);line-height:1.4}
 .banner-btns{display:flex;gap:10px}
-#btn-instalar-ok{flex:1;padding:14px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,var(--roxo),var(--roxo2));color:#fff;font-family:'Orbitron',monospace;font-size:.88rem;font-weight:800;cursor:pointer;box-shadow:var(--glow-roxo);letter-spacing:.5px;transition:transform .15s}
+#btn-instalar-ok{flex:1;padding:15px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,var(--roxo),var(--roxo2));color:#fff;font-family:'Orbitron',monospace;font-size:.85rem;font-weight:800;cursor:pointer;box-shadow:var(--glow-roxo);letter-spacing:.5px;transition:transform .15s}
 #btn-instalar-ok:active{transform:scale(.97)}
-#btn-instalar-nao{padding:14px 16px;border:1px solid rgba(255,255,255,.15);border-radius:var(--rs);background:transparent;color:var(--cinza);font-family:'Orbitron',monospace;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap;letter-spacing:.5px}
+#btn-instalar-nao{padding:15px;border:1px solid rgba(255,255,255,.15);border-radius:var(--rs);background:transparent;color:var(--cinza);font-family:'Orbitron',monospace;font-size:.85rem;font-weight:800;cursor:pointer;white-space:nowrap;letter-spacing:.5px}
 .ios-titulo{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:.5px}
 .ios-sub{font-size:.82rem;color:var(--cinza);font-weight:600;margin-bottom:16px}
 .ios-passo{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.88rem;font-weight:700;color:rgba(255,255,255,.85)}
 .ios-passo:last-of-type{border-bottom:none}
 .ios-passo span:first-child{font-size:1.35rem}
-.ios-fechar{width:100%;padding:13px;border:1px solid rgba(255,255,255,.15);border-radius:var(--rs);background:transparent;color:var(--cinza);font-family:'Orbitron',monospace;font-weight:800;font-size:.82rem;cursor:pointer;margin-top:14px;letter-spacing:.5px}
+.ios-fechar{width:100%;padding:15px;border:1px solid rgba(255,255,255,.15);border-radius:var(--rs);background:transparent;color:var(--cinza);font-family:'Orbitron',monospace;font-weight:800;font-size:.85rem;cursor:pointer;margin-top:14px;letter-spacing:.5px}
 
 /* ── MAPA DE QUESTÕES ── */
 .mapa-dot{
@@ -737,7 +737,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .pix-label{font-size:.72rem;font-weight:700;color:var(--cinza);letter-spacing:1px;text-transform:uppercase}
 .pix-chave-wrap{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 12px;margin:10px 0;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .pix-chave-txt{font-family:monospace;font-size:.88rem;font-weight:700;color:var(--branco);word-break:break-all;flex:1}
-.pix-copy{background:var(--verde);color:#fff;border:none;border-radius:6px;padding:6px 10px;font-family:'Orbitron',monospace;font-size:.68rem;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity .2s;letter-spacing:.5px}
+.pix-copy{background:var(--verde);color:#fff;border:none;border-radius:var(--rs);padding:6px 10px;font-family:'Orbitron',monospace;font-size:.68rem;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity .2s;letter-spacing:.5px}
 .pix-copy:active{opacity:.7}
 .pix-instrucao{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.45);line-height:1.5;margin-top:8px}
 .sep{display:flex;align-items:center;gap:10px;margin:16px 0}
@@ -746,7 +746,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 .codigo-input{width:100%;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);border-radius:var(--rs);padding:14px;font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:800;color:var(--branco);outline:none;text-align:center;letter-spacing:5px;text-transform:uppercase;transition:border-color .2s,box-shadow .2s;margin-bottom:8px}
 .codigo-input:focus{border-color:var(--roxo2);box-shadow:var(--glow-roxo)}
 .codigo-erro{font-size:.78rem;font-weight:800;color:var(--vermelho);text-align:center;min-height:18px;margin-bottom:8px;font-family:'Orbitron',monospace;letter-spacing:.5px}
-.wpp-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;font-family:'Orbitron',monospace;font-size:.8rem;font-weight:800;cursor:pointer;letter-spacing:.5px;margin-top:8px;box-shadow:0 0 16px rgba(34,197,94,.3)}
+.wpp-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;font-family:'Orbitron',monospace;font-size:.85rem;font-weight:800;cursor:pointer;letter-spacing:.5px;margin-top:8px;box-shadow:0 0 16px rgba(34,197,94,.3)}
 
 /* ══ LIMA STORE ══ */
 #lima-splash{
@@ -869,7 +869,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 #tela-admin.ativa{display:block;animation:slideUp .3s ease}
 .admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)}
 .admin-titulo{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--roxo3);letter-spacing:1px}
-.admin-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 14px;color:var(--cinza);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:800;cursor:pointer;letter-spacing:.5px}
+.admin-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--rs);padding:8px 14px;color:var(--cinza);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:800;cursor:pointer;letter-spacing:.5px}
 .codigo-item{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:var(--rs);padding:13px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .codigo-item.usado{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2)}
 .codigo-item.revogado{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.15);opacity:.6}
@@ -1085,7 +1085,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 
       <button class="btn btn-ghost" onclick="logoutAdmin()" style="font-size:.82rem">↩ SAIR DO ADMIN</button>
       <button onclick="revogarMeuAcesso()"
-        style="width:100%;margin-top:8px;padding:12px;border:1px solid rgba(239,68,68,.3);border-radius:var(--rs);background:rgba(239,68,68,.08);color:var(--vermelho);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:800;cursor:pointer;letter-spacing:.5px">
+        style="width:100%;margin-top:8px;padding:15px;border:1px solid rgba(239,68,68,.3);border-radius:var(--rs);background:rgba(239,68,68,.08);color:var(--vermelho);font-family:'Orbitron',monospace;font-size:.85rem;font-weight:800;cursor:pointer;letter-spacing:.5px">
         🔓 VER TELA DE BLOQUEIO
       </button>
     </div>
@@ -1413,7 +1413,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
       </div>
     </div>
     <button id="btn-instalar-card" onclick="clicarInstalar()"
-      style="width:100%;padding:14px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,var(--roxo),var(--roxo2));color:#fff;font-family:'Orbitron',monospace;font-size:.88rem;font-weight:800;cursor:pointer;box-shadow:var(--glow-roxo);letter-spacing:.5px">
+      style="width:100%;padding:15px;border:none;border-radius:var(--rs);background:linear-gradient(135deg,var(--roxo),var(--roxo2));color:#fff;font-family:'Orbitron',monospace;font-size:.85rem;font-weight:800;cursor:pointer;box-shadow:var(--glow-roxo);letter-spacing:.5px">
       ⬇ INSTALAR NA TELA INICIAL
     </button>
     <div id="instalar-instrucao" style="display:none;margin-top:12px;padding:12px;background:rgba(255,255,255,.05);border-radius:var(--rs);font-size:.88rem;font-weight:600;color:rgba(255,255,255,.7);line-height:1.6;border:1px solid rgba(255,255,255,.08)">
@@ -2016,7 +2016,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulador-de-estudos-v40') await caches.delete(key);
+      if(key !== 'simulador-de-estudos-v41') await caches.delete(key);
     }
   }
 })();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simulador-de-estudos-v40';
+const CACHE_NAME = 'simulador-de-estudos-v41';
 const ASSETS = [
   '/Simulador-de-estudos/',
   '/Simulador-de-estudos/index.html',
