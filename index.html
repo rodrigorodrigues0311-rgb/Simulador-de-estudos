@@ -1430,9 +1430,6 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
         <option value="20">20 questões</option>
       </select>
     </div>
-    <div style="padding:10px 12px;border-radius:10px;font-size:.82rem;font-weight:700;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:var(--verde)">
-      💎 Apenas R$ 2,99 — acesso vitalício!
-    </div>
   </div>
 
   <!-- CARD INSTALAR -->
@@ -2048,7 +2045,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulador-de-estudos-v44') await caches.delete(key);
+      if(key !== 'simulador-de-estudos-v45') await caches.delete(key);
     }
   }
 })();
