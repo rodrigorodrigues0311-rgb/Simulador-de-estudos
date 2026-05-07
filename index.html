@@ -682,7 +682,54 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
 }
 #fab-share:active{transform:scale(.9)}
 
-/* ── BOTÃO MUDO ── */
+/* ── PROGRESSO ── */
+.prog-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.prog-stat-card{
+  background:rgba(255,255,255,.04);border:1px solid rgba(192,132,252,.12);
+  border-radius:14px;padding:16px 12px;text-align:center;
+}
+.prog-stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:1.1rem;margin:0 auto 8px}
+.prog-stat-val{font-family:'Orbitron',monospace;font-size:1.35rem;font-weight:900;
+  color:#e9d5ff;line-height:1}
+.prog-stat-lbl{font-size:.65rem;color:var(--cinza);margin-top:4px;letter-spacing:.5px;text-transform:uppercase;font-weight:700}
+.prog-filtro{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px}
+.prog-filtro-btn{
+  flex-shrink:0;padding:7px 16px;border-radius:20px;border:1px solid rgba(192,132,252,.2);
+  background:rgba(255,255,255,.04);color:var(--cinza);
+  font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;cursor:pointer;
+  letter-spacing:.5px;transition:all .2s;white-space:nowrap;
+}
+.prog-filtro-btn.ativo{
+  background:rgba(124,58,237,.25);border-color:var(--roxo2);color:#e9d5ff;
+}
+.prog-vazio{padding:28px 16px;text-align:center;color:var(--cinza);font-size:.85rem;line-height:1.6}
+.prog-item{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.05);cursor:default;
+}
+.prog-item:last-child{border-bottom:none}
+.prog-item-icon{
+  width:40px;height:40px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+}
+.prog-item-info{flex:1;min-width:0}
+.prog-item-disc{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:800;
+  color:var(--branco);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog-item-sub{font-size:.68rem;color:var(--cinza);margin-top:2px}
+.prog-item-nota{text-align:right;flex-shrink:0}
+.prog-item-pct{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:900}
+.prog-item-data{font-size:.62rem;color:var(--cinza);margin-top:2px}
+.prog-top-item{display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.05)}
+.prog-top-item:last-child{border-bottom:none}
+.prog-top-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.prog-top-bar{height:100%;border-radius:3px;
+  background:linear-gradient(90deg,#7c3aed,#e879f9);transition:width .6s ease}
+.prog-top-nome{font-size:.75rem;color:var(--branco);font-weight:600;min-width:0;
+  flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog-top-val{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:800;
+  color:#c084fc;flex-shrink:0}
 #btn-mudo{
   position:fixed;bottom:22px;left:16px;z-index:900;
   background:rgba(15,10,30,.85);backdrop-filter:blur(8px);
@@ -1451,7 +1498,12 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
     </div>
   </div>
 
-  <button class="btn btn-roxo" onclick="iniciar()">▶ INICIAR SIMULADO</button>
+  <div style="display:grid;grid-template-columns:1fr auto;gap:10px">
+    <button class="btn btn-roxo" onclick="iniciar()">▶ INICIAR SIMULADO</button>
+    <button class="btn" onclick="abrirProgresso()" title="Meu Progresso"
+      style="background:rgba(192,132,252,.12);border:1.5px solid rgba(192,132,252,.3);
+      color:#c084fc;min-width:52px;font-size:1.2rem;padding:15px 14px">📊</button>
+  </div>
   <button class="btn btn-ghost" style="margin-top:8px" onclick="irPara('tela-compartilhar')">🔗 COMPARTILHAR APP</button>
   <div style="height:32px"></div>
 </div>
@@ -1590,6 +1642,68 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25)}
   </div>
 
   <button class="btn btn-ghost" onclick="irPara('tela-inicio')">← VOLTAR</button>
+  <div style="height:28px"></div>
+</div>
+
+<!-- ══════════ TELA PROGRESSO ══════════ -->
+<div id="tela-progresso" class="tela">
+  <div class="game-header">
+    <div class="game-title" style="font-size:1.2rem">📊 MEU PROGRESSO</div>
+    <div class="game-sub">Acompanhe sua evolução</div>
+  </div>
+
+  <!-- Cards de estatísticas -->
+  <div class="prog-stats-grid">
+    <div class="prog-stat-card">
+      <div class="prog-stat-icon" style="background:linear-gradient(135deg,#1e1040,#5b21b6)">📋</div>
+      <div class="prog-stat-val" id="pg-total">0</div>
+      <div class="prog-stat-lbl">Simulados</div>
+    </div>
+    <div class="prog-stat-card">
+      <div class="prog-stat-icon" style="background:linear-gradient(135deg,#0f2040,#0e7490)">❓</div>
+      <div class="prog-stat-val" id="pg-questoes">0</div>
+      <div class="prog-stat-lbl">Questões</div>
+    </div>
+    <div class="prog-stat-card">
+      <div class="prog-stat-icon" style="background:linear-gradient(135deg,#1a0a30,#9333ea)">🎯</div>
+      <div class="prog-stat-val" id="pg-taxa">0%</div>
+      <div class="prog-stat-lbl">Taxa Acertos</div>
+    </div>
+    <div class="prog-stat-card">
+      <div class="prog-stat-icon" style="background:linear-gradient(135deg,#1a200a,#15803d)">⭐</div>
+      <div class="prog-stat-val" id="pg-media">0.0</div>
+      <div class="prog-stat-lbl">Nota Média</div>
+    </div>
+  </div>
+
+  <!-- Filtro -->
+  <div class="prog-filtro">
+    <button class="prog-filtro-btn ativo" onclick="filtrarHistorico('todos',this)">Todos</button>
+    <button class="prog-filtro-btn" onclick="filtrarHistorico('medio',this)">Nível Médio</button>
+    <button class="prog-filtro-btn" onclick="filtrarHistorico('superior',this)">Superior</button>
+  </div>
+
+  <!-- Histórico -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="sec" style="padding:14px 16px 10px;border-bottom:1px solid rgba(255,255,255,.06)">
+      <div class="ic">🕐</div>Últimos Simulados
+    </div>
+    <div id="prog-lista">
+      <div class="prog-vazio">Nenhum simulado realizado ainda.<br>Faça seu primeiro simulado! 🚀</div>
+    </div>
+  </div>
+
+  <!-- Melhor desempenho por disciplina -->
+  <div class="card" id="prog-top-card" style="display:none">
+    <div class="sec"><div class="ic">🏆</div>Melhores Disciplinas</div>
+    <div id="prog-top-lista"></div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:4px">
+    <button class="btn btn-ghost" style="flex:1" onclick="irPara('tela-inicio')">← VOLTAR</button>
+    <button class="btn" style="flex:1;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--vermelho)"
+      onclick="confirmarLimparHistorico()">🗑 LIMPAR</button>
+  </div>
   <div style="height:28px"></div>
 </div>
 
@@ -2045,7 +2159,7 @@ function limparUsados(){
   if('caches' in window){
     const keys = await caches.keys();
     for(const key of keys){
-      if(key !== 'simulador-de-estudos-v45') await caches.delete(key);
+      if(key !== 'simulador-de-estudos-v46') await caches.delete(key);
     }
   }
 })();
@@ -2383,6 +2497,121 @@ document.addEventListener('click', e => {
                     btn.classList.contains('btn-verde');
   if (isPrimary) SFX.primary(); else SFX.btn();
 });
+
+// ═══════════════════════════════════════════
+// 📊 SISTEMA DE PROGRESSO
+// ═══════════════════════════════════════════
+const HIST_KEY = 'simulado_historico';
+
+function carregarHistorico(){
+  try{ return JSON.parse(localStorage.getItem(HIST_KEY)) || []; }
+  catch(e){ return []; }
+}
+
+function salvarNoHistorico(entrada){
+  const hist = carregarHistorico();
+  hist.unshift(entrada); // mais recente primeiro
+  if(hist.length > 100) hist.pop(); // limite 100 simulados
+  localStorage.setItem(HIST_KEY, JSON.stringify(hist));
+}
+
+function abrirProgresso(){
+  SFX.btn();
+  renderizarProgresso('todos');
+  irPara('tela-progresso');
+}
+
+function filtrarHistorico(filtro, btnEl){
+  document.querySelectorAll('.prog-filtro-btn').forEach(b => b.classList.remove('ativo'));
+  if(btnEl) btnEl.classList.add('ativo');
+  renderizarProgresso(filtro);
+}
+
+function renderizarProgresso(filtro){
+  let hist = carregarHistorico();
+  if(filtro === 'medio')    hist = hist.filter(h => h.nivelEnsino === 'medio');
+  if(filtro === 'superior') hist = hist.filter(h => h.nivelEnsino === 'superior');
+
+  // Stats gerais (sempre do total)
+  const todos = carregarHistorico();
+  const totalSims  = todos.length;
+  const totalQs    = todos.reduce((s,h) => s + (h.qtd||0), 0);
+  const mediaAcert = totalSims === 0 ? 0
+    : Math.round(todos.reduce((s,h) => s + (h.taxa||0), 0) / totalSims);
+  const mediaNota  = totalSims === 0 ? 0
+    : (todos.reduce((s,h) => s + (h.nota||0), 0) / totalSims).toFixed(1);
+
+  document.getElementById('pg-total').textContent    = totalSims;
+  document.getElementById('pg-questoes').textContent = totalQs;
+  document.getElementById('pg-taxa').textContent     = mediaAcert + '%';
+  document.getElementById('pg-media').textContent    = mediaNota;
+
+  // Lista de simulados
+  const lista = document.getElementById('prog-lista');
+  if(hist.length === 0){
+    lista.innerHTML = `<div class="prog-vazio">Nenhum simulado encontrado.<br>${filtro !== 'todos' ? 'Tente o filtro "Todos".' : 'Faça seu primeiro simulado! 🚀'}</div>`;
+  } else {
+    lista.innerHTML = hist.slice(0, 30).map(h => {
+      const cor  = h.nota > 7 ? '#10b981' : h.nota >= 5 ? '#f59e0b' : '#ef4444';
+      const icon = h.nivelEnsino === 'superior' ? '🎓' : '🏫';
+      const bg   = h.nota > 7
+        ? 'background:linear-gradient(135deg,#0a2018,#065f46)'
+        : h.nota >= 5
+          ? 'background:linear-gradient(135deg,#1a1206,#78350f)'
+          : 'background:linear-gradient(135deg,#1a0608,#7f1d1d)';
+      const sub  = h.nivelEnsino === 'superior'
+        ? `${h.graduacao} · ${h.periodo}`
+        : `${h.serie} · ${h.bimestre}`;
+      return `
+        <div class="prog-item">
+          <div class="prog-item-icon" style="${bg}">${icon}</div>
+          <div class="prog-item-info">
+            <div class="prog-item-disc">${h.disciplina}</div>
+            <div class="prog-item-sub">${sub} · ${h.qtd}Q · ${h.modo === 'multipla' ? '🎯' : '✍️'}</div>
+          </div>
+          <div class="prog-item-nota">
+            <div class="prog-item-pct" style="color:${cor}">${h.taxa}%</div>
+            <div class="prog-item-data">${h.data}</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // Top disciplinas
+  const topCard = document.getElementById('prog-top-card');
+  if(todos.length === 0){ topCard.style.display = 'none'; return; }
+
+  // Agrupa por disciplina — média de nota
+  const map = {};
+  todos.forEach(h => {
+    if(!map[h.disciplina]) map[h.disciplina] = {total:0, count:0};
+    map[h.disciplina].total += h.nota;
+    map[h.disciplina].count++;
+  });
+  const tops = Object.entries(map)
+    .map(([d,v]) => ({disc:d, media:(v.total/v.count).toFixed(1)}))
+    .sort((a,b) => b.media - a.media)
+    .slice(0, 5);
+
+  topCard.style.display = 'block';
+  document.getElementById('prog-top-lista').innerHTML = tops.map((t,i) => `
+    <div class="prog-top-item">
+      <span style="font-size:.8rem;min-width:18px;color:#a855f7;font-weight:800">${i+1}</span>
+      <div class="prog-top-nome">${t.disc}</div>
+      <div class="prog-top-bar-wrap">
+        <div class="prog-top-bar" style="width:${Math.round(t.media*10)}%"></div>
+      </div>
+      <div class="prog-top-val">${t.media}</div>
+    </div>`).join('');
+}
+
+function confirmarLimparHistorico(){
+  if(confirm('Apagar todo o histórico de simulados?\n\nEssa ação não pode ser desfeita.')){
+    localStorage.removeItem(HIST_KEY);
+    SFX.erro();
+    renderizarProgresso('todos');
+  }
+}
 
 // ═══════════════════════════════════════════
 function irPara(id){
@@ -2887,6 +3116,24 @@ function finalizar(){
   const acertos=E.respostas.filter(r=>r.ok).length;
   const parciais=E.respostas.filter(r=>r.classificacao==='parcial').length;
   const puladas=E.respostas.filter(r=>r.resposta===null).length;
+
+  // 💾 Salva no histórico de progresso
+  salvarNoHistorico({
+    data:   new Date().toLocaleDateString('pt-BR'),
+    nome:   E.nome,
+    nota:   nota,
+    taxa:   Math.round((pontos/tot)*100),
+    qtd:    tot,
+    modo:   E.modo,
+    nivel:  E.nivel,
+    nivelEnsino: E.nivelEnsino,
+    disciplina:  E.disciplina,
+    serie:       E.serie || '',
+    bimestre:    E.bimestre || '',
+    graduacao:   E.graduacao || '',
+    periodo:     E.periodo || '',
+    acertos, parciais, puladas
+  });
 
   let emoji,cls,pct,msg;
   if(nota>7){
